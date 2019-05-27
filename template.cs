@@ -61,11 +61,12 @@ namespace Template
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if( keyboard[OpenTK.Input.Key.Escape] ) terminated = true;
+            Title = "FPS: " + (int)(1/e.Time) + " Camera pos: " + MyApplication.camera.position;
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
 			// called once per frame; render
-			app.Tick();
+			app.Tick(e.Time);
 			if( terminated )
 			{
 				Exit();

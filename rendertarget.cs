@@ -1,14 +1,11 @@
 ﻿using System;
-using OpenTK;
-using OpenTK.Input;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 // based on http://www.opentk.com/doc/graphics/frame-buffer-objects
 
 namespace Template
 {
-	class RenderTarget
+    class RenderTarget
 	{
 		uint fbo;
 		int colorTexture;

@@ -8,7 +8,6 @@ namespace Template
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
 		Mesh mesh, floor;                       // a mesh to draw using OpenGL
-		const float PI = 3.1415926535f;         // PI
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
 		Shader shader;                          // shader to use for rendering
@@ -16,6 +15,7 @@ namespace Template
 		Texture wood;                           // texture to use for rendering
 		RenderTarget target;                    // intermediate render target
 		ScreenQuad quad;                        // screen filling quad for post processing
+        public static Camera camera;
 		bool useRenderTarget = true;
 
 		// initialize
@@ -36,13 +36,15 @@ namespace Template
 			// create the render target
 			target = new RenderTarget( screen.width, screen.height );
 			quad = new ScreenQuad();
+            camera = new Camera(new Vector3(0, -15, 0));
 		}
 
 		// tick for background surface
-		public void Tick()
+		public void Tick(double deltaTime)
 		{
 			screen.Clear( 0 );
 			screen.Print( "hello world", 2, 2, 0xffff00 );
+            camera.ProcessInput((float)deltaTime);
 		}
 
 		// tick for OpenGL rendering code
@@ -54,15 +56,16 @@ namespace Template
 			timer.Start();
 
 			// prepare matrix for vertex shader
-			float angle90degrees = PI / 2;
+			float angle90degrees = MathHelper.Pi / 2;
 			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3( 0, -14.5f, 0 ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
-			Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
+            //Matrix4 Tcamera = Matrix4.CreateTranslation(camera.position) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
+            Matrix4 Tcamera = camera.GetTransform();
+            Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
 
 			// update rotation
-			a += 0.001f * frameDuration;
-			if( a > 2 * PI ) a -= 2 * PI;
+			//a += 0.001f * frameDuration;
+			//if( a > 2 * MathHelper.Pi) a -= 2 * MathHelper.Pi;
 
 			if( useRenderTarget )
 			{

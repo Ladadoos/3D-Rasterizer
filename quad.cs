@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace Template
 {
-	public class ScreenQuad
+    public class ScreenQuad
 	{
 		// data members
 		int vbo_idx = 0, vbo_vert = 0;
