@@ -27,7 +27,7 @@ void main()
    vec3 norm = normalize(normal.xyz);
    vec3 toLightDir = lightPosition - pos.xyz;
    float toLightDist = length(toLightDir);
-   float lightAttenuation = 1 / (toLightDist) * 10;
+   float lightAttenuation = 1 / (toLightDist) * 25;
    toLightDir *= (1 / toLightDist); //normalize
    float diff = max(dot(norm.xyz, toLightDir), 0);
    vec3 diffuse = diff * lightColor;

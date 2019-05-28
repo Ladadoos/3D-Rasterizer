@@ -23,8 +23,8 @@ namespace Template
             teapot1 = new Model("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
             teapot2 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 20), Vector3.Zero, Vector3.One);
             teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, Vector3.One);
-            floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
-            Light light = new Light(string.Empty, new Vector3(20, 5, 20), Vector3.Zero, Vector3.One);
+            floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(4, 4, 4));
+            Light light = new Light(string.Empty, new Vector3(4, 5, 4), Vector3.Zero, Vector3.One);
             light.color = new Vector3(0.8F, 0.8F, 0.8F);
 
             // create shaders
