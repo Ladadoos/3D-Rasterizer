@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK;
 
@@ -7,7 +8,7 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
-		Mesh mesh, floor;                       // a mesh to draw using OpenGL
+		Mesh teapot1, floor, teapot2, teapot3;           // a mesh to draw using OpenGL
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
 		Shader shader;                          // shader to use for rendering
@@ -16,14 +17,12 @@ namespace Template
 		RenderTarget target;                    // intermediate render target
 		ScreenQuad quad;                        // screen filling quad for post processing
         public static Camera camera;
+        SceneGraph sceneGraph;
 		bool useRenderTarget = true;
 
 		// initialize
 		public void Init()
 		{
-			// load teapot
-			mesh = new Mesh( "../../assets/teapot.obj" );
-			floor = new Mesh( "../../assets/floor.obj" );
 			// initialize stopwatch
 			timer = new Stopwatch();
 			timer.Reset();
@@ -37,7 +36,22 @@ namespace Template
 			target = new RenderTarget( screen.width, screen.height );
 			quad = new ScreenQuad();
             camera = new Camera(new Vector3(0, -15, 0));
-		}
+            sceneGraph = new SceneGraph();
+
+            teapot1 = new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
+            teapot2 = new Mesh("../../assets/teapot.obj", new Vector3(0, 0, 20), Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
+            teapot3 = new Mesh("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
+            floor = new Mesh("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(4, 4, 4));
+
+            GraphNode<Mesh> root = new GraphNode<Mesh>(teapot1);
+            GraphNode<Mesh> child = new GraphNode<Mesh>(teapot2);
+            GraphNode<Mesh> child2 = new GraphNode<Mesh>(teapot3);
+            child.AddChild(child2);
+            root.AddChild(child);          
+            sceneGraph.hierarchy = new GraphTree<Mesh>();
+            sceneGraph.hierarchy.rootNodes.Add(root);
+            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<Mesh>(floor));
+        }
 
 		// tick for background surface
 		public void Tick(double deltaTime)
@@ -55,26 +69,20 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 
-			// prepare matrix for vertex shader
-			float angle90degrees = MathHelper.Pi / 2;
-			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-            //Matrix4 Tcamera = Matrix4.CreateTranslation(camera.position) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
-            Matrix4 Tcamera = camera.GetTransform();
-            Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
-
 			// update rotation
-			//a += 0.001f * frameDuration;
-			//if( a > 2 * MathHelper.Pi) a -= 2 * MathHelper.Pi;
+			a += 0.05f * frameDuration;
+			if( a > 360) { a -= 360; }
+            teapot1.rotationInAngle.Y = a;
+            teapot3.rotationInAngle.Y = a;
+            teapot2.rotationInAngle.Y = a;
 
-			if( useRenderTarget )
+            if ( useRenderTarget )
 			{
 				// enable render target
 				target.Bind();
 
-				// render scene to render target
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood );
+                // render scene to render target
+                sceneGraph.Render(camera, shader, wood);
 
 				// render quad
 				target.Unbind();
@@ -82,10 +90,9 @@ namespace Template
 			}
 			else
 			{
-				// render scene directly to the screen
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood );
-			}
+                // render scene directly to the screen
+                sceneGraph.Render(camera, shader, wood);
+            }
 		}
 	}
 }

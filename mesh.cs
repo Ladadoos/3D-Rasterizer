@@ -5,25 +5,54 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Template
 {
-	// mesh and loader based on work by JTalton; http://www.opentk.com/node/642
+    // mesh and loader based on work by JTalton; http://www.opentk.com/node/642
 
-	public class Mesh
-	{
-		// data members
-		public ObjVertex[] vertices;            // vertex positions, model space
-		public ObjTriangle[] triangles;         // triangles (3 vertex indices)
-		public ObjQuad[] quads;                 // quads (4 vertex indices)
-		int vertexBufferId;                     // vertex buffer
-		int triangleBufferId;                   // triangle buffer
-		int quadBufferId;                       // quad buffer
-        public Matrix4 modelMatrix;
+    public class Mesh
+    {
+        // data members
+        public ObjVertex[] vertices;            // vertex positions, model space
+        public ObjTriangle[] triangles;         // triangles (3 vertex indices)
+        public ObjQuad[] quads;                 // quads (4 vertex indices)
+        int vertexBufferId;                     // vertex buffer
+        int triangleBufferId;                   // triangle buffer
+        int quadBufferId;                       // quad buffer
 
-		// constructor
-		public Mesh( string fileName )
+        public Vector3 position;
+        public Vector3 rotationInAngle;
+        public Vector3 scale;
+
+        public Matrix4 GetTransformationMatrix()
+        {
+            return GetScaleMatrix() * GetRotationMatrix() * GetTranslationMatrix();
+        }
+
+        public Matrix4 GetScaleMatrix()
+        {
+            return Matrix4.CreateScale(scale);
+        }
+
+        public Matrix4 GetRotationMatrix()
+        {
+            return Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotationInAngle.X)) *
+                Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotationInAngle.Y)) *
+                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotationInAngle.Z));
+        }
+
+        public Matrix4 GetTranslationMatrix()
+        {
+            return Matrix4.CreateTranslation(position);
+        }
+
+        // constructor
+        public Mesh( string fileName, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
 		{
 			MeshLoader loader = new MeshLoader();
 			loader.Load( this, fileName );
-		}
+
+            this.position = position;
+            this.rotationInAngle = rotationInAngle;
+            this.scale = scale;
+        }
 
 		// initialization; called during first render
 		public void Prepare( Shader shader )

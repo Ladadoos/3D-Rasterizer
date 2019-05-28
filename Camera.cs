@@ -11,20 +11,28 @@ namespace Template
 
         private float movementSpeed = 50;
         private float zoomSpeed = 100;
-        private float rotationSpeed = 50;
+        private float rotationSpeed = 150;
 
         private int prevMouseWheelValue = 0;
+
+        private Matrix4 projectionMatrix;
 
         public Camera(Vector3 position)
         {
             this.position = position;
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, .1f, 1000);
         }
 
-        public Matrix4 GetTransform()
+        public Matrix4 GetViewMatrix()
         {
             return Matrix4.CreateTranslation(position) *
                    Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(rotationAngle)) *
                    Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(90));
+        }
+
+        public Matrix4 GetProjectionMatrix()
+        {
+            return projectionMatrix;
         }
 
         public void ProcessInput(float deltaTime)
