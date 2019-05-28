@@ -31,5 +31,3 @@ void main()
 {
 	vignette();
 }
-
-// EOF
