@@ -27,7 +27,7 @@ namespace Template
         {
             return Matrix4.CreateTranslation(position) *
                    Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(rotationAngle)) *
-                   Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(90));
+                   Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(45));
         }
 
         public Matrix4 GetProjectionMatrix()

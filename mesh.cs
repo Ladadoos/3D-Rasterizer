@@ -17,41 +17,11 @@ namespace Template
         int triangleBufferId;                   // triangle buffer
         int quadBufferId;                       // quad buffer
 
-        public Vector3 position;
-        public Vector3 rotationInAngle;
-        public Vector3 scale;
-
-        public Matrix4 GetTransformationMatrix()
-        {
-            return GetScaleMatrix() * GetRotationMatrix() * GetTranslationMatrix();
-        }
-
-        public Matrix4 GetScaleMatrix()
-        {
-            return Matrix4.CreateScale(scale);
-        }
-
-        public Matrix4 GetRotationMatrix()
-        {
-            return Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotationInAngle.X)) *
-                Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotationInAngle.Y)) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotationInAngle.Z));
-        }
-
-        public Matrix4 GetTranslationMatrix()
-        {
-            return Matrix4.CreateTranslation(position);
-        }
-
         // constructor
-        public Mesh( string fileName, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
+        public Mesh( string fileName)
 		{
 			MeshLoader loader = new MeshLoader();
 			loader.Load( this, fileName );
-
-            this.position = position;
-            this.rotationInAngle = rotationInAngle;
-            this.scale = scale;
         }
 
 		// initialization; called during first render
@@ -77,7 +47,7 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( ModelShader shader, Matrix4 transform, Texture texture )
+		public void Render( ModelShader shader, Matrix4 transform, Matrix4 viewproj, Texture texture )
 		{
 			// on first run, prepare buffers
 			Prepare( shader );
@@ -86,8 +56,7 @@ namespace Template
 			GL.PushClientAttrib( ClientAttribMask.ClientVertexArrayBit );
 
 			// enable texture
-			int texLoc = GL.GetUniformLocation( shader.programID, "pixels" );
-			GL.Uniform1( texLoc, 0 );
+			GL.Uniform1( shader.uniform_pixels, 0 );
 			GL.ActiveTexture( TextureUnit.Texture0 );
 			GL.BindTexture( TextureTarget.Texture2D, texture.id );
 
@@ -96,9 +65,10 @@ namespace Template
 
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
+            GL.UniformMatrix4(shader.uniform_mviewproj, false, ref viewproj);
 
-			// enable position, normal and uv attributes
-			GL.EnableVertexAttribArray( shader.attribute_vpos );
+            // enable position, normal and uv attributes
+            GL.EnableVertexAttribArray( shader.attribute_vpos );
 			GL.EnableVertexAttribArray( shader.attribute_vnrm );
 			GL.EnableVertexAttribArray( shader.attribute_vuvs );
 

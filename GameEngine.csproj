@@ -47,10 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
-    <Compile Include="GameObject.cs" />
+    <Compile Include="objects\GameObject.cs" />
     <Compile Include="mesh.cs" />
     <Compile Include="meshLoader.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="objects\Light.cs" />
+    <Compile Include="objects\Model.cs" />
     <Compile Include="MyApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="quad.cs" />

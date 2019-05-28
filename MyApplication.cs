@@ -1,14 +1,12 @@
-using System.Collections.Generic;
-using System.Diagnostics;
 using OpenTK;
 
 namespace Template
 {
-	class MyApplication
+    class MyApplication
 	{
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
-		Mesh teapot1, floor, teapot2, teapot3;           // a mesh to draw using OpenGL
+        Model teapot1, teapot2, teapot3, floor;
 		float a = 0;                            // teapot rotation angle
 		ModelShader modelShader;                          // shader to use for rendering
 		PostProcessingShader postproc;                        // shader to use for post processing
@@ -22,9 +20,17 @@ namespace Template
 		// initialize
 		public void Init()
 		{
+            teapot1 = new Model("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
+            teapot2 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 20), Vector3.Zero, Vector3.One);
+            teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, Vector3.One);
+            floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
+            Light light = new Light(string.Empty, new Vector3(20, 5, 20), Vector3.Zero, Vector3.One);
+            light.color = new Vector3(0.8F, 0.8F, 0.8F);
+
             // create shaders
             modelShader = new ModelShader();
             postproc = new PostProcessingShader();
+
 			// load a texture
 			wood = new Texture( "../../assets/wood.jpg" );
 			// create the render target
@@ -33,19 +39,16 @@ namespace Template
             camera = new Camera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
 
-            teapot1 = new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
-            teapot2 = new Mesh("../../assets/teapot.obj", new Vector3(0, 0, 20), Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
-            teapot3 = new Mesh("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, new Vector3(0.5F, 0.5F, 0.5F));
-            floor = new Mesh("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(4, 4, 4));
-
-            GraphNode<Mesh> root = new GraphNode<Mesh>(teapot1);
-            GraphNode<Mesh> child = new GraphNode<Mesh>(teapot2);
-            GraphNode<Mesh> child2 = new GraphNode<Mesh>(teapot3);
+            GraphNode<GameObject> root = new GraphNode<GameObject>(teapot1);
+            GraphNode<GameObject> child = new GraphNode<GameObject>(teapot2);
+            GraphNode<GameObject> child2 = new GraphNode<GameObject>(teapot3);
             child.AddChild(child2);
             root.AddChild(child);          
-            sceneGraph.hierarchy = new GraphTree<Mesh>();
+            sceneGraph.hierarchy = new GraphTree<GameObject>();
             sceneGraph.hierarchy.rootNodes.Add(root);
-            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<Mesh>(floor));
+            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
+            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(light));
+            sceneGraph.lights.Add(light);
         }
 
 		// tick for background surface
@@ -60,7 +63,7 @@ namespace Template
 		public void RenderGL(float deltaTime)
 		{
 			// update rotation
-			a += 50f * deltaTime;
+			a += 1f * deltaTime;
 			if( a > 360) { a -= 360; }
             teapot1.rotationInAngle.Y = a;
             teapot3.rotationInAngle.Y = a;

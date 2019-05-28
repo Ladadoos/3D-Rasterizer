@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace Template
@@ -29,6 +30,41 @@ namespace Template
         protected abstract void GetAllVariableLocations();
 
         protected abstract void DefineShaderDirectories();
+
+        public void LoadFloat(int location, float value)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(location, value);
+            GL.UseProgram(0);
+        }
+
+        public void LoadInt32(int location, int value)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(location, value);
+            GL.UseProgram(0);
+        }
+
+        public void LoadVector3(int location, Vector3 vector)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform3(location, vector);
+            GL.UseProgram(0);
+        }
+
+        public void LoadBoolean(int location, bool value)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(location, value ? 1 : 0);
+            GL.UseProgram(0);
+        }
+
+        public void LoadMatrix(int location, Matrix4 matrix)
+        {
+            GL.UseProgram(programID);
+            GL.UniformMatrix4(location, false, ref matrix);
+            GL.UseProgram(0);
+        }
 
         // loading shaders
         void Load(String filename, ShaderType type, int program, out int ID)
