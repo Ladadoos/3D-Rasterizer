@@ -10,9 +10,8 @@ namespace Template
 		public Surface screen;                  // background surface for printing etc.
 		Mesh teapot1, floor, teapot2, teapot3;           // a mesh to draw using OpenGL
 		float a = 0;                            // teapot rotation angle
-		Stopwatch timer;                        // timer for measuring frame duration
-		Shader shader;                          // shader to use for rendering
-		Shader postproc;                        // shader to use for post processing
+		ModelShader modelShader;                          // shader to use for rendering
+		PostProcessingShader postproc;                        // shader to use for post processing
 		Texture wood;                           // texture to use for rendering
 		RenderTarget target;                    // intermediate render target
 		ScreenQuad quad;                        // screen filling quad for post processing
@@ -23,13 +22,9 @@ namespace Template
 		// initialize
 		public void Init()
 		{
-			// initialize stopwatch
-			timer = new Stopwatch();
-			timer.Reset();
-			timer.Start();
-			// create shaders
-			shader = new Shader( "../../shaders/vs.glsl", "../../shaders/fs.glsl" );
-			postproc = new Shader( "../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl" );
+            // create shaders
+            modelShader = new ModelShader();
+            postproc = new PostProcessingShader();
 			// load a texture
 			wood = new Texture( "../../assets/wood.jpg" );
 			// create the render target
@@ -54,23 +49,18 @@ namespace Template
         }
 
 		// tick for background surface
-		public void Tick(double deltaTime)
+		public void Tick(float deltaTime)
 		{
 			screen.Clear( 0 );
 			screen.Print( "hello world", 2, 2, 0xffff00 );
-            camera.ProcessInput((float)deltaTime);
+            camera.ProcessInput(deltaTime);
 		}
 
 		// tick for OpenGL rendering code
-		public void RenderGL()
+		public void RenderGL(float deltaTime)
 		{
-			// measure frame duration
-			float frameDuration = timer.ElapsedMilliseconds;
-			timer.Reset();
-			timer.Start();
-
 			// update rotation
-			a += 0.05f * frameDuration;
+			a += 50f * deltaTime;
 			if( a > 360) { a -= 360; }
             teapot1.rotationInAngle.Y = a;
             teapot3.rotationInAngle.Y = a;
@@ -82,7 +72,7 @@ namespace Template
 				target.Bind();
 
                 // render scene to render target
-                sceneGraph.Render(camera, shader, wood);
+                sceneGraph.Render(camera, modelShader, wood);
 
 				// render quad
 				target.Unbind();
@@ -91,7 +81,7 @@ namespace Template
 			else
 			{
                 // render scene directly to the screen
-                sceneGraph.Render(camera, shader, wood);
+                sceneGraph.Render(camera, modelShader, wood);
             }
 		}
 	}

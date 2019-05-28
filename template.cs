@@ -65,8 +65,10 @@ namespace Template
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
-			// called once per frame; render
-			app.Tick(e.Time);
+            float deltaTime = (float)e.Time;
+
+            // called once per frame; render
+            app.Tick(deltaTime);
 			if( terminated )
 			{
 				Exit();
@@ -99,7 +101,7 @@ namespace Template
 			GL.Clear( ClearBufferMask.DepthBufferBit );
 			GL.Disable( EnableCap.Texture2D );
 			// do OpenGL rendering
-			app.RenderGL();
+			app.RenderGL(deltaTime);
 			// swap buffers
 			SwapBuffers();
 		}

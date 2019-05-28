@@ -8,7 +8,7 @@ namespace Template
     {
         public GraphTree<Mesh> hierarchy;
 
-        public void Render(Camera camera, Shader shader, Texture texture)
+        public void Render(Camera camera, ModelShader shader, Texture texture)
         {
             Matrix4 viewMatrix = camera.GetViewMatrix();
             Matrix4 projMatrix = camera.GetProjectionMatrix();
@@ -20,7 +20,7 @@ namespace Template
             }
         }
 
-        public void RenderNode(GraphNode<Mesh> node, Matrix4 vpm, Shader sa, Texture te)
+        public void RenderNode(GraphNode<Mesh> node, Matrix4 vpm, ModelShader sa, Texture te)
         {
             Matrix4 tm = node.data.GetTransformationMatrix();
             GraphNode<Mesh> n = node;

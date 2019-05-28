@@ -77,7 +77,7 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( Shader shader, Matrix4 transform, Texture texture )
+		public void Render( ModelShader shader, Matrix4 transform, Texture texture )
 		{
 			// on first run, prepare buffers
 			Prepare( shader );

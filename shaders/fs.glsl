@@ -4,6 +4,7 @@
 in vec2 uv;						// interpolated texture coordinates
 in vec4 normal;					// interpolated normal
 uniform sampler2D pixels;		// texture sampler
+uniform vec3 ambientLightColor;
 
 // shader output
 out vec4 outputColor;

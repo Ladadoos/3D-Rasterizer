@@ -30,14 +30,13 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( Shader shader, int textureID )
+		public void Render( PostProcessingShader shader, int textureID )
 		{
 			// on first run, prepare buffers
 			Prepare( shader );
 
 			// enable texture
-			int texLoc = GL.GetUniformLocation( shader.programID, "pixels" );
-			GL.Uniform1( texLoc, 0 );
+			GL.Uniform1( shader.uniform_pixels, 0 );
 			GL.ActiveTexture( TextureUnit.Texture0 );
 			GL.BindTexture( TextureTarget.Texture2D, textureID );
 

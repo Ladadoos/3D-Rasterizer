@@ -56,7 +56,9 @@
     <Compile Include="quad.cs" />
     <Compile Include="rendertarget.cs" />
     <Compile Include="SceneGraph.cs" />
-    <Compile Include="shader.cs" />
+    <Compile Include="shaderprogram\ModelShader.cs" />
+    <Compile Include="shaderprogram\PostProcessingShader.cs" />
+    <Compile Include="shaderprogram\shader.cs" />
     <Compile Include="surface.cs" />
     <Compile Include="template.cs" />
     <Compile Include="texture.cs" />
