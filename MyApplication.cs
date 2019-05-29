@@ -24,10 +24,10 @@ namespace Template
         public void Init()
         {
             teapot1 = new Model("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
-            teapot2 = new Model("../../assets/teapot.obj", new Vector3(15, 10, 15), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
-            teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
-            floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(4, 4, 4));
-            light = new Light(string.Empty, new Vector3(15, 50, 15), Vector3.Zero, Vector3.One);
+            teapot2 = new Model("../../assets/teapot.obj", new Vector3(15, 0, 15), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
+            teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 7, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
+            floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(20, 20, 20));
+            light = new Light(string.Empty, new Vector3(15, 35, 15), Vector3.Zero, Vector3.One);
             light.color = new Vector3(0.8F, 0.8F, 0.8F);
 
             // create shaders
@@ -53,7 +53,7 @@ namespace Template
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
             sceneGraph.lights.Add(light);
 
-            depthmap = new DepthMap(screen.width * 4, screen.height * 4);
+            depthmap = new DepthMap(screen.width, screen.height);
             depthShader = new DepthShader();
         }
 
@@ -69,10 +69,10 @@ namespace Template
         public void RenderGL(float deltaTime)
         {
             // update rotation
-            a += 50f * deltaTime;
+            a += 5f * deltaTime;
             if (a > 360) { a -= 360; }
             teapot1.rotationInAngle.Y = a;
-            teapot3.rotationInAngle.Y = a*5;
+            //teapot3.rotationInAngle.Y = a*5;
             light.position.X = (float)(75 * Math.Cos(MathHelper.DegreesToRadians(a)));
             light.position.Z = (float)(75 * Math.Sin(MathHelper.DegreesToRadians(a)));
             sceneGraph.PrepareMatrices();

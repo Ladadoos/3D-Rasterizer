@@ -20,21 +20,26 @@ const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
 const float shininess = 64;
 
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+float GetShadowFactor(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
 {
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-   
-    //transform to 0,1 range
-    projCoords = projCoords * 0.5 + 0.5;
-
-    float closestDepth = texture(depthpixels, projCoords.xy).x; 
-
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
-	float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
-
+    vec3 projectionCoords = fragPosLightSpace.xyz / fragPosLightSpace.w; //perspective division
+    projectionCoords = projectionCoords * 0.5 + 0.5;
+	if(projectionCoords.z > 1.0){ // check if fragment is outside light frustum
+		return 0;
+	}     
+    float currentDepth = projectionCoords.z;
+	float bias = clamp(0.005 * tan(acos(dot(normal, lightDir))), 0, 0.01); //dynamic bias based on slope
+	vec2 texelSize = 1.0 / textureSize(depthpixels, 0);
+	float shadow = 0;
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+			float depth = texture(depthpixels, projectionCoords.xy + vec2(x, y) * texelSize).x; 
+			shadow += currentDepth - bias > depth ? 1 : 0;        
+		}    
+	}
+	shadow /= 9;
 	return shadow;
 }
 
@@ -46,8 +51,8 @@ void main()
    vec3 norm = normalize(normal.xyz);
    vec3 toLightDir = lightPosition - pos.xyz;
    float toLightDist = length(toLightDir);
-   float lightAttenuation = 1 / (toLightDist * toLightDist) * 10175;
-   toLightDir *= (1 / toLightDist); //normalize
+   float lightAttenuation = 1.0 / (toLightDist * toLightDist) * 10175;
+   toLightDir *= (1.0 / toLightDist); //normalize
    float diff = max(dot(norm.xyz, toLightDir), 0);
    vec3 diffuse = diff * lightColor;
 
@@ -56,8 +61,8 @@ void main()
    float spec = pow(max(dot(-toCameraDir, reflectDir), 0), shininess);
    vec3 specular = specularStrength * spec * lightColor;
 
-   float shadow = ShadowCalculation(posLightSpace, norm, toLightDir);
-   vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * lightAttenuation;
+   float shadow = GetShadowFactor(posLightSpace, norm, toLightDir);
+   vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * lightAttenuation;
 
    outputColor = texture( pixels, uv ) * vec4(lighting, 1);
 }
