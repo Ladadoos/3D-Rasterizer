@@ -2,25 +2,27 @@
 
 namespace Template
 {
-    abstract class GameObject
+    public abstract class GameObject
     {
         public Vector3 position;
         public Vector3 rotationInAngle;
         public Vector3 scale;
         public Mesh mesh;
+        public Texture texture;
 
-        public GameObject(Mesh mesh, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
+        public GameObject(Mesh mesh, Texture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
         {
             this.position = position;
             this.rotationInAngle = rotationInAngle;
             this.scale = scale;
             this.mesh = mesh;
+            this.texture = texture;
         }
 
         public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
-            Matrix4 lightMatrix, Texture texture, DepthMap depthMap)
+            Matrix4 lightMatrix, DepthMap depthMap)
         {
-            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, lightMatrix, texture, depthMap); }
+            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, lightMatrix, this, depthMap); }
         }
 
         public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)

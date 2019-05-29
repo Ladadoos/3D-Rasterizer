@@ -36,10 +36,10 @@ namespace Template
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader shader, Texture texture, DepthMap depthMap)
+        public void RenderScene(Camera camera, ModelShader shader, DepthMap depthMap)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.3F, 0.3F, 0.3F));
+            shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.2F, 0.2F, 0.9F));
             shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
             shader.LoadVector3(shader.uniform_lightposition, lights[0].position);
             shader.LoadVector3(shader.uniform_camPos, camera.position);
@@ -50,19 +50,19 @@ namespace Template
 
             for (int i = 0; i < hierarchy.rootNodes.Count; i++)
             {
-                RenderNodeToScene(hierarchy.rootNodes[i], viewMatrix, projMatrix, lightSpaceMatrix, shader, texture, depthMap);
+                RenderNodeToScene(hierarchy.rootNodes[i], viewMatrix, projMatrix, lightSpaceMatrix, shader, depthMap);
             }
         }
 
         private void RenderNodeToScene(GraphNode<GameObject> node, Matrix4 cameraView, Matrix4 projection,
-            Matrix4 lightMatrix, ModelShader shader, Texture texture, DepthMap depthMap)
+            Matrix4 lightMatrix, ModelShader shader, DepthMap depthMap)
         {
             Matrix4 globalTransform = GetGlobalTransformationMatrix(node);
-            node.data.RenderScene(shader, globalTransform, cameraView, projection, lightMatrix, texture, depthMap);
+            node.data.RenderScene(shader, globalTransform, cameraView, projection, lightMatrix, depthMap);
 
             for (int i = 0; i < node.childrenNodes.Count; i++)
             {
-                RenderNodeToScene(node.childrenNodes[i], cameraView, projection, lightMatrix, shader, texture, depthMap);
+                RenderNodeToScene(node.childrenNodes[i], cameraView, projection, lightMatrix, shader, depthMap);
             }
         }
 

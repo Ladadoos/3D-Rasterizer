@@ -52,11 +52,11 @@ namespace Template
             // on first run, prepare buffers
             Prepare();
 
-            // safety dance
-            GL.PushClientAttrib(ClientAttribMask.ClientVertexArrayBit);
-
             // enable shader
             GL.UseProgram(shader.programID);
+
+            // safety dance
+            GL.PushClientAttrib(ClientAttribMask.ClientVertexArrayBit);
 
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
@@ -91,7 +91,7 @@ namespace Template
 
         // render the mesh using the supplied shader and matrix
         public void RenderToScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
-            Matrix4 lightMatrix, Texture texture, DepthMap depthMap)
+            Matrix4 lightMatrix, GameObject gameObject, DepthMap depthMap)
 		{
 			// on first run, prepare buffers
 			Prepare();
@@ -105,13 +105,12 @@ namespace Template
             // enable texture
             GL.Uniform1(shader.uniform_pixels, 0);
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, texture.id);
+            GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.id);
 
             GL.Uniform1(shader.uniform_depthpixels, 1);
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, depthMap.depthMapId);
-
-        
+    
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
             GL.UniformMatrix4(shader.uniform_viewMatrix, false, ref view);
@@ -147,10 +146,10 @@ namespace Template
             // restore previous OpenGL state
             GL.UseProgram(0);
             GL.PopClientAttrib();
-		}
+        }
 
-		// layout of a single vertex
-		[StructLayout( LayoutKind.Sequential )]
+        // layout of a single vertex
+        [StructLayout( LayoutKind.Sequential )]
 		public struct ObjVertex
 		{
 			public Vector2 TexCoord;
