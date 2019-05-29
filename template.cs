@@ -35,7 +35,7 @@ namespace Template
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size( 512, 512 );
+			ClientSize = new Size( 750, 750 );
 			app = new MyApplication();
 			app.screen = new Surface( Width, Height );
 			Sprite.target = app.screen;
@@ -55,6 +55,7 @@ namespace Template
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
 			GL.Ortho( -1.0, 1.0, -1.0, 1.0, 0.0, 4.0 );
+            app.OnWindowResize(Width, Height);
 		}
 		protected override void OnUpdateFrame( FrameEventArgs e )
 		{

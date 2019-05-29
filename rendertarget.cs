@@ -10,7 +10,7 @@ namespace Template
 		uint fbo;
 		int colorTexture;
 		uint depthBuffer;
-		int width, height;
+		public int width, height;
 		public RenderTarget( int screenWidth, int screenHeight )
 		{
 			width = screenWidth;

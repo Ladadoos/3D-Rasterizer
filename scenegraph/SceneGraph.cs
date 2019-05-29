@@ -12,7 +12,7 @@ namespace Template
 
         public void PrepareMatrices()
         {
-            Matrix4.CreateOrthographicOffCenter(-20, 20, -20, 20, 0.1F, 200, out lightProjectionMatrix);
+            Matrix4.CreateOrthographicOffCenter(-30, 30, -30, 30, 0.1F, 200, out lightProjectionMatrix);
             lightViewMatrix = Matrix4.LookAt(lights[0].position, Vector3.Zero, new Vector3(0, 1, 0));
             lightSpaceMatrix = lightViewMatrix * lightProjectionMatrix;
         }
@@ -38,10 +38,12 @@ namespace Template
 
         public void RenderScene(Camera camera, ModelShader shader, Texture texture, DepthMap depthMap)
         {
+            shader.Bind();
             shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.3F, 0.3F, 0.3F));
             shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
             shader.LoadVector3(shader.uniform_lightposition, lights[0].position);
             shader.LoadVector3(shader.uniform_camPos, camera.position);
+            shader.Unbind();
 
             Matrix4 viewMatrix = camera.GetViewMatrix();
             Matrix4 projMatrix = camera.GetProjectionMatrix();

@@ -24,8 +24,8 @@ namespace Template
 			loader.Load( this, fileName );
         }
 
-		// initialization; called during first render
-		public void Prepare()
+        // initialization; called during first render
+        public void Prepare()
 		{
 			if( vertexBufferId == 0 )
 			{

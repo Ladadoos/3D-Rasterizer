@@ -35,39 +35,39 @@ namespace Template
 
         protected abstract void DefineShaderDirectories();
 
-        public void LoadFloat(int location, float value)
+        public void Bind()
         {
             GL.UseProgram(programID);
-            GL.Uniform1(location, value);
+        }
+
+        public void Unbind()
+        {
             GL.UseProgram(0);
+        }
+
+        public void LoadFloat(int location, float value)
+        {    
+            GL.Uniform1(location, value);     
         }
 
         public void LoadInt32(int location, int value)
         {
-            GL.UseProgram(programID);
             GL.Uniform1(location, value);
-            GL.UseProgram(0);
         }
 
         public void LoadVector3(int location, Vector3 vector)
         {
-            GL.UseProgram(programID);
             GL.Uniform3(location, vector);
-            GL.UseProgram(0);
         }
 
         public void LoadBoolean(int location, bool value)
         {
-            GL.UseProgram(programID);
             GL.Uniform1(location, value ? 1 : 0);
-            GL.UseProgram(0);
         }
 
         public void LoadMatrix(int location, Matrix4 matrix)
         {
-            GL.UseProgram(programID);
             GL.UniformMatrix4(location, false, ref matrix);
-            GL.UseProgram(0);
         }
 
         // loading shaders

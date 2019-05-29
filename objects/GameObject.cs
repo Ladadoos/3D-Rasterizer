@@ -9,12 +9,12 @@ namespace Template
         public Vector3 scale;
         public Mesh mesh;
 
-        public GameObject(string meshFile, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
+        public GameObject(Mesh mesh, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
         {
             this.position = position;
             this.rotationInAngle = rotationInAngle;
             this.scale = scale;
-            if(meshFile != string.Empty) { mesh = new Mesh(meshFile); }
+            this.mesh = mesh;
         }
 
         public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 

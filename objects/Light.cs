@@ -6,8 +6,8 @@ namespace Template
     {
         public Vector3 color;
 
-        public Light(string meshFile, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
-            : base(meshFile, position, rotationInAngle, scale)
+        public Light(Mesh mesh, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
+            : base(mesh, position, rotationInAngle, scale)
         {
 
         }
