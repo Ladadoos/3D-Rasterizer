@@ -27,7 +27,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     //transform to 0,1 range
     projCoords = projCoords * 0.5 + 0.5;
 
-    float closestDepth = texture(depthpixels, projCoords.xy).r; 
+    float closestDepth = texture(depthpixels, projCoords.xy).x; 
 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
@@ -46,7 +46,7 @@ void main()
    vec3 norm = normalize(normal.xyz);
    vec3 toLightDir = lightPosition - pos.xyz;
    float toLightDist = length(toLightDir);
-   float lightAttenuation = 1 / (toLightDist) * 75;
+   float lightAttenuation = 1 / (toLightDist * toLightDist) * 10175;
    toLightDir *= (1 / toLightDist); //normalize
    float diff = max(dot(norm.xyz, toLightDir), 0);
    vec3 diffuse = diff * lightColor;

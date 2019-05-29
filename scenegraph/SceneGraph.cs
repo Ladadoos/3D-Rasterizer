@@ -12,7 +12,7 @@ namespace Template
 
         public void PrepareMatrices()
         {
-            Matrix4.CreateOrthographicOffCenter(-30, 30, -30, 30, -10F, 200, out lightProjectionMatrix);
+            Matrix4.CreateOrthographicOffCenter(-50, 50, -50, 50, -10F, 200, out lightProjectionMatrix);
             lightViewMatrix = Matrix4.LookAt(lights[0].position, Vector3.Zero, new Vector3(0, 1, 0));
             lightSpaceMatrix = lightViewMatrix * lightProjectionMatrix;
         }

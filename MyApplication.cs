@@ -1,4 +1,5 @@
 using OpenTK;
+using System;
 
 namespace Template
 {
@@ -23,10 +24,10 @@ namespace Template
         public void Init()
         {
             teapot1 = new Model("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, Vector3.One);
-            teapot2 = new Model("../../assets/teapot.obj", new Vector3(1, 3, 1), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
-            teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, Vector3.One);
+            teapot2 = new Model("../../assets/teapot.obj", new Vector3(15, 10, 15), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
+            teapot3 = new Model("../../assets/teapot.obj", new Vector3(0, 0, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
             floor = new Model("../../assets/floor.obj", Vector3.Zero, Vector3.Zero, new Vector3(4, 4, 4));
-            light = new Light(string.Empty, new Vector3(25, 100, 25), Vector3.Zero, Vector3.One);
+            light = new Light(string.Empty, new Vector3(15, 50, 15), Vector3.Zero, Vector3.One);
             light.color = new Vector3(0.8F, 0.8F, 0.8F);
 
             // create shaders
@@ -44,7 +45,7 @@ namespace Template
             GraphNode<GameObject> root = new GraphNode<GameObject>(teapot1);
             GraphNode<GameObject> child = new GraphNode<GameObject>(teapot2);
             GraphNode<GameObject> child2 = new GraphNode<GameObject>(teapot3);
-            //child.AddChild(child2);
+            root.AddChild(child2);
             root.AddChild(new GraphNode<GameObject>(light));
             sceneGraph.hierarchy = new GraphTree<GameObject>();
             sceneGraph.hierarchy.rootNodes.Add(root);
@@ -52,7 +53,7 @@ namespace Template
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
             sceneGraph.lights.Add(light);
 
-            depthmap = new DepthMap(screen.width, screen.height);
+            depthmap = new DepthMap(screen.width * 4, screen.height * 4);
             depthShader = new DepthShader();
         }
 
@@ -71,7 +72,9 @@ namespace Template
             a += 50f * deltaTime;
             if (a > 360) { a -= 360; }
             teapot1.rotationInAngle.Y = a;
-
+            teapot3.rotationInAngle.Y = a*5;
+            light.position.X = (float)(75 * Math.Cos(MathHelper.DegreesToRadians(a)));
+            light.position.Z = (float)(75 * Math.Sin(MathHelper.DegreesToRadians(a)));
             sceneGraph.PrepareMatrices();
             if (useRenderTarget)
             {
