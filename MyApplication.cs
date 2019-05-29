@@ -48,7 +48,7 @@ namespace Template
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
-            camera = new Camera(new Vector3(0, -15, 0));
+            camera = new FPSCamera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
 
             GraphNode<GameObject> root = new GraphNode<GameObject>(teapot1);
@@ -72,11 +72,11 @@ namespace Template
         }
 
         // tick for background surface
-        public void Tick(float deltaTime)
+        public void Tick(OpenTKApp app, float deltaTime)
         {
             //screen.Clear(0);
            // screen.Print("ok", 2, 2, 0xffff00);
-            camera.ProcessInput(deltaTime);
+            camera.ProcessInput(app, deltaTime);
         }
 
         // tick for OpenGL rendering code

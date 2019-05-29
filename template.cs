@@ -28,6 +28,7 @@ namespace Template
 		static int screenID;            // unique integer identifier of the OpenGL texture
 		static MyApplication app;       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
+
 		protected override void OnLoad( EventArgs e )
 		{
 			// called during application initialization
@@ -69,7 +70,7 @@ namespace Template
             float deltaTime = (float)e.Time;
 
             // called once per frame; render
-            app.Tick(deltaTime);
+            app.Tick(this, deltaTime);
 			if( terminated )
 			{
 				Exit();
