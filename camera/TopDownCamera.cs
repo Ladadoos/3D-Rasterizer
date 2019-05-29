@@ -52,10 +52,10 @@ namespace Template
             }
             if (keyboard[Key.Q])
             {
-                yaw += rotationSpeed * deltaTime;
+                yaw -= rotationSpeed * deltaTime;
             } else if (keyboard[Key.E])
             {
-                yaw -= rotationSpeed * deltaTime;
+                yaw += rotationSpeed * deltaTime;
             }
 
             var mouse = Mouse.GetState();

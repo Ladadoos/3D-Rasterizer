@@ -7,7 +7,7 @@ namespace Template
     abstract class Camera
     {
         public Vector3 position;
-        public float pitch, yaw, roll;
+        public float pitch, yaw;
         private Matrix4 projectionMatrix;
 
         protected Vector3 forward, right;
