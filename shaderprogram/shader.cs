@@ -21,8 +21,12 @@ namespace Template
             Load(vertexFile, ShaderType.VertexShader, programID, out vsID);
             Load(fragmentFile, ShaderType.FragmentShader, programID, out fsID);
             GL.LinkProgram(programID);
-            Console.WriteLine(GL.GetProgramInfoLog(programID));
-
+            string log = GL.GetProgramInfoLog(programID);
+            if(log != string.Empty)
+            {
+                Console.WriteLine(log);
+            }
+         
             // get locations of shader parameters
             GetAllVariableLocations();
         }
@@ -74,7 +78,11 @@ namespace Template
             using (StreamReader sr = new StreamReader(filename)) GL.ShaderSource(ID, sr.ReadToEnd());
             GL.CompileShader(ID);
             GL.AttachShader(program, ID);
-            Console.WriteLine(GL.GetShaderInfoLog(ID));
+            string log = GL.GetShaderInfoLog(ID);
+            if(log != string.Empty)
+            {
+                Console.WriteLine(log);
+            }
         }
     }
 }

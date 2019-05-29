@@ -29,5 +29,5 @@ void vignette(){
 
 void main()
 {
-	vignette();
+	standard();
 }

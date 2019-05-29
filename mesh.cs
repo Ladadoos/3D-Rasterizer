@@ -25,7 +25,7 @@ namespace Template
         }
 
 		// initialization; called during first render
-		public void Prepare( Shader shader )
+		public void Prepare()
 		{
 			if( vertexBufferId == 0 )
 			{
@@ -46,56 +46,107 @@ namespace Template
 			}
 		}
 
-		// render the mesh using the supplied shader and matrix
-		public void Render( ModelShader shader, Matrix4 transform, Matrix4 viewproj, Texture texture )
+        // render the mesh using the supplied shader and matrix
+        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)
+        {
+            // on first run, prepare buffers
+            Prepare();
+
+            // safety dance
+            GL.PushClientAttrib(ClientAttribMask.ClientVertexArrayBit);
+
+            // enable shader
+            GL.UseProgram(shader.programID);
+
+            // pass transform to vertex shader
+            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
+            GL.UniformMatrix4(shader.uniform_viewProjectionMatrix, false, ref viewProjection);
+
+            // enable position
+            GL.EnableVertexAttribArray(shader.attribute_vpos);
+
+            // bind interleaved vertex data
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
+            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
+
+            // link vertex attributes to shader parameters 
+            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
+
+            // bind triangle index data and render
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
+
+            // bind quad index data and render
+            if (quads.Length > 0)
+            {
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
+                GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
+            }
+
+            // restore previous OpenGL state
+            GL.UseProgram(0);
+            GL.PopClientAttrib();
+        }
+
+        // render the mesh using the supplied shader and matrix
+        public void RenderToScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
+            Matrix4 lightMatrix, Texture texture, DepthMap depthMap)
 		{
 			// on first run, prepare buffers
-			Prepare( shader );
+			Prepare();
 
-			// safety dance
-			GL.PushClientAttrib( ClientAttribMask.ClientVertexArrayBit );
+            // enable shader
+            GL.UseProgram(shader.programID);
 
-			// enable texture
-			GL.Uniform1( shader.uniform_pixels, 0 );
-			GL.ActiveTexture( TextureUnit.Texture0 );
-			GL.BindTexture( TextureTarget.Texture2D, texture.id );
+            // safety dance
+            GL.PushClientAttrib( ClientAttribMask.ClientVertexArrayBit );
 
-			// enable shader
-			GL.UseProgram( shader.programID );
+            // enable texture
+            GL.Uniform1(shader.uniform_pixels, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, texture.id);
 
-			// pass transform to vertex shader
-			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
-            GL.UniformMatrix4(shader.uniform_mviewproj, false, ref viewproj);
+            GL.Uniform1(shader.uniform_depthpixels, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, depthMap.depthMapId);
+
+        
+            // pass transform to vertex shader
+            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
+            GL.UniformMatrix4(shader.uniform_viewMatrix, false, ref view);
+            GL.UniformMatrix4(shader.uniform_projectionMatrix, false, ref projection);
+            GL.UniformMatrix4(shader.uniform_lightSpaceMatrix, false, ref lightMatrix);
 
             // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray( shader.attribute_vpos );
-			GL.EnableVertexAttribArray( shader.attribute_vnrm );
-			GL.EnableVertexAttribArray( shader.attribute_vuvs );
+            GL.EnableVertexAttribArray(shader.attribute_vpos);
+            GL.EnableVertexAttribArray(shader.attribute_vnrm);
+            GL.EnableVertexAttribArray(shader.attribute_vuvs);
 
-			// bind interleaved vertex data
-			GL.EnableClientState( ArrayCap.VertexArray );
-			GL.BindBuffer( BufferTarget.ArrayBuffer, vertexBufferId );
-			GL.InterleavedArrays( InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf( typeof( ObjVertex ) ), IntPtr.Zero );
+            // bind interleaved vertex data
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
+            GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
 
-			// link vertex attributes to shader parameters 
-			GL.VertexAttribPointer( shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0 );
-			GL.VertexAttribPointer( shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4 );
-			GL.VertexAttribPointer( shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4 );
+            // link vertex attributes to shader parameters 
+            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
+            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
+            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
 
-			// bind triangle index data and render
-			GL.BindBuffer( BufferTarget.ElementArrayBuffer, triangleBufferId );
-			GL.DrawArrays( PrimitiveType.Triangles, 0, triangles.Length * 3 );
+            // bind triangle index data and render
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, triangles.Length * 3);
 
-			// bind quad index data and render
-			if( quads.Length > 0 )
-			{
-				GL.BindBuffer( BufferTarget.ElementArrayBuffer, quadBufferId );
-				GL.DrawArrays( PrimitiveType.Quads, 0, quads.Length * 4 );
-			}
+            // bind quad index data and render
+            if (quads.Length > 0)
+            {
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
+                GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
+            }
 
-			// restore previous OpenGL state
-			GL.UseProgram( 0 );
-			GL.PopClientAttrib();
+            // restore previous OpenGL state
+            GL.UseProgram(0);
+            GL.PopClientAttrib();
 		}
 
 		// layout of a single vertex

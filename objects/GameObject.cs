@@ -17,12 +17,18 @@ namespace Template
             if(meshFile != string.Empty) { mesh = new Mesh(meshFile); }
         }
 
-        public void Render(ModelShader shader, Matrix4 transform, Matrix4 viewproj, Texture texture)
+        public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
+            Matrix4 lightMatrix, Texture texture, DepthMap depthMap)
         {
-            if(mesh != null) { mesh.Render(shader, transform, viewproj, texture); }
+            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, lightMatrix, texture, depthMap); }
         }
 
-        public Matrix4 GetTransformationMatrix()
+        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)
+        {
+            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjection); }
+        }
+
+        public Matrix4 GetLocalTransformationMatrix()
         {
             return GetScaleMatrix() * GetRotationMatrix() * GetTranslationMatrix();
         }

@@ -82,7 +82,7 @@ namespace Template
 			GL.BindTexture( TextureTarget.Texture2D, screenID );
 			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
 						   app.screen.width, app.screen.height, 0,
-						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                           PixelFormat.Bgra,
 						   PixelType.UnsignedByte, app.screen.pixels
 						 );
 			// draw screen filling quad

@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using System;
 
 namespace Template
 {
@@ -19,6 +20,9 @@ namespace Template
             attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
             attribute_vuvs = GL.GetAttribLocation(programID, "vUV");
             uniform_pixels = GL.GetUniformLocation(programID, "pixels");
+
+            Console.WriteLine("PostProcessing locations: " + attribute_vpos + " / " +
+                         attribute_vuvs + " / " + uniform_pixels);
         }
     }
 }

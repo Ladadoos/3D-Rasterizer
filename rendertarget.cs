@@ -42,6 +42,7 @@ namespace Template
 		}
 		public void Bind()
 		{
+            GL.Viewport(0, 0, width, height);
 			GL.Ext.BindFramebuffer( FramebufferTarget.FramebufferExt, fbo );
 			GL.Clear( ClearBufferMask.DepthBufferBit );
 			GL.Clear( ClearBufferMask.ColorBufferBit );
