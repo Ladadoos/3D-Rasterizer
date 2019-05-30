@@ -35,14 +35,14 @@ namespace Template
         // initialize
         public void Init()
         {
-            meshesAsset.Add(new Mesh("../../assets/dragon.obj"));
+            meshesAsset.Add(new Mesh("../../assets/earth.obj"));
             meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
             meshesAsset.Add(new Mesh("../../assets/floor.obj"));
             meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null)); 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/brickwall.jpg"), new Texture("../../assets/brickwall_normal.jpg")));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png")));
 
             dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(5));
             teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(25, -25, 25), Vector3.Zero, Vector3.One);

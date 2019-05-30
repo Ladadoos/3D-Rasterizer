@@ -19,7 +19,7 @@ out vec4 outputColor;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
-const float shininess = 64;
+const float shininess = 16;
 const float lightBrightness = 8500;
 
 float GetShadowFactor(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
