@@ -36,7 +36,7 @@ namespace Template
 			Prepare( shader );
 
 			// enable texture
-			GL.Uniform1( shader.uniform_pixels, 0 );
+			GL.Uniform1( shader.uniform_screenTexture, 0 );
 			GL.ActiveTexture( TextureUnit.Texture0 );
 			GL.BindTexture( TextureTarget.Texture2D, textureID );
 
@@ -44,8 +44,8 @@ namespace Template
 			GL.UseProgram( shader.programID );
 
 			// enable position and uv attributes
-			GL.EnableVertexAttribArray( shader.attribute_vpos );
-			GL.EnableVertexAttribArray( shader.attribute_vuvs );
+			GL.EnableVertexAttribArray( shader.attribute_position );
+			GL.EnableVertexAttribArray( shader.attribute_uv );
 
 			// bind interleaved vertex data
 			GL.EnableClientState( ArrayCap.VertexArray );
@@ -53,8 +53,8 @@ namespace Template
 			GL.InterleavedArrays( InterleavedArrayFormat.T2fV3f, 20, IntPtr.Zero );
 
 			// link vertex attributes to shader parameters 
-			GL.VertexAttribPointer( shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 20, 0 );
-			GL.VertexAttribPointer( shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 20, 3 * 4 );
+			GL.VertexAttribPointer( shader.attribute_position, 3, VertexAttribPointerType.Float, false, 20, 0 );
+			GL.VertexAttribPointer( shader.attribute_uv, 2, VertexAttribPointerType.Float, false, 20, 3 * 4 );
 
 			// bind triangle index data and render
 			GL.BindBuffer( BufferTarget.ElementArrayBuffer, vbo_idx );

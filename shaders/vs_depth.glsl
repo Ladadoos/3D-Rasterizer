@@ -1,10 +1,11 @@
 #version 330
-in vec3 vPosition; // untransformed vertex position
 
-uniform mat4 model; // model matrix
-uniform mat4 viewProjection; // view * projection of light
+in vec3 iPosition; 
+
+uniform mat4 uModel; // model matrix
+uniform mat4 uViewProjection; // view * projection of light
  
 void main()
 {
-	gl_Position = viewProjection * model * vec4(vPosition, 1.0);
+	gl_Position = uViewProjection * uModel * vec4(iPosition, 1);
 }

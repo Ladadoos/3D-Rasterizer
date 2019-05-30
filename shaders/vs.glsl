@@ -1,47 +1,39 @@
 ﻿#version 330
  
-// shader input
-in vec2 vUV;				// vertex uv coordinate
-in vec3 vNormal;			// untransformed vertex normal
-in vec3 vPosition;			// untransformed vertex position
-in vec3 vTangent;
-in vec3 vBitangent;
+in vec2 iUV;				// vertex uv coordinate
+in vec3 iNormal;			// untransformed vertex normal
+in vec3 iPosition;			// untransformed vertex position
+in vec3 iTangent;           // untransformed vertex tangent
+in vec3 iBitangent;         // untransformed vertex bitangent
 
-// shader output
+uniform mat4 uModel;
+uniform mat4 uView;
+uniform mat4 uProjection;
+uniform vec3 uCameraPosition;
+uniform vec3 uLightPosition;
+uniform mat4 uLightSpacematrix;
+
 out vec4 normal;			// transformed vertex normal
-out vec2 uv;		
-out vec4 pos;
+out vec2 uv;		        
+out vec4 fragmentPosition;
 out vec4 posLightSpace;
 out vec3 lightposition;
 out vec3 cameraposition;
-
-uniform vec3 cameraPosition;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-uniform vec3 lightPosition;
-uniform mat4 lightSpacematrix;
-
 out mat3 tbnMatrix;
 
-// vertex shader
 void main()
 {
-	// transform vertex using supplied matrix
-	gl_Position = projection * view * model * vec4(vPosition, 1.0);
+	gl_Position = uProjection * uView * uModel * vec4(iPosition, 1.0);
 
-	// forward normal and uv coordinate; will be interpolated over triangle
-	normal = model * vec4( vNormal, 0.0f );
-	pos = model * vec4( vPosition, 1.0f );
-	posLightSpace = lightSpacematrix * vec4(pos.xyz, 1.0f);
-	uv = vUV;
-	lightposition = lightPosition;
-	cameraposition = cameraPosition;
+	normal = normalize(uModel * vec4(iNormal, 0));
+	fragmentPosition = uModel * vec4(iPosition, 1);
+	posLightSpace = uLightSpacematrix * vec4(fragmentPosition.xyz, 1.0f);
+	uv = iUV;
+	lightposition = uLightPosition;
+	cameraposition = uCameraPosition;
 
-	//Form 3 basis for a coordinate system at the triangles surface for normal mapping
-	//vec3 vBitangent = cross(vNormal, vTangent);
-	vec3 tangent = normalize(vec3(model * vec4(vTangent, 0)));
-	vec3 bitangent = normalize(vec3(model * vec4(vBitangent, 0)));
-	vec3 normal = normalize(vec3(model * vec4(vNormal, 0)));
-	tbnMatrix = mat3(tangent, bitangent, normal);
+	//Form the 3 basis for a coordinate system at the triangle's surface for normal mapping
+	vec3 tangent = normalize(vec3(uModel * vec4(iTangent, 0)));
+	vec3 bitangent = normalize(vec3(uModel * vec4(iBitangent, 0)));
+	tbnMatrix = mat3(tangent, bitangent, normal.xyz);
 }

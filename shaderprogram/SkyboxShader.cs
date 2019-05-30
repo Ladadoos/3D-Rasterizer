@@ -7,7 +7,7 @@ namespace Template
     {
         public int uniform_viewProjectionMatrix;
         public int uniform_skyboxCubeMap;
-        public int attribute_vpos;
+        public int attribute_position;
 
         protected override void DefineShaderDirectories()
         {
@@ -17,11 +17,11 @@ namespace Template
 
         protected override void GetAllVariableLocations()
         {
-            attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
+            attribute_position = GL.GetAttribLocation(programID, "iPosition");
             uniform_viewProjectionMatrix = GL.GetUniformLocation(programID, "viewProjection");
-            uniform_skyboxCubeMap = GL.GetUniformLocation(programID, "skyboxCubeMap");
+            uniform_skyboxCubeMap = GL.GetUniformLocation(programID, "uSkyboxCubeMap");
 
-            Console.WriteLine("SkyboxShader locations: " + attribute_vpos + " / " + uniform_viewProjectionMatrix
+            Console.WriteLine("SkyboxShader locations: " + attribute_position + " / " + uniform_viewProjectionMatrix
                  + " / " + uniform_skyboxCubeMap);
         }
     }

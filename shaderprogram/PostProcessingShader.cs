@@ -5,9 +5,9 @@ namespace Template
 {
     public class PostProcessingShader : Shader
     {
-        public int attribute_vpos;
-        public int attribute_vuvs;
-        public int uniform_pixels;
+        public int attribute_position;
+        public int attribute_uv;
+        public int uniform_screenTexture;
 
         protected override void DefineShaderDirectories()
         {
@@ -17,12 +17,12 @@ namespace Template
 
         protected override void GetAllVariableLocations()
         {
-            attribute_vpos = GL.GetAttribLocation(programID, "vPosition");
-            attribute_vuvs = GL.GetAttribLocation(programID, "vUV");
-            uniform_pixels = GL.GetUniformLocation(programID, "pixels");
+            attribute_position = GL.GetAttribLocation(programID, "iPosition");
+            attribute_uv = GL.GetAttribLocation(programID, "iUV");
+            uniform_screenTexture = GL.GetUniformLocation(programID, "uScreenTexture");
 
-            Console.WriteLine("PostProcessing locations: " + attribute_vpos + " / " +
-                         attribute_vuvs + " / " + uniform_pixels);
+            Console.WriteLine("PostProcessing locations: " + attribute_position + " / " +
+                         attribute_uv + " / " + uniform_screenTexture);
         }
     }
 }

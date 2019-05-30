@@ -70,12 +70,12 @@ namespace Template
             shader.LoadMatrix(shader.uniform_viewProjectionMatrix, cameraViewProjMatrix);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, positionsVboId);
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
+            GL.EnableVertexAttribArray(shader.attribute_position);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             GL.BindTexture(TextureTarget.TextureCubeMap, skyboxTexture.id);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
-            GL.DisableVertexAttribArray(shader.attribute_vpos);
+            GL.DisableVertexAttribArray(shader.attribute_position);
             GL.DepthMask(true);
             shader.Unbind();
         }
