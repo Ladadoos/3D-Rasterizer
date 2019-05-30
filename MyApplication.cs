@@ -45,12 +45,12 @@ namespace Template
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/brickwall.jpg"), new Texture("../../assets/brickwall_normal.jpg")));
 
             dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(5));
-            teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(15, 5, 15), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
-            teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 7, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
+            teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(25, -25, 25), Vector3.Zero, Vector3.One);
+            teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 5, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
             floor = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            light = new Light(meshesAsset[3], texturesAsset[1], new Vector3(25, 35, 25), Vector3.Zero, Vector3.One);
+            light = new Light(meshesAsset[3], texturesAsset[1], new Vector3(25, 65, 25), Vector3.Zero, Vector3.One);
             light.color = new Vector3(1F, 1F, 0.9F);
-            //floor.rotationInAngle.X = 90;
+
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
@@ -58,13 +58,11 @@ namespace Template
             sceneGraph = new SceneGraph();
 
             GraphNode<GameObject> root = new GraphNode<GameObject>(dragon);
-            GraphNode<GameObject> child = new GraphNode<GameObject>(teapot2);
-            GraphNode<GameObject> child2 = new GraphNode<GameObject>(teapot3);
-            //root.AddChild(child2);
+            root.AddChild(new GraphNode<GameObject>(teapot3));
             sceneGraph.hierarchy = new GraphTree<GameObject>();
             sceneGraph.hierarchy.rootNodes.Add(root);
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(light));
-            //sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(teapot2));
+            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(teapot2));
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
             sceneGraph.lights.Add(light);
 
@@ -96,6 +94,7 @@ namespace Template
             a += 50f * deltaTime;
             if (a > 360) { a -= 360; }
             dragon.rotationInAngle.Y = a;
+            teapot3.rotationInAngle.X = a*2;
             //teapot3.rotationInAngle.Y = a*5;
             light.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
             light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
