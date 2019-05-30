@@ -1,6 +1,8 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using static Template.Mesh;
 
 namespace Template
 {
@@ -8,7 +10,7 @@ namespace Template
     {
         // member variables
         public Surface screen;                  // background surface for printing etc.
-        Model teapot1, teapot2, teapot3, floor;
+        Model dragon, teapot2, teapot3, floor;
         float a = 0;
         RenderTarget target;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
@@ -28,7 +30,7 @@ namespace Template
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
-        private List<Texture> texturesAsset = new List<Texture>();
+        private List<SurfaceTexture> texturesAsset = new List<SurfaceTexture>();
 
         // initialize
         public void Init()
@@ -36,30 +38,32 @@ namespace Template
             meshesAsset.Add(new Mesh("../../assets/dragon.obj"));
             meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
             meshesAsset.Add(new Mesh("../../assets/floor.obj"));
+            meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
 
-            texturesAsset.Add(new Texture("../../assets/wood.jpg")); 
-            texturesAsset.Add(new Texture("../../assets/diffuseGray.png"));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null)); 
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/brickwall.jpg"), new Texture("../../assets/brickwall_normal.jpg")));
 
-            teapot1 = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(3));
+            dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(5));
             teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(15, 5, 15), Vector3.Zero, new Vector3(0.75F, 0.75F, 0.75F));
             teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 7, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
-            floor = new Model(meshesAsset[2], texturesAsset[0], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            light = new Light(null, null, new Vector3(25, 35, 25), Vector3.Zero, Vector3.One);
-            light.color = new Vector3(0.2F, 0.2F, 0.9F);
-
+            floor = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
+            light = new Light(meshesAsset[3], texturesAsset[1], new Vector3(25, 35, 25), Vector3.Zero, Vector3.One);
+            light.color = new Vector3(1F, 1F, 0.9F);
+            //floor.rotationInAngle.X = 90;
             // create the render target
             target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
 
-            GraphNode<GameObject> root = new GraphNode<GameObject>(teapot1);
+            GraphNode<GameObject> root = new GraphNode<GameObject>(dragon);
             GraphNode<GameObject> child = new GraphNode<GameObject>(teapot2);
             GraphNode<GameObject> child2 = new GraphNode<GameObject>(teapot3);
             //root.AddChild(child2);
-            root.AddChild(new GraphNode<GameObject>(light));
             sceneGraph.hierarchy = new GraphTree<GameObject>();
             sceneGraph.hierarchy.rootNodes.Add(root);
+            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(light));
             //sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(teapot2));
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
             sceneGraph.lights.Add(light);
@@ -91,10 +95,10 @@ namespace Template
             // update rotation
             a += 50f * deltaTime;
             if (a > 360) { a -= 360; }
-            teapot1.rotationInAngle.Y = a;
+            dragon.rotationInAngle.Y = a;
             //teapot3.rotationInAngle.Y = a*5;
-            light.position.X = (float)(75 * Math.Cos(MathHelper.DegreesToRadians(a)));
-            light.position.Z = (float)(75 * Math.Sin(MathHelper.DegreesToRadians(a)));
+            light.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
+            light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
             sceneGraph.PrepareMatrices();
             if (useRenderTarget)
@@ -106,7 +110,6 @@ namespace Template
                 target.Bind();
                 Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
                 skybox.Render(skyboxShader, skyboxTexture, viewProjMatrix);
-
                 sceneGraph.RenderScene(camera, modelShader, depthMap);
                 target.Unbind();
 

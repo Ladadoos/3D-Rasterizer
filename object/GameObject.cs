@@ -8,9 +8,9 @@ namespace Template
         public Vector3 rotationInAngle;
         public Vector3 scale;
         public Mesh mesh;
-        public Texture texture;
+        public SurfaceTexture texture;
 
-        public GameObject(Mesh mesh, Texture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
+        public GameObject(Mesh mesh, SurfaceTexture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
         {
             this.position = position;
             this.rotationInAngle = rotationInAngle;

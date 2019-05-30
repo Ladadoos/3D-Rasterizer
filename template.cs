@@ -102,8 +102,8 @@ namespace Template
 			GL.Enable( EnableCap.DepthTest );
 			GL.Clear( ClearBufferMask.DepthBufferBit );
 			GL.Disable( EnableCap.Texture2D );
-			// do OpenGL rendering
-			app.RenderGL(deltaTime);
+            // do OpenGL rendering
+            app.RenderGL(deltaTime);
 			// swap buffers
 			SwapBuffers();
 		}

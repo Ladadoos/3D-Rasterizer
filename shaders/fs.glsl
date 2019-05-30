@@ -5,13 +5,16 @@ in vec2 uv;						// interpolated texture coordinates
 in vec4 normal;					// interpolated normal
 in vec4 pos;    
 in vec4 posLightSpace;
+in vec3 lightposition;
+in vec3 cameraposition;
+
+in mat3 tbnMatrix;
 
 uniform sampler2D pixels;		// texture sampler
 uniform sampler2D depthpixels;  // depth texture
-uniform vec3 cameraPosition;
+uniform sampler2D normalPixels;
 uniform vec3 ambientLightColor;
 uniform vec3 lightColor;
-uniform vec3 lightPosition;
 
 // shader output
 out vec4 outputColor;
@@ -48,16 +51,23 @@ void main()
 {
    vec3 ambient = ambientStrenght * ambientLightColor;
 
-   vec3 norm = normalize(normal.xyz);
-   vec3 toLightDir = lightPosition - pos.xyz;
+    // obtain normal from normal map in range [0,1]
+    vec3 normalTex = texture(normalPixels, uv).rgb;
+    // transform normal vector to range [-1,1]
+    normalTex = normalize(normalTex * 2.0 - 1.0); 
+	normalTex = tbnMatrix * normalTex;
+
+   vec3 norm = normalize(normalTex.xyz);
+   //norm = normalize(normal.xyz);
+   vec3 toLightDir = lightposition - pos.xyz;
    float toLightDist = length(toLightDir);
    float lightAttenuation = 1.0 / (toLightDist * toLightDist) * 8500;
    toLightDir *= (1.0 / toLightDist); //normalize
    float diff = max(dot(norm.xyz, toLightDir), 0);
    vec3 diffuse = diff * lightColor;
 
-   vec3 toCameraDir = normalize(cameraPosition - pos.xyz);
-   vec3 reflectDir = reflect(-toLightDir, norm);
+   vec3 toCameraDir = normalize(cameraposition - pos.xyz);
+   vec3 reflectDir = reflect(toLightDir, norm);
    float spec = pow(max(dot(-toCameraDir, reflectDir), 0), shininess);
    vec3 specular = specularStrength * spec * lightColor;
 

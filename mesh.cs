@@ -71,7 +71,7 @@ namespace Template
             GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
 
             // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
+            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 56, 5 * 4);
 
             // bind triangle index data and render
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
@@ -105,12 +105,19 @@ namespace Template
             // enable texture
             GL.Uniform1(shader.uniform_pixels, 0);
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.id);
+            GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.diffuse.id);
 
             GL.Uniform1(shader.uniform_depthpixels, 1);
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, depthMap.depthMapId);
-    
+
+            if(gameObject.texture.normal != null)
+            {
+                GL.Uniform1(shader.uniform_normalpixels, 2);
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.normal.id);
+            }
+
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
             GL.UniformMatrix4(shader.uniform_viewMatrix, false, ref view);
@@ -118,9 +125,11 @@ namespace Template
             GL.UniformMatrix4(shader.uniform_lightSpaceMatrix, false, ref lightMatrix);
 
             // enable position, normal and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_vpos);
-            GL.EnableVertexAttribArray(shader.attribute_vnrm);
-            GL.EnableVertexAttribArray(shader.attribute_vuvs);
+            GL.EnableVertexAttribArray(shader.attribute_vPosition);
+            GL.EnableVertexAttribArray(shader.attribute_vNormal);
+            GL.EnableVertexAttribArray(shader.attribute_vUV);
+            GL.EnableVertexAttribArray(shader.attribute_vTangent);
+            GL.EnableVertexAttribArray(shader.attribute_vBitangent);
 
             // bind interleaved vertex data
             GL.EnableClientState(ArrayCap.VertexArray);
@@ -128,9 +137,11 @@ namespace Template
             GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
 
             // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_vuvs, 2, VertexAttribPointerType.Float, false, 32, 0);
-            GL.VertexAttribPointer(shader.attribute_vnrm, 3, VertexAttribPointerType.Float, true, 32, 2 * 4);
-            GL.VertexAttribPointer(shader.attribute_vpos, 3, VertexAttribPointerType.Float, false, 32, 5 * 4);
+            GL.VertexAttribPointer(shader.attribute_vUV, 2, VertexAttribPointerType.Float, false, 56, 0);
+            GL.VertexAttribPointer(shader.attribute_vNormal, 3, VertexAttribPointerType.Float, true, 56, 2 * 4);
+            GL.VertexAttribPointer(shader.attribute_vPosition, 3, VertexAttribPointerType.Float, false, 56, 5 * 4);
+            GL.VertexAttribPointer(shader.attribute_vTangent, 3, VertexAttribPointerType.Float, true, 56, 8 * 4);
+            GL.VertexAttribPointer(shader.attribute_vBitangent, 3, VertexAttribPointerType.Float, true, 56, 11 * 4);
 
             // bind triangle index data and render
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangleBufferId);
@@ -155,6 +166,8 @@ namespace Template
 			public Vector2 TexCoord;
 			public Vector3 Normal;
 			public Vector3 Vertex;
+            public Vector3 Tangent;
+            public Vector3 Bitangent;
 		}
 
 		// layout of a single triangle

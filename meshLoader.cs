@@ -27,7 +27,7 @@ namespace Template
 		List<Vector3> vertices;
 		List<Vector3> normals;
 		List<Vector2> texCoords;
-		List<Mesh.ObjVertex> objVertices;
+        List<Mesh.ObjVertex> objVertices;
 		List<Mesh.ObjTriangle> objTriangles;
 		List<Mesh.ObjQuad> objQuads;
 
@@ -36,7 +36,7 @@ namespace Template
 			vertices = new List<Vector3>();
 			normals = new List<Vector3>();
 			texCoords = new List<Vector2>();
-			objVertices = new List<Mesh.ObjVertex>();
+            objVertices = new List<Mesh.ObjVertex>();
 			objTriangles = new List<Mesh.ObjTriangle>();
 			objQuads = new List<Mesh.ObjQuad>();
 			string line;
@@ -88,7 +88,10 @@ namespace Template
 					break;
 				}
 			}
-			mesh.vertices = objVertices.ToArray();
+
+            CalculateTangentAndBitangents();
+
+            mesh.vertices = objVertices.ToArray();
 			mesh.triangles = objTriangles.ToArray();
 			mesh.quads = objQuads.ToArray();
 			vertices = null;
@@ -98,6 +101,63 @@ namespace Template
 			objTriangles = null;
 			objQuads = null;
 		}
+
+        private void CalculateTangentAndBitangents()
+        {
+            for (int i = 0; i < objTriangles.Count; i++)
+            {
+                Mesh.ObjVertex vert1 = objVertices[objTriangles[i].Index0];
+                Mesh.ObjVertex vert2 = objVertices[objTriangles[i].Index1];
+                Mesh.ObjVertex vert3 = objVertices[objTriangles[i].Index2];
+
+                Vector3 v0 = vert1.Vertex;
+                Vector3 v1 = vert2.Vertex;
+                Vector3 v2 = vert3.Vertex;
+
+                Vector2 uv0 = vert1.TexCoord;
+                Vector2 uv1 = vert2.TexCoord;
+                Vector2 uv2 = vert3.TexCoord;
+
+                Vector3 deltaPos1 = v1 - v0;
+                Vector3 deltaPos2 = v2 - v0;
+
+                Vector2 deltaUV1 = uv1 - uv0;
+                Vector2 deltaUV2 = uv2 - uv0;
+
+                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                Vector3 tangent = Vector3.Normalize((deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r);
+                Vector3 bitangent = Vector3.Normalize((deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r);
+
+                objVertices[objTriangles[i].Index0] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert1.TexCoord,
+                    Normal = vert1.Normal,
+                    Vertex = vert1.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+                objVertices[objTriangles[i].Index1] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert2.TexCoord,
+                    Normal = vert2.Normal,
+                    Vertex = vert2.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+
+                objVertices[objTriangles[i].Index2] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert3.TexCoord,
+                    Normal = vert3.Normal,
+                    Vertex = vert3.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+            }
+        }
 
 		char[] faceParamaterSplitter = new char[] { '/' };
 		int ParseFaceParameter( string faceParameter )
@@ -133,7 +193,7 @@ namespace Template
 			newObjVertex.Vertex = vertex;
 			newObjVertex.TexCoord = texCoord;
 			newObjVertex.Normal = normal;
-			objVertices.Add( newObjVertex );
+            objVertices.Add( newObjVertex );
 			return objVertices.Count - 1;
 		}
 	}

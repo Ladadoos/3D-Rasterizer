@@ -70,6 +70,7 @@
     <Compile Include="surface.cs" />
     <Compile Include="template.cs" />
     <Compile Include="texture\CubeTexture.cs" />
+    <Compile Include="texture\SurfaceTexture.cs" />
     <Compile Include="texture\texture.cs" />
   </ItemGroup>
   <ItemGroup>
