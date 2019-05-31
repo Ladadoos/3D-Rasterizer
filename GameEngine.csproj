@@ -49,6 +49,7 @@
     <Compile Include="camera\Camera.cs" />
     <Compile Include="camera\FPSCamera.cs" />
     <Compile Include="camera\TopDownCamera.cs" />
+    <Compile Include="camera\ViewFrustum.cs" />
     <Compile Include="DepthMap.cs" />
     <Compile Include="object\GameObject.cs" />
     <Compile Include="mesh.cs" />

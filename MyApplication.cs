@@ -35,7 +35,7 @@ namespace Template
         // initialize
         public void Init()
         {
-            meshesAsset.Add(new Mesh("../../assets/earth.obj"));
+            meshesAsset.Add(new Mesh("../../assets/dragon.obj"));
             meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
             meshesAsset.Add(new Mesh("../../assets/floor.obj"));
             meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
@@ -44,8 +44,8 @@ namespace Template
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null));
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png")));
 
-            dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(5));
-            teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(25, -25, 25), Vector3.Zero, Vector3.One);
+            dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, -25, 0), Vector3.Zero, new Vector3(7));
+            teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(15, -25, 15), Vector3.Zero, Vector3.One);
             teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 5, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
             floor = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
             light = new Light(meshesAsset[3], texturesAsset[1], new Vector3(25, 65, 25), Vector3.Zero, Vector3.One);
@@ -57,9 +57,9 @@ namespace Template
             camera = new FPSCamera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
 
+            sceneGraph.hierarchy = new GraphTree<GameObject>();
             GraphNode<GameObject> root = new GraphNode<GameObject>(dragon);
             root.AddChild(new GraphNode<GameObject>(teapot3));
-            sceneGraph.hierarchy = new GraphTree<GameObject>();
             sceneGraph.hierarchy.rootNodes.Add(root);
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(light));
             sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(teapot2));
@@ -99,6 +99,7 @@ namespace Template
             light.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
             light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
+            camera.UpdateFrustumPoints();
             sceneGraph.PrepareMatrices();
             if (useRenderTarget)
             {

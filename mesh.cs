@@ -17,6 +17,9 @@ namespace Template
         int triangleBufferId;                   // triangle buffer
         int quadBufferId;                       // quad buffer
 
+        public Vector3 hitboxCenter;
+        public float hitboxRadius;
+
         // constructor
         public Mesh( string fileName)
 		{

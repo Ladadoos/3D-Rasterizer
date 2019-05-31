@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 
 namespace Template
@@ -9,6 +10,8 @@ namespace Template
         public List<Light> lights = new List<Light>();
 
         private Matrix4 lightViewMatrix, lightProjectionMatrix, lightSpaceMatrix;
+
+        private int rendered = 0;
 
         public void PrepareMatrices()
         {
@@ -38,6 +41,8 @@ namespace Template
 
         public void RenderScene(Camera camera, ModelShader shader, DepthMap depthMap)
         {
+            rendered = 0;
+
             shader.Bind();
             shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.2F, 0.2F, 0.9F));
             shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
@@ -50,19 +55,28 @@ namespace Template
 
             for (int i = 0; i < hierarchy.rootNodes.Count; i++)
             {
-                RenderNodeToScene(hierarchy.rootNodes[i], viewMatrix, projMatrix, lightSpaceMatrix, shader, depthMap);
+                RenderNodeToScene(camera, hierarchy.rootNodes[i], viewMatrix, projMatrix, lightSpaceMatrix, shader, depthMap);
             }
+
+            Console.WriteLine("Objects rendered:" + rendered);
         }
 
-        private void RenderNodeToScene(GraphNode<GameObject> node, Matrix4 cameraView, Matrix4 projection,
+        private void RenderNodeToScene(Camera camera, GraphNode<GameObject> node, Matrix4 cameraView, Matrix4 projection,
             Matrix4 lightMatrix, ModelShader shader, DepthMap depthMap)
         {
             Matrix4 globalTransform = GetGlobalTransformationMatrix(node);
-            node.data.RenderScene(shader, globalTransform, cameraView, projection, lightMatrix, depthMap);
-
+            Vector4 center = new Vector4(node.data.mesh.hitboxCenter, 1) * globalTransform;
+            Vector3 scale = globalTransform.ExtractScale();
+            float radius = Math.Max(scale.X, Math.Max(scale.Y, scale.Z));
+            if (camera.frustum.IsSphereInFrustum(center.Xyz, node.data.mesh.hitboxRadius * radius))
+            {
+                node.data.RenderScene(shader, globalTransform, cameraView, projection, lightMatrix, depthMap);
+                rendered++;
+            }
+           
             for (int i = 0; i < node.childrenNodes.Count; i++)
             {
-                RenderNodeToScene(node.childrenNodes[i], cameraView, projection, lightMatrix, shader, depthMap);
+                RenderNodeToScene(camera, node.childrenNodes[i], cameraView, projection, lightMatrix, shader, depthMap);
             }
         }
 
