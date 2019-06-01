@@ -8,17 +8,16 @@ namespace Template
         public ViewFrustum frustum;
         public Vector3 position;
         public float pitch, yaw;
+        public Vector3 forward, right;
 
         private Matrix4 projectionMatrix;
-
-        public Vector3 forward, right;
         protected float movementSpeed = 50;
 
         public Camera(Vector3 position)
         {
             this.position = position;
             frustum = new ViewFrustum(1.2F, 1.3F, 0.1F, 1000);
-            projectionMatrix = frustum.GetFieldOfView();
+            projectionMatrix = frustum.CreateProjectionMatrix();
         }
 
         public Matrix4 GetProjectionMatrix()

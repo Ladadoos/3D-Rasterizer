@@ -8,7 +8,6 @@ namespace Template
 {
     class MyApplication
     {
-        // member variables
         public Surface screen;                  // background surface for printing etc.
         Model dragon, teapot2, teapot3, floor;
         float a = 0;
@@ -57,13 +56,13 @@ namespace Template
             camera = new FPSCamera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
 
-            sceneGraph.hierarchy = new GraphTree<GameObject>();
-            GraphNode<GameObject> root = new GraphNode<GameObject>(dragon);
-            root.AddChild(new GraphNode<GameObject>(teapot3));
-            sceneGraph.hierarchy.rootNodes.Add(root);
-            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(light));
-            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(teapot2));
-            sceneGraph.hierarchy.rootNodes.Add(new GraphNode<GameObject>(floor));
+            dragon.AddChild(teapot3);
+
+            sceneGraph.objects.Add(dragon);
+            sceneGraph.objects.Add(light);
+            sceneGraph.objects.Add(teapot2);
+            sceneGraph.objects.Add(floor);
+            sceneGraph.objects.Add(teapot3);
             sceneGraph.lights.Add(light);
 
             depthMap = new DepthMap(screen.width, screen.height);
@@ -79,17 +78,16 @@ namespace Template
             target.height = height;
         }
 
-        // tick for background surface
         public void Tick(OpenTKApp app, float deltaTime)
         {
-            //screen.Clear(0);
-            // screen.Print("ok", 2, 2, 0xffff00);
-            camera.ProcessInput(app, deltaTime);
+
         }
 
         // tick for OpenGL rendering code
-        public void RenderGL(float deltaTime)
+        public void RenderGL(OpenTKApp app, float deltaTime)
         {
+            camera.ProcessInput(app, deltaTime);
+
             // update rotation
             a += 50f * deltaTime;
             if (a > 360) { a -= 360; }
@@ -100,7 +98,7 @@ namespace Template
             light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
             camera.UpdateFrustumPoints();
-            sceneGraph.PrepareMatrices();
+            sceneGraph.CalculateMatrices();
             if (useRenderTarget)
             {
                 depthMap.Bind();

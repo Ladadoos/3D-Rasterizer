@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using System.Collections.Generic;
 
 namespace Template
 {
@@ -10,6 +11,9 @@ namespace Template
         public Mesh mesh;
         public SurfaceTexture texture;
 
+        public GameObject parent;
+        public List<GameObject> children;
+
         public GameObject(Mesh mesh, SurfaceTexture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
         {
             this.position = position;
@@ -17,6 +21,20 @@ namespace Template
             this.scale = scale;
             this.mesh = mesh;
             this.texture = texture;
+
+            children = new List<GameObject>();
+        }
+
+        public void AddChild(GameObject gameObject)
+        {
+            children.Add(gameObject);
+            gameObject.parent = this;
+        }
+
+        public void RemoveChild(GameObject gameObject)
+        {
+            children.Remove(gameObject);
+            gameObject.parent = null;
         }
 
         public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
@@ -28,6 +46,18 @@ namespace Template
         public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)
         {
             if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjection); }
+        }
+
+        public Matrix4 GetGlobalTransformationMatrix()
+        {
+            Matrix4 globalTransform = GetLocalTransformationMatrix();
+            GameObject gameObject = this;
+            while(gameObject.parent != null)
+            {
+                globalTransform *= gameObject.parent.GetLocalTransformationMatrix();
+                gameObject = gameObject.parent;
+            }
+            return globalTransform;
         }
 
         public Matrix4 GetLocalTransformationMatrix()

@@ -47,7 +47,7 @@ namespace Template
             halfFarWidth = farWidth / 2;
         }
 
-        public Matrix4 GetFieldOfView()
+        public Matrix4 CreateProjectionMatrix()
         {
             return Matrix4.CreatePerspectiveFieldOfView(fov, aspectRatio, nearDistance, farDistance);
         }

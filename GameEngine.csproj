@@ -62,7 +62,6 @@
     <Compile Include="quad.cs" />
     <Compile Include="rendertarget.cs" />
     <Compile Include="scenegraph\SceneGraph.cs" />
-    <Compile Include="scenegraph\Graph.cs" />
     <Compile Include="shaderprogram\DepthShader.cs" />
     <Compile Include="shaderprogram\ModelShader.cs" />
     <Compile Include="shaderprogram\PostProcessingShader.cs" />

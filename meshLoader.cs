@@ -113,7 +113,6 @@ namespace Template
                 if (vec.X < minX) { minX = vec.X; }
                 if (vec.Y < minY) { minY = vec.Y; }
                 if (vec.Z < minZ) { minZ = vec.Z; }
-
                 if (vec.X > maxX) { maxX = vec.X; }
                 if (vec.Y > maxY) { maxY = vec.Y; }
                 if (vec.Z > maxZ) { maxZ = vec.Z; }
@@ -123,7 +122,6 @@ namespace Template
             float radius = Math.Max(Math.Max(Math.Abs(maxX - minX), Math.Abs(maxY - minY)), Math.Abs(maxZ - minZ));
             mesh.hitboxCenter = center;
             mesh.hitboxRadius = radius;
-            Console.WriteLine(center + " / " + radius);
         }
 
         private void CalculateTangentAndBitangents()
@@ -148,7 +146,7 @@ namespace Template
                 Vector2 deltaUV1 = uv1 - uv0;
                 Vector2 deltaUV2 = uv2 - uv0;
 
-                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                float r = 1 / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
                 Vector3 tangent = Vector3.Normalize((deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r);
                 Vector3 bitangent = Vector3.Normalize((deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r);
 
@@ -169,7 +167,6 @@ namespace Template
                     Tangent = tangent,
                     Bitangent = bitangent
                 };
-
 
                 objVertices[objTriangles[i].Index2] = new Mesh.ObjVertex()
                 {
