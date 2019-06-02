@@ -59,7 +59,7 @@ namespace Template
         public void RenderScene(Camera camera, ModelShader shader, DepthMap depthMap)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.2F, 0.2F, 0.9F));
+            shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.1F, 0.1F, 0.7F));
             shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
             shader.LoadVector3(shader.uniform_lightposition, lights[0].position);
             shader.LoadVector3(shader.uniform_camPos, camera.position);
