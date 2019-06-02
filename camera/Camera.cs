@@ -25,7 +25,7 @@ namespace Template
             return projectionMatrix;
         }
 
-        public void UpdateFrustumPoints()
+        public void CalculateFrustumPlanes()
         {
             frustum.UpdateFrustumPoints(this);
         }

@@ -97,8 +97,8 @@ namespace Template
             light.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
             light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
-            camera.UpdateFrustumPoints();
-            sceneGraph.CalculateMatrices();
+            camera.CalculateFrustumPlanes();
+            sceneGraph.CalculateMatricesAndRenderObjects(camera);
             if (useRenderTarget)
             {
                 depthMap.Bind();
