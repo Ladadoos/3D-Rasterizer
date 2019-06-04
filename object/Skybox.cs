@@ -62,7 +62,7 @@ namespace Template
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        public void Render(SkyboxShader shader, CubeTexture skyboxTexture, Matrix4 cameraViewProjMatrix)
+        public void Render(SkyboxShader shader, int cubeTextureId, Matrix4 cameraViewProjMatrix)
         {
             GL.DepthMask(false);
             shader.Bind();
@@ -72,7 +72,7 @@ namespace Template
             GL.BindBuffer(BufferTarget.ArrayBuffer, positionsVboId);
             GL.EnableVertexAttribArray(shader.attribute_position);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, skyboxTexture.id);
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeTextureId);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
             GL.DisableVertexAttribArray(shader.attribute_position);

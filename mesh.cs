@@ -50,7 +50,7 @@ namespace Template
 		}
 
         // render the mesh using the supplied shader and matrix
-        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix)
+        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
             // on first run, prepare buffers
             Prepare();
@@ -64,8 +64,7 @@ namespace Template
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
             GL.UniformMatrix4(shader.uniform_viewProjectionMatrix, false, ref viewProjMatrix);
-            Vector3 pos = transform.ExtractTranslation();
-            GL.Uniform3(shader.uniform_lightPosition, pos);
+            GL.Uniform3(shader.uniform_lightPosition, lightPosition);
 
             // enable position
             GL.EnableVertexAttribArray(shader.attribute_position);
@@ -127,8 +126,6 @@ namespace Template
 
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
-            GL.UniformMatrix4(shader.uniform_viewMatrix, false, ref view);
-            GL.UniformMatrix4(shader.uniform_projectionMatrix, false, ref projection);
 
             // enable position, normal and uv attributes
             GL.EnableVertexAttribArray(shader.attribute_position);

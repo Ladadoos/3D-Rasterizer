@@ -21,13 +21,13 @@ const float specularStrength = 0.8;
 const float shininess = 16;
 const float lightBrightness = 8500;
 
-float GetShadowFactor()
+float GetShadowFactor(vec3 norm)
 {
 	vec3 fragToLight = fragmentPosition.xyz - lightposition;
 	float closestDepth = texture(uDepthCube, fragToLight).r;
 	closestDepth *= 1000;
 	float currentDepth = length(fragToLight);
-	float bias = 0.005;
+	float bias = 0.15;
 	return currentDepth - bias > closestDepth ? 1 : 0;  
 }
 
@@ -54,7 +54,7 @@ void main()
 	float spec = pow(max(dot(-toCameraDir, reflectDir), 0), shininess);
 	vec3 specular = specularStrength * spec * uLightColor;
 
-	float shadowFactor = GetShadowFactor();
+	float shadowFactor = GetShadowFactor(norm);
 	vec3 lighting = (ambient + (1.0 - shadowFactor) * (diffuse + specular)) * lightAttenuation * lightBrightness;
 	outputColor = texture(uTextureMap, uv) * vec4(lighting, 1);
 }

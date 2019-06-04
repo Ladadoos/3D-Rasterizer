@@ -44,9 +44,9 @@ namespace Template
             if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, this, cubeDepthMap); }
         }
 
-        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix)
+        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
-            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjMatrix); }
+            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjMatrix, lightPosition); }
         }
 
         public virtual void Update()

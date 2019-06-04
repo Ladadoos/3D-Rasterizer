@@ -54,7 +54,7 @@ namespace Template
             floorFront = new Model(meshesAsset[2], texturesAsset[2], new Vector3(225, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
             floorBack = new Model(meshesAsset[2], texturesAsset[2], new Vector3(-225, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
 
-            light = new PointLight(null, texturesAsset[1], new Vector3(0, 25, 0), Vector3.Zero, Vector3.One);
+            light = new PointLight(null, texturesAsset[1], new Vector3(0, 45, 0), Vector3.Zero, Vector3.One);
             light.color = new Vector3(1F, 1F, 0.9F);
 
             cubeDepthMap = new CubeDepthMap(1024, 1024);
@@ -106,10 +106,14 @@ namespace Template
             camera.ProcessInput(app, deltaTime);
 
             // update rotation
-            a += 150f * deltaTime;
+            a += 125f * deltaTime;
             if (a > 360) { a -= 360; }
-            light.position.X = (float)(75 * Math.Cos(MathHelper.DegreesToRadians(a)));
-            light.position.Z = (float)(75 * Math.Sin(MathHelper.DegreesToRadians(a)));
+
+           // dragon.rotationInAngle.Y += (float)(1 * Math.Cos(MathHelper.DegreesToRadians(a)));
+
+            light.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
+            //light.position.Y = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
+            light.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
             camera.CalculateFrustumPlanes();
             sceneGraph.UpdateScene(camera);
@@ -120,7 +124,7 @@ namespace Template
 
                 target.Bind();
                 Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
-                skybox.Render(skyboxShader, skyboxTexture, viewProjMatrix);
+                skybox.Render(skyboxShader, skyboxTexture.id, viewProjMatrix);
                 sceneGraph.RenderScene(camera, modelShader, cubeDepthMap);
                 target.Unbind();
 
@@ -133,7 +137,7 @@ namespace Template
                 depthMap.Unbind();
 
                 Matrix4 viewProjMatrix = camera.GetViewMatrix() * camera.GetProjectionMatrix();
-                skybox.Render(skyboxShader, skyboxTexture, viewProjMatrix);
+                skybox.Render(skyboxShader, skyboxTexture.id, viewProjMatrix);
                 sceneGraph.RenderScene(camera, modelShader, cubeDepthMap);
             }
         }

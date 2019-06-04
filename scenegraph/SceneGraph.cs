@@ -47,7 +47,7 @@ namespace Template
                     light.depthCube.SetRenderSide(i);
                     foreach (GameObject gameObject in toRenderObjects)
                     {
-                        gameObject.RenderDepth(shader, gameObject.globalTransform, light.transformMatrices[i] * light.projectionMatrix);
+                        gameObject.RenderDepth(shader, gameObject.globalTransform, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
                     }
                 }
                 light.depthCube.Unbind();
@@ -56,15 +56,17 @@ namespace Template
 
         public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap cubeDepthMap)
         {
+            Matrix4 viewMatrix = camera.GetViewMatrix();
+            Matrix4 projMatrix = camera.GetProjectionMatrix();
+
             shader.Bind();
             shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.1F, 0.1F, 0.7F));
             shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
-            shader.LoadVector3(shader.uniform_lightposition, lights[0].position);
+            shader.LoadVector3(shader.uniform_lightposition, lights[0].globalTransform.ExtractTranslation());
             shader.LoadVector3(shader.uniform_camPos, camera.position);
+            shader.LoadMatrix(shader.uniform_viewMatrix, viewMatrix);
+            shader.LoadMatrix(shader.uniform_projectionMatrix, projMatrix);
             shader.Unbind();
-
-            Matrix4 viewMatrix = camera.GetViewMatrix();
-            Matrix4 projMatrix = camera.GetProjectionMatrix();
 
             foreach (GameObject gameObject in toRenderObjects)
             {
