@@ -39,12 +39,15 @@ namespace Template
             gameObject.parent = null;
         }
 
-        public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, CubeDepthMap cubeDepthMap)
+        public void RenderToScene(ModelShader shader)
         {
-            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, this, cubeDepthMap); }
+            if (mesh != null)
+            {
+                mesh.RenderToScene(shader, this);
+            }
         }
 
-        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
+        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
             if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjMatrix, lightPosition); }
         }
@@ -58,7 +61,7 @@ namespace Template
         {
             Matrix4 globalTransform = GetLocalTransformationMatrix();
             GameObject gameObject = this;
-            while(gameObject.parent != null)
+            while (gameObject.parent != null)
             {
                 globalTransform *= gameObject.parent.GetLocalTransformationMatrix();
                 gameObject = gameObject.parent;

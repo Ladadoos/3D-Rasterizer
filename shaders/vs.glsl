@@ -9,8 +9,6 @@ in vec3 iBitangent;         // untransformed vertex bitangent
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
-uniform vec3 uCameraPosition;
-uniform vec3 uLightPosition;
 
 out vec4 normal;			// transformed vertex normal
 out vec2 uv;		        
@@ -26,8 +24,6 @@ void main()
 
 	normal = normalize(uModel * vec4(iNormal, 0));
 	uv = iUV;
-	lightposition = uLightPosition;
-	cameraposition = uCameraPosition;
 
 	//Form the 3 basis for a coordinate system at the triangle's surface for normal mapping
 	vec3 tangent = normalize(vec3(uModel * vec4(iTangent, 0)));

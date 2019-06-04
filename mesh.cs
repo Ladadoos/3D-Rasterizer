@@ -94,8 +94,7 @@ namespace Template
         }
 
         // render the mesh using the supplied shader and matrix
-        public void RenderToScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
-            GameObject gameObject, CubeDepthMap cubeDepthMap)
+        public void RenderToScene(ModelShader shader, GameObject gameObject)
 		{
 			// on first run, prepare buffers
 			Prepare();
@@ -111,21 +110,25 @@ namespace Template
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.diffuse.id);
 
-            GL.Uniform1(shader.uniform_depthCube, 1);
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.TextureCubeMap, cubeDepthMap.cubeDepthMapId);
-
             int useNormalMap = gameObject.texture.normal == null ? 0 : 1;
             if (useNormalMap == 1)
             {
-                GL.Uniform1(shader.uniform_normalMap, 2);
-                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.Uniform1(shader.uniform_normalMap, 1);
+                GL.ActiveTexture(TextureUnit.Texture1);
                 GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.normal.id);
             }
             GL.Uniform1(shader.uniform_useNormalMap, useNormalMap);
 
             // pass transform to vertex shader
-            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
+            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref gameObject.globalTransform);
+
+            if(gameObject is PointLight)
+            {
+                GL.Uniform1(shader.uniform_isLightTarget, ((PointLight)gameObject).id);
+            } else
+            {
+                GL.Uniform1(shader.uniform_isLightTarget, -1);
+            }
 
             // enable position, normal and uv attributes
             GL.EnableVertexAttribArray(shader.attribute_position);

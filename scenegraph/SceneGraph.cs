@@ -1,27 +1,37 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL;
 
 namespace Template
 {
     class SceneGraph
     {
         public List<GameObject> gameObjects = new List<GameObject>();
-        public List<PointLight> lights = new List<PointLight>();
-        private List<GameObject> toRenderObjects = new List<GameObject>();
 
+        private List<PointLight> lights = new List<PointLight>();
+        private List<GameObject> toRenderObjects = new List<GameObject>();
         private int rendered = 0;
+
+        public void AddLight(PointLight light)
+        {
+            light.id = lights.Count;
+            lights.Add(light);
+        }
 
         public void UpdateScene(Camera camera)
         {
             rendered = 0;
-            toRenderObjects.Clear();
 
+            toRenderObjects.Clear();
             foreach (GameObject gameObject in gameObjects)
             {
                 gameObject.Update();
 
-                if(gameObject.mesh == null) { continue; }
+                if(gameObject.mesh == null)
+                {
+                    continue;
+                }
 
                 Vector4 center  = new Vector4(gameObject.mesh.hitboxCenter, 1) * gameObject.globalTransform;
                 Vector3 scale = gameObject.globalTransform.ExtractScale();
@@ -47,31 +57,39 @@ namespace Template
                     light.depthCube.SetRenderSide(i);
                     foreach (GameObject gameObject in toRenderObjects)
                     {
-                        if(gameObject is Light) { continue; }
-                        gameObject.RenderDepth(shader, gameObject.globalTransform, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
+                        if(gameObject is Light)
+                        {
+                            continue;
+                        }
+                        gameObject.RenderToDepth(shader, gameObject.globalTransform, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
                     }
                 }
                 light.depthCube.Unbind();
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap cubeDepthMap)
+        public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap[] cubeDepthMaps)
         {
-            Matrix4 viewMatrix = camera.GetViewMatrix();
-            Matrix4 projMatrix = camera.GetProjectionMatrix();
-
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.1F, 0.1F, 0.7F));
-            shader.LoadVector3(shader.uniform_lightcolor, lights[0].color);
-            shader.LoadVector3(shader.uniform_lightposition, lights[0].globalTransform.ExtractTranslation());
-            shader.LoadVector3(shader.uniform_camPos, camera.position);
-            shader.LoadMatrix(shader.uniform_viewMatrix, viewMatrix);
-            shader.LoadMatrix(shader.uniform_projectionMatrix, projMatrix);
+            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0));
+            for(int i = 0; i < lights.Count; i++)
+            {
+                shader.LoadVector3(shader.uniform_lightColor[i], lights[i].color);
+                shader.LoadFloat(shader.uniform_lightBrightness[i], lights[i].brightness);
+                shader.LoadVector3(shader.uniform_lightPosition[i], lights[i].globalTransform.ExtractTranslation());
+
+                GL.Uniform1(shader.uniform_depthCubes[i], 2 + i);
+                GL.ActiveTexture(TextureUnit.Texture2 + i);
+                GL.BindTexture(TextureTarget.TextureCubeMap, cubeDepthMaps[i].cubeDepthMapId);
+            }
+            shader.LoadVector3(shader.uniform_cameraPosition, camera.position);
+            shader.LoadMatrix(shader.uniform_viewMatrix, camera.GetViewMatrix());
+            shader.LoadMatrix(shader.uniform_projectionMatrix, camera.GetProjectionMatrix());
             shader.Unbind();
 
             foreach (GameObject gameObject in toRenderObjects)
             {
-                gameObject.RenderScene(shader, gameObject.globalTransform, viewMatrix, projMatrix, cubeDepthMap);
+                gameObject.RenderToScene(shader);
             }
         }
     }

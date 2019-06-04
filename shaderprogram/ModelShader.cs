@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using System;
 
 namespace Template
 {
@@ -11,7 +12,7 @@ namespace Template
         public int attribute_bitangent;
 
         public int uniform_textureMap;
-        public int uniform_depthCube;
+        public int[] uniform_depthCubes = new int[Consts.LightsCount];
         public int uniform_normalMap;
         public int uniform_useNormalMap;
 
@@ -19,10 +20,13 @@ namespace Template
         public int uniform_viewMatrix;
         public int uniform_projectionMatrix;
 
-        public int uniform_ambientlightcolor;
-        public int uniform_camPos;
-        public int uniform_lightcolor;
-        public int uniform_lightposition;
+        public int uniform_ambientLightColor;
+        public int uniform_cameraPosition;
+        public int[] uniform_lightColor = new int[Consts.LightsCount];
+        public int[] uniform_lightPosition = new int[Consts.LightsCount];
+        public int[] uniform_lightBrightness = new int[Consts.LightsCount];
+
+        public int uniform_isLightTarget;
 
         protected override void DefineShaderDirectories()
         {
@@ -39,34 +43,44 @@ namespace Template
             attribute_bitangent = GL.GetAttribLocation(programID, "iBitangent");
 
             uniform_textureMap = GL.GetUniformLocation(programID, "uTextureMap");
-            uniform_depthCube = GL.GetUniformLocation(programID, "uDepthCube");
             uniform_normalMap = GL.GetUniformLocation(programID, "uNormalMap");
             uniform_useNormalMap = GL.GetUniformLocation(programID, "uUseNormalMap");
+            for (int i = 0; i < Consts.LightsCount; i++)
+            {
+                uniform_depthCubes[i] = GL.GetUniformLocation(programID, "uDepthCube[" + i + "]");
+                Console.Write(uniform_depthCubes[i]);
+            }
 
             uniform_modelMatrix = GL.GetUniformLocation(programID, "uModel");
             uniform_viewMatrix = GL.GetUniformLocation(programID, "uView");
             uniform_projectionMatrix = GL.GetUniformLocation(programID, "uProjection");
 
-            uniform_ambientlightcolor = GL.GetUniformLocation(programID, "uAmbientLightColor");
-            uniform_camPos = GL.GetUniformLocation(programID, "uCameraPosition");
-            uniform_lightcolor = GL.GetUniformLocation(programID, "uLightColor");
-            uniform_lightposition = GL.GetUniformLocation(programID, "uLightPosition");
+            uniform_ambientLightColor = GL.GetUniformLocation(programID, "uAmbientLightColor");
+            uniform_cameraPosition = GL.GetUniformLocation(programID, "uCameraPosition");
+            for (int i = 0; i < Consts.LightsCount; i++)
+            {
+                uniform_lightColor[i] = GL.GetUniformLocation(programID, "uLightColor[" + i + "]");
+                uniform_lightPosition[i] = GL.GetUniformLocation(programID, "uLightPosition[" + i + "]");
+                uniform_lightBrightness[i] = GL.GetUniformLocation(programID, "uLightBrightness[" + i + "]");
+                Console.Write(uniform_lightColor[i]);
+                Console.Write(uniform_lightPosition[i]);
+                Console.Write(uniform_lightBrightness[i]);
+            }
+            
+            uniform_isLightTarget = GL.GetUniformLocation(programID, "uIsLightTarget");
 
-            System.Console.WriteLine("ModelShader locations: " + attribute_position + " / " +
+            Console.WriteLine("ModelShader locations: " + attribute_position + " / " +
                                                         attribute_normal + " / " +
                                                         attribute_uv + " / " +
                                                         uniform_textureMap + " / " +
                                                         uniform_modelMatrix + " / " +
                                                         uniform_viewMatrix + " / " +
                                                         uniform_projectionMatrix + " / " +
-                                                        uniform_ambientlightcolor + " / " +
-                                                        uniform_camPos + " / " +
-                                                        uniform_depthCube + " / " +
-                                                        uniform_lightcolor + " / " +
-                                                        uniform_lightposition + " / " + 
+                                                        uniform_ambientLightColor + " / " +
+                                                        uniform_cameraPosition + " / " +
                                                         uniform_normalMap + " / " +
-                                                        attribute_tangent + " / " + 
-                                                        attribute_bitangent + " / " + 
+                                                        attribute_tangent + " / " +
+                                                        attribute_bitangent + " / " +
                                                         uniform_useNormalMap
             );
         }
