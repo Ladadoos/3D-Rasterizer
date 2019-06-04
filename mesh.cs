@@ -50,7 +50,7 @@ namespace Template
 		}
 
         // render the mesh using the supplied shader and matrix
-        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)
+        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix)
         {
             // on first run, prepare buffers
             Prepare();
@@ -63,7 +63,9 @@ namespace Template
 
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
-            GL.UniformMatrix4(shader.uniform_viewProjectionMatrix, false, ref viewProjection);
+            GL.UniformMatrix4(shader.uniform_viewProjectionMatrix, false, ref viewProjMatrix);
+            Vector3 pos = transform.ExtractTranslation();
+            GL.Uniform3(shader.uniform_lightPosition, pos);
 
             // enable position
             GL.EnableVertexAttribArray(shader.attribute_position);
@@ -94,7 +96,7 @@ namespace Template
 
         // render the mesh using the supplied shader and matrix
         public void RenderToScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
-            Matrix4 lightMatrix, GameObject gameObject, DepthMap depthMap)
+            GameObject gameObject, CubeDepthMap cubeDepthMap)
 		{
 			// on first run, prepare buffers
 			Prepare();
@@ -110,9 +112,9 @@ namespace Template
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.diffuse.id);
 
-            GL.Uniform1(shader.uniform_depthMap, 1);
+            GL.Uniform1(shader.uniform_depthCube, 1);
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, depthMap.depthMapId);
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeDepthMap.cubeDepthMapId);
 
             int useNormalMap = gameObject.texture.normal == null ? 0 : 1;
             if (useNormalMap == 1)
@@ -127,7 +129,6 @@ namespace Template
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
             GL.UniformMatrix4(shader.uniform_viewMatrix, false, ref view);
             GL.UniformMatrix4(shader.uniform_projectionMatrix, false, ref projection);
-            GL.UniformMatrix4(shader.uniform_lightSpaceMatrix, false, ref lightMatrix);
 
             // enable position, normal and uv attributes
             GL.EnableVertexAttribArray(shader.attribute_position);

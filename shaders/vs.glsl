@@ -11,23 +11,20 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 uniform vec3 uCameraPosition;
 uniform vec3 uLightPosition;
-uniform mat4 uLightSpacematrix;
 
 out vec4 normal;			// transformed vertex normal
 out vec2 uv;		        
 out vec4 fragmentPosition;
-out vec4 posLightSpace;
 out vec3 lightposition;
 out vec3 cameraposition;
 out mat3 tbnMatrix;
 
 void main()
 {
-	gl_Position = uProjection * uView * uModel * vec4(iPosition, 1.0);
+	fragmentPosition = uModel * vec4(iPosition, 1);
+	gl_Position = uProjection * uView * fragmentPosition;
 
 	normal = normalize(uModel * vec4(iNormal, 0));
-	fragmentPosition = uModel * vec4(iPosition, 1);
-	posLightSpace = uLightSpacematrix * vec4(fragmentPosition.xyz, 1.0f);
 	uv = iUV;
 	lightposition = uLightPosition;
 	cameraposition = uCameraPosition;

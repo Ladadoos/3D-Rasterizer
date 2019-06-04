@@ -3,14 +3,13 @@
 in vec2 uv;						// interpolated texture coordinates
 in vec4 normal;					// interpolated normal
 in vec4 fragmentPosition;       
-in vec4 posLightSpace;
 in vec3 lightposition;
 in vec3 cameraposition;
 in mat3 tbnMatrix;
 
 uniform int uUseNormalMap;
 uniform sampler2D uTextureMap;	 // diffuse texture
-uniform sampler2D uDepthMap;     // depth texture
+uniform samplerCube uDepthCube;     // depth texture
 uniform sampler2D uNormalMap;    // normal texture
 uniform vec3 uAmbientLightColor;
 uniform vec3 uLightColor;
@@ -22,26 +21,14 @@ const float specularStrength = 0.8;
 const float shininess = 16;
 const float lightBrightness = 8500;
 
-float GetShadowFactor(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
+float GetShadowFactor()
 {
-    vec3 projectionCoords = fragPosLightSpace.xyz / fragPosLightSpace.w; //perspective division
-    projectionCoords = projectionCoords * 0.5 + 0.5; // range 0..1
-	if(projectionCoords.z > 1.0){ // check if fragment is outside light frustum
-		return 0;
-	}     
-    float currentDepth = projectionCoords.z;
-	float bias = clamp(0.005 * tan(acos(dot(normal, lightDir))), 0, 0.01); //dynamic bias based on slope
-	vec2 texelSize = 1.0 / textureSize(uDepthMap, 0);
-	float shadow = 0;
-	for(int x = -1; x <= 1; ++x) //check surrounding depthmap texels and take average for smooth shadows
-	{
-		for(int y = -1; y <= 1; ++y)
-		{
-			float depth = texture(uDepthMap, projectionCoords.xy + vec2(x, y) * texelSize).x; 
-			shadow += currentDepth - bias > depth ? 1 : 0;        
-		}    
-	}
-	return (shadow /= 9);
+	vec3 fragToLight = fragmentPosition.xyz - lightposition;
+	float closestDepth = texture(uDepthCube, fragToLight).r;
+	closestDepth *= 1000;
+	float currentDepth = length(fragToLight);
+	float bias = 0.005;
+	return currentDepth - bias > closestDepth ? 1 : 0;  
 }
 
 void main()
@@ -67,7 +54,7 @@ void main()
 	float spec = pow(max(dot(-toCameraDir, reflectDir), 0), shininess);
 	vec3 specular = specularStrength * spec * uLightColor;
 
-	float shadowFactor = GetShadowFactor(posLightSpace, norm, toLightDir);
+	float shadowFactor = GetShadowFactor();
 	vec3 lighting = (ambient + (1.0 - shadowFactor) * (diffuse + specular)) * lightAttenuation * lightBrightness;
 	outputColor = texture(uTextureMap, uv) * vec4(lighting, 1);
 }

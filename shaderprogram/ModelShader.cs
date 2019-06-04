@@ -11,7 +11,7 @@ namespace Template
         public int attribute_bitangent;
 
         public int uniform_textureMap;
-        public int uniform_depthMap;
+        public int uniform_depthCube;
         public int uniform_normalMap;
         public int uniform_useNormalMap;
 
@@ -21,7 +21,6 @@ namespace Template
 
         public int uniform_ambientlightcolor;
         public int uniform_camPos;
-        public int uniform_lightSpaceMatrix;
         public int uniform_lightcolor;
         public int uniform_lightposition;
 
@@ -40,7 +39,7 @@ namespace Template
             attribute_bitangent = GL.GetAttribLocation(programID, "iBitangent");
 
             uniform_textureMap = GL.GetUniformLocation(programID, "uTextureMap");
-            uniform_depthMap = GL.GetUniformLocation(programID, "uDepthMap");
+            uniform_depthCube = GL.GetUniformLocation(programID, "uDepthCube");
             uniform_normalMap = GL.GetUniformLocation(programID, "uNormalMap");
             uniform_useNormalMap = GL.GetUniformLocation(programID, "uUseNormalMap");
 
@@ -50,7 +49,6 @@ namespace Template
 
             uniform_ambientlightcolor = GL.GetUniformLocation(programID, "uAmbientLightColor");
             uniform_camPos = GL.GetUniformLocation(programID, "uCameraPosition");
-            uniform_lightSpaceMatrix = GL.GetUniformLocation(programID, "uLightSpacematrix");
             uniform_lightcolor = GL.GetUniformLocation(programID, "uLightColor");
             uniform_lightposition = GL.GetUniformLocation(programID, "uLightPosition");
 
@@ -63,8 +61,7 @@ namespace Template
                                                         uniform_projectionMatrix + " / " +
                                                         uniform_ambientlightcolor + " / " +
                                                         uniform_camPos + " / " +
-                                                        uniform_lightSpaceMatrix + " / " +
-                                                        uniform_depthMap + " / " +
+                                                        uniform_depthCube + " / " +
                                                         uniform_lightcolor + " / " +
                                                         uniform_lightposition + " / " + 
                                                         uniform_normalMap + " / " +

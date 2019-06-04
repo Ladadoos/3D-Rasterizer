@@ -52,7 +52,7 @@ namespace Template
 			// return to regular framebuffer
 			GL.Ext.BindFramebuffer( FramebufferTarget.FramebufferExt, 0 );
 		}
-		private bool CheckFBOStatus()
+		public static bool CheckFBOStatus()
 		{
 			switch( GL.Ext.CheckFramebufferStatus( FramebufferTarget.FramebufferExt ) )
 			{

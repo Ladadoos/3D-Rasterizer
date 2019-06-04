@@ -6,57 +6,55 @@ namespace Template
 {
     class SceneGraph
     {
-        struct RenderObject
-        {
-            public GameObject gameObject;
-            public Matrix4 globalTransformation;
-        }
-
-        public List<GameObject> objects = new List<GameObject>();
-        public List<Light> lights = new List<Light>();
-        private List<RenderObject> toRenderObjects = new List<RenderObject>();
-
-        private Matrix4 lightViewMatrix, lightProjectionMatrix, lightSpaceMatrix;
+        public List<GameObject> gameObjects = new List<GameObject>();
+        public List<PointLight> lights = new List<PointLight>();
+        private List<GameObject> toRenderObjects = new List<GameObject>();
 
         private int rendered = 0;
 
-        public void CalculateMatricesAndRenderObjects(Camera camera)
+        public void UpdateScene(Camera camera)
         {
-            Matrix4.CreateOrthographicOffCenter(-75, 75, -75, 75, 1, 1000, out lightProjectionMatrix);
-            lightViewMatrix = Matrix4.LookAt(lights[0].position, Vector3.Zero, new Vector3(0, 1, 0));
-            lightSpaceMatrix = lightViewMatrix * lightProjectionMatrix;
-
             rendered = 0;
             toRenderObjects.Clear();
-            foreach (GameObject obj in objects)
+
+            foreach (GameObject gameObject in gameObjects)
             {
-                Matrix4 globalTransform = obj.GetGlobalTransformationMatrix();
-                Vector4 center = new Vector4(obj.mesh.hitboxCenter, 1) * globalTransform;
-                Vector3 scale = globalTransform.ExtractScale();
+                gameObject.Update();
+
+                if(gameObject.mesh == null) { continue; }
+
+                Vector4 center  = new Vector4(gameObject.mesh.hitboxCenter, 1) * gameObject.globalTransform;
+                Vector3 scale = gameObject.globalTransform.ExtractScale();
                 float radius = Math.Max(scale.X, Math.Max(scale.Y, scale.Z));
 
-                if (camera.frustum.IsSphereInFrustum(center.Xyz, obj.mesh.hitboxRadius * radius))
+                if (camera.frustum.IsSphereInFrustum(center.Xyz, gameObject.mesh.hitboxRadius * radius))
                 {
                     rendered++;
-                    toRenderObjects.Add(new RenderObject()
-                    {
-                        gameObject = obj,
-                        globalTransformation = globalTransform
-                    });
+                    toRenderObjects.Add(gameObject);
                 }
             }
+
             Console.WriteLine("Objects rendered:" + rendered);
         }
 
         public void RenderDepthMap(Camera camera, DepthShader shader)
         {
-            foreach (RenderObject obj in toRenderObjects)
+            foreach (PointLight light in lights)
             {
-                obj.gameObject.RenderDepth(shader, obj.globalTransformation, lightSpaceMatrix);
+                light.depthCube.Bind();
+                for (int i = 0; i < 6; i++)
+                {
+                    light.depthCube.SetRenderSide(i);
+                    foreach (GameObject gameObject in toRenderObjects)
+                    {
+                        gameObject.RenderDepth(shader, gameObject.globalTransform, light.transformMatrices[i] * light.projectionMatrix);
+                    }
+                }
+                light.depthCube.Unbind();
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader shader, DepthMap depthMap)
+        public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap cubeDepthMap)
         {
             shader.Bind();
             shader.LoadVector3(shader.uniform_ambientlightcolor, new Vector3(0.1F, 0.1F, 0.7F));
@@ -68,9 +66,9 @@ namespace Template
             Matrix4 viewMatrix = camera.GetViewMatrix();
             Matrix4 projMatrix = camera.GetProjectionMatrix();
 
-            foreach (RenderObject obj in toRenderObjects)
+            foreach (GameObject gameObject in toRenderObjects)
             {
-                obj.gameObject.RenderScene(shader, obj.globalTransformation, viewMatrix, projMatrix, lightSpaceMatrix, depthMap);
+                gameObject.RenderScene(shader, gameObject.globalTransform, viewMatrix, projMatrix, cubeDepthMap);
             }
         }
     }

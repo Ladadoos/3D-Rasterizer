@@ -11,6 +11,8 @@ namespace Template
         public Mesh mesh;
         public SurfaceTexture texture;
 
+        public Matrix4 globalTransform;
+
         public GameObject parent;
         public List<GameObject> children;
 
@@ -37,18 +39,22 @@ namespace Template
             gameObject.parent = null;
         }
 
-        public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, 
-            Matrix4 lightMatrix, DepthMap depthMap)
+        public void RenderScene(ModelShader shader, Matrix4 transform, Matrix4 view, Matrix4 projection, CubeDepthMap cubeDepthMap)
         {
-            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, lightMatrix, this, depthMap); }
+            if(mesh != null) { mesh.RenderToScene(shader, transform, view, projection, this, cubeDepthMap); }
         }
 
-        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjection)
+        public void RenderDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix)
         {
-            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjection); }
+            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjMatrix); }
         }
 
-        public Matrix4 GetGlobalTransformationMatrix()
+        public virtual void Update()
+        {
+            globalTransform = GetGlobalTransformationMatrix();
+        }
+
+        private Matrix4 GetGlobalTransformationMatrix()
         {
             Matrix4 globalTransform = GetLocalTransformationMatrix();
             GameObject gameObject = this;
