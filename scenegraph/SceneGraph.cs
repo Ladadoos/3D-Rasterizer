@@ -47,6 +47,7 @@ namespace Template
                     light.depthCube.SetRenderSide(i);
                     foreach (GameObject gameObject in toRenderObjects)
                     {
+                        if(gameObject is Light) { continue; }
                         gameObject.RenderDepth(shader, gameObject.globalTransform, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
                     }
                 }

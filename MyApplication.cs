@@ -54,7 +54,7 @@ namespace Template
             floorFront = new Model(meshesAsset[2], texturesAsset[2], new Vector3(225, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
             floorBack = new Model(meshesAsset[2], texturesAsset[2], new Vector3(-225, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
 
-            light = new PointLight(null, texturesAsset[1], new Vector3(0, 45, 0), Vector3.Zero, Vector3.One);
+            light = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 45, 0), Vector3.Zero, Vector3.One);
             light.color = new Vector3(1F, 1F, 0.9F);
 
             cubeDepthMap = new CubeDepthMap(1024, 1024);
