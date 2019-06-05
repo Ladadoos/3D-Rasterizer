@@ -6,8 +6,8 @@ in vec2 uv;						// interpolated texture coordinates
 in vec4 normal;					// interpolated normal
 in vec4 fragmentPosition;       
 in mat3 tbnMatrix;
+flat in int useNormalMap;
 
-uniform int uUseNormalMap;
 uniform sampler2D uTextureMap;	 // diffuse texture
 uniform sampler2D uNormalMap;    // normal texture
 uniform samplerCube uDepthCube[LightCount];     // depth texture
@@ -22,7 +22,7 @@ out vec4 outputColor;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
-const float shininess = 16;
+const float shininess = 32;
 
 float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 {
@@ -52,7 +52,7 @@ void main()
 	}
 
 	vec3 norm = normal.xyz;
-	if(uUseNormalMap == 1){
+	if(useNormalMap == 1){
 		vec3 normalFromMap = texture(uNormalMap, uv).rgb;
 		normalFromMap = normalFromMap * 2.0 - 1.0; //convert to range -1..1
 		normalFromMap = tbnMatrix * normalFromMap; //convert coordinate system

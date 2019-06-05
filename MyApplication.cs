@@ -12,7 +12,7 @@ namespace Template
     class MyApplication
     {
         public Surface screen;                  // background surface for printing etc.
-        Model dragon, teapot2, teapot3;
+        Model dragon, teapot2, teapot3, box;
         Model floorBottom, floorLeft, floorRight, floorTop, floorFront, floorBack;
         float a = 0;
         RenderTarget target;                    // intermediate render target
@@ -43,6 +43,7 @@ namespace Template
             meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
             meshesAsset.Add(new Mesh("../../assets/floor.obj"));
             meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
+            meshesAsset.Add(new Mesh("../../assets/cube.obj"));
 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null)); 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null));
@@ -51,6 +52,7 @@ namespace Template
             dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, 25, 0), Vector3.Zero, new Vector3(7));
             teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(15, 125, 15), Vector3.Zero, Vector3.One);
             teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 5, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
+            box = new Model(meshesAsset[4], texturesAsset[0], new Vector3(50, 5, 10), new Vector3(45, 0, 45), new Vector3(35));
 
             floorBottom = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
             floorTop = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 225, 0), Vector3.Zero, new Vector3(20, 20, 20));
@@ -82,6 +84,7 @@ namespace Template
             sceneGraph.gameObjects.Add(light1);
             sceneGraph.gameObjects.Add(light2);
             sceneGraph.gameObjects.Add(teapot2);
+            sceneGraph.gameObjects.Add(box);
 
             sceneGraph.gameObjects.Add(floorBottom); 
             sceneGraph.gameObjects.Add(floorTop); floorTop.rotationInAngle.X = 180;
