@@ -23,7 +23,7 @@ namespace Template
         DepthMap depthMap;
         CubeTexture skyboxTexture;
         Skybox skybox;
-        PointLight light1, light2;
+        PointLight skylight, light2;
         CubeDepthMap[] cubeDepthMaps = new CubeDepthMap[Consts.LightsCount];
 
         //Shaders
@@ -54,21 +54,21 @@ namespace Template
             teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 5, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
             box = new Model(meshesAsset[4], texturesAsset[0], new Vector3(50, 5, 10), new Vector3(45, 0, 45), new Vector3(35));
 
-            floorBottom = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            floorTop = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 225, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            floorLeft = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, 125), Vector3.Zero, new Vector3(20, 20, 20));
-            floorRight = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, -125), Vector3.Zero, new Vector3(20, 20, 20));
-            floorFront = new Model(meshesAsset[2], texturesAsset[2], new Vector3(125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
+            floorBottom = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20));
+            //floorTop = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 225, 0), Vector3.Zero, new Vector3(20, 20, 20));
+            //floorLeft = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, 125), Vector3.Zero, new Vector3(20, 20, 20));
+           // floorRight = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, -125), Vector3.Zero, new Vector3(20, 20, 20));
+            //floorFront = new Model(meshesAsset[2], texturesAsset[2], new Vector3(125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
             floorBack = new Model(meshesAsset[2], texturesAsset[2], new Vector3(-125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
 
-            light1 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 45, 100), Vector3.Zero, Vector3.One);
-            light1.color = new Vector3(1, 1, 1); light1.brightness = 6000;
-            cubeDepthMaps[0] = new CubeDepthMap(256, 256);
-            light1.CreateDepth(cubeDepthMaps[0]);
+            skylight = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(300, 200, 0), Vector3.Zero, Vector3.One);
+            skylight.color = new Vector3(1, 1, 1); skylight.brightness = 100000;
+            cubeDepthMaps[0] = new CubeDepthMap(512, 512);
+            skylight.CreateDepth(cubeDepthMaps[0]);
 
             light2 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 105, 0), Vector3.Zero, Vector3.One);
-            light2.color = new Vector3(0.5F, 0, 1); light2.brightness = 3000;
-            cubeDepthMaps[1] = new CubeDepthMap(256, 256);
+            light2.color = new Vector3(0.5F, 0, 0); light2.brightness = 8000;
+            cubeDepthMaps[1] = new CubeDepthMap(512, 512);
             light2.CreateDepth(cubeDepthMaps[1]);
 
 
@@ -81,26 +81,26 @@ namespace Template
             dragon.AddChild(teapot3);
 
             sceneGraph.gameObjects.Add(dragon);
-            sceneGraph.gameObjects.Add(light1);
+            sceneGraph.gameObjects.Add(skylight);
             sceneGraph.gameObjects.Add(light2);
             sceneGraph.gameObjects.Add(teapot2);
             sceneGraph.gameObjects.Add(box);
 
             sceneGraph.gameObjects.Add(floorBottom); 
-            sceneGraph.gameObjects.Add(floorTop); floorTop.rotationInAngle.X = 180;
-            sceneGraph.gameObjects.Add(floorLeft); floorLeft.rotationInAngle.X = -90;
-            sceneGraph.gameObjects.Add(floorRight); floorRight.rotationInAngle.X = 90;
-            sceneGraph.gameObjects.Add(floorFront); floorFront.rotationInAngle.Z = 90;
+           // sceneGraph.gameObjects.Add(floorTop); floorTop.rotationInAngle.X = 180;
+           // sceneGraph.gameObjects.Add(floorLeft); floorLeft.rotationInAngle.X = -90;
+          //  sceneGraph.gameObjects.Add(floorRight); floorRight.rotationInAngle.X = 90;
+           // sceneGraph.gameObjects.Add(floorFront); floorFront.rotationInAngle.Z = 90;
             sceneGraph.gameObjects.Add(floorBack); floorBack.rotationInAngle.Z = -90;
 
             sceneGraph.gameObjects.Add(teapot3);
-            sceneGraph.AddLight(light1);
+            sceneGraph.AddLight(skylight);
             sceneGraph.AddLight(light2);
 
             //depthMap = new DepthMap(screen.width, screen.height);
 
-            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right.png", "../../assets/left.png", "../../assets/top.png",
-                "../../assets/bottom.png", "../../assets/front.png", "../../assets/back.png" });
+            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
+                "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" });
             skybox = new Skybox();
         }
 
@@ -123,11 +123,14 @@ namespace Template
             // update rotation
             a += 50 * deltaTime;
             if (a > 360) { a -= 360; }
+            float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
+            box.rotationInAngle.Y += 15 * cos;
+            box.scale += new Vector3(cos / 5, cos / 5, cos / 5);
+            light2.color.Y = (cos + 1) * 0.5F;
+            dragon.rotationInAngle.Y = 100 * cos;
 
-           // dragon.rotationInAngle.Y += (float)(1 * Math.Cos(MathHelper.DegreesToRadians(a)));
-
-            light1.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
-            light1.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
+           // skylight.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
+            //skylight.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
 
             camera.CalculateFrustumPlanes();
             sceneGraph.UpdateScene(camera);

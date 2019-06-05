@@ -71,7 +71,7 @@ namespace Template
         public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap[] cubeDepthMaps)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0));
+            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.1F));
             for(int i = 0; i < lights.Count; i++)
             {
                 shader.LoadVector3(shader.uniform_lightColor[i], lights[i].color);
