@@ -9,13 +9,9 @@ namespace Template
 		int vbo_idx = 0, vbo_vert = 0;
 		float[] vertices = { -1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, -1, 0, 1, 0, -1, -1, 0, 0, 0 };
 		int[] indices = { 0, 1, 2, 3 };
-		// constructor
-		public ScreenQuad()
-		{
-		}
 
 		// initialization; called during first render
-		public void Prepare( Shader shader )
+		public void Prepare()
 		{
 			if( vbo_vert == 0 )
 			{
@@ -30,18 +26,22 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( PostProcessingShader shader, int textureID )
+		public void Render( PostProcessingShader shader, int colorTextureId, int blurTextureId )
 		{
 			// on first run, prepare buffers
-			Prepare( shader );
+			Prepare();
 
-			// enable texture
-			GL.Uniform1( shader.uniform_screenTexture, 0 );
+            // enable shader
+            GL.UseProgram(shader.programID);
+
+            // enable texture
+            GL.Uniform1( shader.uniform_screenTexture, 0 );
 			GL.ActiveTexture( TextureUnit.Texture0 );
-			GL.BindTexture( TextureTarget.Texture2D, textureID );
+			GL.BindTexture( TextureTarget.Texture2D, colorTextureId );
 
-			// enable shader
-			GL.UseProgram( shader.programID );
+            GL.Uniform1(shader.uniform_blurTexture, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, blurTextureId);
 
 			// enable position and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_position );
@@ -63,5 +63,40 @@ namespace Template
 			// disable shader
 			GL.UseProgram( 0 );
 		}
-	}
+
+        // render the mesh using the supplied shader and matrix
+        public void Render2(PostProcessingShader shader, int colorTextureId)
+        {
+            // on first run, prepare buffers
+            Prepare();
+
+            // enable texture
+            GL.Uniform1(shader.uniform_screenTexture, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, colorTextureId);
+
+            // enable shader
+            GL.UseProgram(shader.programID);
+
+            // enable position and uv attributes
+            GL.EnableVertexAttribArray(shader.attribute_position);
+            GL.EnableVertexAttribArray(shader.attribute_uv);
+
+            // bind interleaved vertex data
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_vert);
+            GL.InterleavedArrays(InterleavedArrayFormat.T2fV3f, 20, IntPtr.Zero);
+
+            // link vertex attributes to shader parameters 
+            GL.VertexAttribPointer(shader.attribute_position, 3, VertexAttribPointerType.Float, false, 20, 0);
+            GL.VertexAttribPointer(shader.attribute_uv, 2, VertexAttribPointerType.Float, false, 20, 3 * 4);
+
+            // bind triangle index data and render
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, vbo_idx);
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+
+            // disable shader
+            GL.UseProgram(0);
+        }
+    }
 }

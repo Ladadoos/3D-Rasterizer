@@ -1,6 +1,7 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL;
 
 namespace Template
 {
@@ -15,7 +16,7 @@ namespace Template
         Model dragon, teapot2, teapot3, box;
         Model floorBottom, floorLeft, floorRight, floorTop, floorFront, floorBack;
         float a = 0;
-        RenderTarget target;                    // intermediate render target
+        RenderTarget screenFBO;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
         public static Camera camera;
         SceneGraph sceneGraph;
@@ -62,18 +63,18 @@ namespace Template
             floorBack = new Model(meshesAsset[2], texturesAsset[2], new Vector3(-125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
 
             skylight = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(300, 200, 0), Vector3.Zero, Vector3.One);
-            skylight.color = new Vector3(1, 1, 1); skylight.brightness = 100000;
+            skylight.color = new Vector3(1, 1, 1); skylight.brightness = 50000;
             cubeDepthMaps[0] = new CubeDepthMap(512, 512);
             skylight.CreateDepth(cubeDepthMaps[0]);
 
-            light2 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 105, 0), Vector3.Zero, Vector3.One);
-            light2.color = new Vector3(0.5F, 0, 0); light2.brightness = 8000;
+            light2 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(4));
+            light2.color = new Vector3(0.5F, 0, 0); light2.brightness = 2000;
             cubeDepthMaps[1] = new CubeDepthMap(512, 512);
             light2.CreateDepth(cubeDepthMaps[1]);
 
-
             // create the render target
-            target = new RenderTarget(screen.width, screen.height);
+            screenFBO = new RenderTarget(2, screen.width, screen.height);
+            
             quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(0, -15, 0));
             sceneGraph = new SceneGraph();
@@ -106,8 +107,8 @@ namespace Template
 
         public void OnWindowResize(int width, int height)
         {
-            target.width = width;
-            target.height = height;
+            screenFBO.width = width;
+            screenFBO.height = height;
         }
 
         public void Tick(OpenTKApp app, float deltaTime)
@@ -126,7 +127,7 @@ namespace Template
             float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
             box.rotationInAngle.Y += 15 * cos;
             box.scale += new Vector3(cos / 5, cos / 5, cos / 5);
-            light2.color.Y = (cos + 1) * 0.5F;
+           // light2.color.Y += 0.01F ;
             dragon.rotationInAngle.Y = 100 * cos;
 
            // skylight.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
@@ -139,13 +140,14 @@ namespace Template
             {
                 sceneGraph.RenderDepthMap(camera, depthShader);
 
-                target.Bind();
+                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
+                screenFBO.Bind();
                 Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
                 skybox.Render(skyboxShader, skyboxTexture.id, viewProjMatrix);
                 sceneGraph.RenderScene(camera, modelShader, cubeDepthMaps);
-                target.Unbind();
+                screenFBO.Unbind();
 
-                quad.Render(postProcessingShader, target.GetTextureID());
+                quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), screenFBO.GetTargetTextureId(1));
             } else
             {
                 // render scene directly to the screen

@@ -44,7 +44,7 @@ namespace Template
                 }
             }
 
-            Console.WriteLine("Objects rendered:" + rendered);
+           // Console.WriteLine("Objects rendered:" + rendered);
         }
 
         public void RenderDepthMap(Camera camera, DepthShader shader)

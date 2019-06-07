@@ -18,7 +18,8 @@ uniform vec3 uLightPosition[LightCount];
 uniform float uLightBrightness[LightCount];
 uniform int uIsLightTarget;
 
-out vec4 outputColor;
+layout (location = 0) out vec4 outputFragColor;
+layout (location = 1) out vec4 outputBrightnessColor;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
@@ -44,10 +45,19 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 	return (accumulatedShadow / 27);
 }
 
+void CalculateBrightness(){
+    // check whether fragment output is higher than threshold, if so output as brightness color
+    if(outputFragColor.r > 0.9 || outputFragColor.b > 0.9 || outputFragColor.g > 0.9)
+        outputBrightnessColor = vec4(outputFragColor.rgb, 1.0);
+    else
+        outputBrightnessColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+
 void main()
 {
 	if(uIsLightTarget != -1){
-		outputColor = vec4(uLightColor[uIsLightTarget], 1);
+		outputFragColor = vec4(uLightColor[uIsLightTarget] * uLightBrightness[uIsLightTarget], 1);
+		CalculateBrightness();
 		return;
 	}
 
@@ -79,5 +89,6 @@ void main()
 		lighting += (1.0 - shadowFactor) * (diffuse + specular) * lightAttenuation * uLightBrightness[i];
 	}
 
-	outputColor = texture(uTextureMap, uv) * vec4(lighting, 1);
+	outputFragColor = texture(uTextureMap, uv) * vec4(lighting, 1.0);
+	CalculateBrightness();
 }
