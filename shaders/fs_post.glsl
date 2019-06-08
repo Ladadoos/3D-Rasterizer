@@ -4,9 +4,12 @@ in vec2 fragmentPosition;	      // fragment position in screen space
 in vec2 uv;						  // interpolated texture coordinates
 
 uniform sampler2D uScreenTexture; // input texture (1st pass render target)
-uniform sampler2D uBlurTexture;
+uniform sampler2D uBlurTexture;   // texture with only the brightest parts of the uScreenTexture
 
 out vec3 outputColor;
+
+const int KernelWidth = 5;
+const int KernelHeight = 5;
 
 const float blurKernel[25] = float[](
 	0.003765,	0.015019,	0.023792,	0.015019,	0.003765,
@@ -16,23 +19,41 @@ const float blurKernel[25] = float[](
 	0.003765,	0.015019,	0.023792,	0.015019,	0.003765
 );
 
-vec3 getBloom(){
-	vec3 bloom = vec3(0);
-	vec2 tex_offset = 1.0 / textureSize(uBlurTexture, 0);
-	int k = 0;
-	for(int i = -2; i <= 2; i++){
-		for(int j = -2; j <= 2; j++){
-			bloom += vec3(texture(uBlurTexture, uv + vec2(tex_offset.x * i, tex_offset.y * j))) * blurKernel[k];
-			k++;
+const float edgeKernel[25] = float[](
+	1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1,
+	1, 1, -24, 1, 1,
+	1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1
+);
+
+const float sharpKernel[25] = float[](
+	0, 0, -1, 0, 0,
+	0, -1, -1, -1, 0,
+	-1, -1, 12, -1, -1,
+	0, -1, -1, -1, 0,
+	0, 0, -1, 0, 0
+);
+
+vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
+	vec3 finalColor = vec3(0);
+	vec2 offset = 1.0 / textureSize(sampleTexture, 0);
+	int ki = 0;
+	int b1 = KernelWidth / 2; 
+	int b2 = KernelHeight / 2;
+	for(int x = -b1; x <= b1; x++){
+		for(int y = -b2; y <= b2; y++){
+			finalColor += vec3(texture(sampleTexture, uv + vec2(offset.x * x, offset.y * y))) * kernel[ki];
+			ki++;
 		}
 	}
-	return bloom;
+	return finalColor;
 }
 
 vec3 standard(){
 	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
-	hdrColor += getBloom();
+	hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
 	float exposure = 2f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
@@ -72,8 +93,11 @@ void main()
 	vec3 color = vec3(0);
 	color = standard();
 
+	//Uncomment the lines as you wish to create the special effects.
 	//color = chromaticAbberation(color);
 	//color = invert(color);
+	//color += applyKernelEffect(uScreenTexture, edgeKernel);
+	//color += applyKernelEffect(uScreenTexture, sharpKernel);
 	//color = vignette(color);
 
 	outputColor = color;
