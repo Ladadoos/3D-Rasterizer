@@ -11,6 +11,7 @@ flat in int useNormalMap;
 uniform sampler2D uTextureMap;	 // diffuse texture
 uniform sampler2D uNormalMap;    // normal texture
 uniform samplerCube uDepthCube[LightCount];     // depth texture
+uniform float uShininess;
 uniform vec3 uAmbientLightColor;
 uniform vec3 uLightColor[LightCount];
 uniform vec3 uCameraPosition;
@@ -23,13 +24,12 @@ layout (location = 1) out vec4 outputBrightnessColor;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
-const float shininess = 32;
 
 float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 {
 	vec3 fragToLight = fragmentPosition.xyz - uLightPosition[lightIndex];
 	float currentDepth = length(fragToLight);
-	float bias = 1000 / 100;
+	float bias = max(0.025 * (1.0 - dot(norm, toLightDirection)), 0.2);  
 	float accumulatedShadow = 0;
 	for(int x = -1; x <= 1; x++){
 		for(int y = -1; y <= 1; y++){
@@ -87,7 +87,7 @@ void main()
 		vec3 diffuse = diff * uLightColor[i];
 
 		vec3 reflectDir = reflect(toLightDirection, norm);
-		float spec = pow(max(dot(-toCameraDir, reflectDir), 0), shininess);
+		float spec = pow(max(dot(-toCameraDir, reflectDir), 0), uShininess);
 		vec3 specular = specularStrength * spec * uLightColor[i];
 
 		float shadowFactor = GetShadowFactor(norm, i, toLightDirection);

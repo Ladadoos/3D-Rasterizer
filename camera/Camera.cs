@@ -29,7 +29,10 @@ namespace Template
             frustum.UpdateFrustumPoints(this);
         }
 
-        public abstract Matrix4 GetViewMatrix();
+        public Matrix4 GetViewMatrix()
+        {
+            return Matrix4.LookAt(position, position + forward, Vector3.UnitY);
+        }
 
         public abstract void ProcessInput(OpenTKApp app, float deltaTime);
     }

@@ -15,6 +15,7 @@ namespace Template
         public int[] uniform_depthCubes = new int[Consts.LightsCount];
         public int uniform_normalMap;
         public int uniform_useNormalMap;
+        public int uniform_shininess;
 
         public int uniform_modelMatrix;
         public int uniform_viewMatrix;
@@ -50,6 +51,7 @@ namespace Template
                 uniform_depthCubes[i] = GL.GetUniformLocation(programID, "uDepthCube[" + i + "]");
                 Console.Write(uniform_depthCubes[i]);
             }
+            uniform_shininess = GL.GetUniformLocation(programID, "uShininess");
 
             uniform_modelMatrix = GL.GetUniformLocation(programID, "uModel");
             uniform_viewMatrix = GL.GetUniformLocation(programID, "uView");
@@ -81,7 +83,8 @@ namespace Template
                                                         uniform_normalMap + " / " +
                                                         attribute_tangent + " / " +
                                                         attribute_bitangent + " / " +
-                                                        uniform_useNormalMap
+                                                        uniform_useNormalMap + " / " +
+                                                        uniform_shininess
             );
         }
     }

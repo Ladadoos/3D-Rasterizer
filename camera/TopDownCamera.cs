@@ -12,33 +12,26 @@ namespace Template
 
         public TopDownCamera(Vector3 position) : base(position)
         {
-            pitch = 45;
-        }
-
-        public override Matrix4 GetViewMatrix()
-        {
-                return Matrix4.CreateTranslation(position) *
-                       Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(yaw)) *
-                       Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(pitch));
+            pitch = -45F;
         }
 
         public override void ProcessInput(OpenTKApp app, float deltaTime)
         {
             var keyboard = Keyboard.GetState();
-
-            float rad = MathHelper.DegreesToRadians(yaw);
-            float cos = (float)Math.Cos(rad);
-            float sin = (float)Math.Sin(rad);
-            right = new Vector3(cos, 0, sin);
-            forward = Vector3.Cross(right, new Vector3(0, 1, 0));
+            var mouse = Mouse.GetState();
 
             if (keyboard[Key.W])
             {
-                position += movementSpeed * deltaTime * forward;
+                Vector3 offset = movementSpeed * deltaTime * forward;
+                offset.Y = 0;
+                position += offset;
             } else if (keyboard[Key.S])
             {
-                position -= movementSpeed * deltaTime * forward;
+                Vector3 offset = movementSpeed * deltaTime * forward;
+                offset.Y = 0;
+                position -= offset;
             }
+
             if (keyboard[Key.A])
             {
                 position += movementSpeed * deltaTime * right;
@@ -46,6 +39,7 @@ namespace Template
             {
                 position -= movementSpeed * deltaTime * right;
             }
+
             if (keyboard[Key.Q])
             {
                 yaw -= rotationSpeed * deltaTime;
@@ -54,13 +48,23 @@ namespace Template
                 yaw += rotationSpeed * deltaTime;
             }
 
-            var mouse = Mouse.GetState();
             if (mouse.Wheel != prevMouseWheelValue)
             {
                 int delta = mouse.Wheel - prevMouseWheelValue;
                 prevMouseWheelValue = mouse.Wheel;
                 position.Y += delta * zoomSpeed * deltaTime;
             }
+
+            if (yaw > 360) { yaw -= 360; }
+            if (yaw < 0) { yaw += 360; }
+            double pitchRad = pitch * Math.PI / 180;
+            double yawRad = yaw * Math.PI / 180;
+            double cosPitch = Math.Cos(pitchRad);
+            forward.X = (float)(cosPitch * Math.Cos(yawRad));
+            forward.Y = (float)(Math.Sin(pitchRad));
+            forward.Z = (float)(cosPitch * Math.Sin(yawRad));
+            forward.Normalize();
+            right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
         }
     }
 }

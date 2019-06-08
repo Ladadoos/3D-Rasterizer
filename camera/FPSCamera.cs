@@ -13,11 +13,6 @@ namespace Template
         {
         }
 
-        public override Matrix4 GetViewMatrix()
-        {
-            return Matrix4.LookAt(position, position + forward, Vector3.UnitY);
-        }
-
         public override void ProcessInput(OpenTKApp app, float deltaTime)
         {
             var keyboard = Keyboard.GetState();

@@ -128,6 +128,7 @@ namespace Template
 
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref gameObject.globalTransform);
+            shader.LoadFloat(shader.uniform_shininess, gameObject.texture.shininess);
 
             if(gameObject is PointLight)
             {
