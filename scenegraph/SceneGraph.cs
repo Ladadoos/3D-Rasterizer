@@ -61,7 +61,7 @@ namespace Template
                         {
                             continue;
                         }
-                        gameObject.RenderToDepth(shader, gameObject.globalTransform, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
+                        gameObject.RenderToDepth(shader, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
                     }
                 }
                 light.depthCube.Unbind();
@@ -71,7 +71,7 @@ namespace Template
         public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap[] cubeDepthMaps)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.1F));
+            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.001f));
             for(int i = 0; i < lights.Count; i++)
             {
                 shader.LoadVector3(shader.uniform_lightColor[i], lights[i].color);

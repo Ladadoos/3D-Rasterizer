@@ -13,8 +13,8 @@ namespace Template
     class MyApplication
     {
         public Surface screen;                  // background surface for printing etc.
-        Model dragon, teapot2, teapot3, box;
-        Model floorBottom, floorLeft, floorRight, floorTop, floorFront, floorBack;
+        Model dragon, teapot2, teapot3, centerBox;
+        Model floorBottom;
         float a = 0;
         RenderTarget screenFBO;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
@@ -40,36 +40,53 @@ namespace Template
         // initialize
         public void Init()
         {
+            Random random = new Random();
+
+            sceneGraph = new SceneGraph();
+
             meshesAsset.Add(new Mesh("../../assets/dragon.obj"));
             meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
             meshesAsset.Add(new Mesh("../../assets/floor.obj"));
             meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
             meshesAsset.Add(new Mesh("../../assets/cube.obj"));
+            meshesAsset.Add(new Mesh("../../assets/palm.obj"));
+            meshesAsset.Add(new Mesh("../../assets/grass.obj"));
 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null)); 
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null));
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png")));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGreen.png"), null));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/grass.png"), null));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/dirt.png"), new Texture("../../assets/dirtnormal.png")));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/gunMetalGray.jpg"), null));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/stoneDiffuse.jpg"), new Texture("../../assets/stoneNormal.jpg")));
 
-            dragon = new Model(meshesAsset[0], texturesAsset[1], new Vector3(0, 25, 0), Vector3.Zero, new Vector3(7));
+            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, 0, 80), new Vector3(0,65 , 0), new Vector3(5));
             teapot2 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(15, 125, 15), Vector3.Zero, Vector3.One);
             teapot3 = new Model(meshesAsset[1], texturesAsset[0], new Vector3(0, 5, 10), Vector3.Zero, new Vector3(0.25F, 0.25F, 0.25F));
-            box = new Model(meshesAsset[4], texturesAsset[0], new Vector3(50, 5, 10), new Vector3(45, 0, 45), new Vector3(35));
+            centerBox = new Model(meshesAsset[4], texturesAsset[0], new Vector3(0, 45, 0), new Vector3(45, 0, 45), new Vector3(25));
 
-            floorBottom = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 13, 0), Vector3.Zero, new Vector3(20));
-            //floorTop = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 225, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            //floorLeft = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, 125), Vector3.Zero, new Vector3(20, 20, 20));
-           // floorRight = new Model(meshesAsset[2], texturesAsset[2], new Vector3(0, 40, -125), Vector3.Zero, new Vector3(20, 20, 20));
-            //floorFront = new Model(meshesAsset[2], texturesAsset[2], new Vector3(125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
-            floorBack = new Model(meshesAsset[2], texturesAsset[2], new Vector3(-125, 40, 0), Vector3.Zero, new Vector3(20, 20, 20));
+            for(int i = 0; i < 125; i++)
+            {
+                sceneGraph.gameObjects.Add(new Model(
+                    meshesAsset[6], 
+                    texturesAsset[4], 
+                    new Vector3(random.Next(-150, 150), 0, random.Next(-150, 150)), 
+                    new Vector3(0, random.Next(360), 0) ,
+                    new Vector3(12 + random.Next(16)))
+                );
+            }
 
-            skylight = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(300, 200, 0), Vector3.Zero, Vector3.One);
-            skylight.color = new Vector3(1, 1, 1); skylight.brightness = 50000;
-            cubeDepthMaps[0] = new CubeDepthMap(512, 512);
+            floorBottom = new Model(meshesAsset[2], texturesAsset[5], new Vector3(0, 40, 0), Vector3.Zero, new Vector3(20));
+
+            skylight = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(300, 400, 0), Vector3.Zero, Vector3.One);
+            skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
+            cubeDepthMaps[0] = new CubeDepthMap(1024, 1024);
             skylight.CreateDepth(cubeDepthMaps[0]);
 
             light2 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(4));
-            light2.color = new Vector3(0.5F, 0, 0); light2.brightness = 2000;
-            cubeDepthMaps[1] = new CubeDepthMap(512, 512);
+            light2.color = new Vector3(1f, 1F, 1F); light2.brightness = 10000;
+            cubeDepthMaps[1] = new CubeDepthMap(256, 256);
             light2.CreateDepth(cubeDepthMaps[1]);
 
             // create the render target
@@ -77,7 +94,6 @@ namespace Template
             
             quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(0, -15, 0));
-            sceneGraph = new SceneGraph();
 
             dragon.AddChild(teapot3);
 
@@ -85,14 +101,9 @@ namespace Template
             sceneGraph.gameObjects.Add(skylight);
             sceneGraph.gameObjects.Add(light2);
             sceneGraph.gameObjects.Add(teapot2);
-            sceneGraph.gameObjects.Add(box);
+            sceneGraph.gameObjects.Add(centerBox);
 
             sceneGraph.gameObjects.Add(floorBottom); 
-           // sceneGraph.gameObjects.Add(floorTop); floorTop.rotationInAngle.X = 180;
-           // sceneGraph.gameObjects.Add(floorLeft); floorLeft.rotationInAngle.X = -90;
-          //  sceneGraph.gameObjects.Add(floorRight); floorRight.rotationInAngle.X = 90;
-           // sceneGraph.gameObjects.Add(floorFront); floorFront.rotationInAngle.Z = 90;
-            sceneGraph.gameObjects.Add(floorBack); floorBack.rotationInAngle.Z = -90;
 
             sceneGraph.gameObjects.Add(teapot3);
             sceneGraph.AddLight(skylight);
@@ -122,16 +133,18 @@ namespace Template
             camera.ProcessInput(app, deltaTime);
 
             // update rotation
-            a += 50 * deltaTime;
+            a += 75 * deltaTime;
             if (a > 360) { a -= 360; }
             float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
-            box.rotationInAngle.Y += 15 * cos;
-            box.scale += new Vector3(cos / 5, cos / 5, cos / 5);
-           // light2.color.Y += 0.01F ;
-            dragon.rotationInAngle.Y = 100 * cos;
+            float sin = (float)Math.Sin(MathHelper.DegreesToRadians(a));
 
-           // skylight.position.X = (float)(125 * Math.Cos(MathHelper.DegreesToRadians(a)));
-            //skylight.position.Z = (float)(125 * Math.Sin(MathHelper.DegreesToRadians(a)));
+            centerBox.rotationInAngle.Y += deltaTime * 100;
+            centerBox.position.Y += sin / 5;
+           // light2.color.Y += 0.01F ;
+           // dragon.rotationInAngle.Y = 100 * cos;
+
+            light2.position.X = (float)(125 * cos);
+            light2.position.Z = (float)(125 * sin);
 
             camera.CalculateFrustumPlanes();
             sceneGraph.UpdateScene(camera);

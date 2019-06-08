@@ -46,17 +46,22 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 }
 
 void CalculateBrightness(){
-    // check whether fragment output is higher than threshold, if so output as brightness color
-    if(outputFragColor.r > 0.9 || outputFragColor.b > 0.9 || outputFragColor.g > 0.9)
+    if(outputFragColor.r > 0.9 || outputFragColor.b > 0.9 || outputFragColor.g > 0.9){
         outputBrightnessColor = vec4(outputFragColor.rgb, 1.0);
-    else
+    }else{
         outputBrightnessColor = vec4(0.0, 0.0, 0.0, 1.0);
+	}
 }
 
 void main()
 {
+	vec4 textureColor = texture(uTextureMap, uv);
+	if(textureColor.a < 0.5){
+		discard;
+	}
+
 	if(uIsLightTarget != -1){
-		outputFragColor = vec4(uLightColor[uIsLightTarget] * uLightBrightness[uIsLightTarget], 1);
+		outputFragColor = vec4(uLightColor[uIsLightTarget], 1);
 		CalculateBrightness();
 		return;
 	}
@@ -89,6 +94,6 @@ void main()
 		lighting += (1.0 - shadowFactor) * (diffuse + specular) * lightAttenuation * uLightBrightness[i];
 	}
 
-	outputFragColor = texture(uTextureMap, uv) * vec4(lighting, 1.0);
+	outputFragColor = textureColor * vec4(lighting, 1.0);
 	CalculateBrightness();
 }

@@ -50,7 +50,7 @@ namespace Template
 		}
 
         // render the mesh using the supplied shader and matrix
-        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
+        public void RenderToDepth(DepthShader shader, GameObject gameObject, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
             // on first run, prepare buffers
             Prepare();
@@ -61,13 +61,19 @@ namespace Template
             // safety dance
             GL.PushClientAttrib(ClientAttribMask.ClientVertexArrayBit);
 
+            // enable texture
+            GL.Uniform1(shader.uniform_textureMap, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, gameObject.texture.diffuse.id);
+
             // pass transform to vertex shader
-            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref transform);
+            GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref gameObject.globalTransform);
             GL.UniformMatrix4(shader.uniform_viewProjectionMatrix, false, ref viewProjMatrix);
             GL.Uniform3(shader.uniform_lightPosition, lightPosition);
 
             // enable position
             GL.EnableVertexAttribArray(shader.attribute_position);
+            GL.EnableVertexAttribArray(shader.attribute_uv);
 
             // bind interleaved vertex data
             GL.EnableClientState(ArrayCap.VertexArray);
@@ -75,6 +81,7 @@ namespace Template
             GL.InterleavedArrays(InterleavedArrayFormat.T2fN3fV3f, Marshal.SizeOf(typeof(ObjVertex)), IntPtr.Zero);
 
             // link vertex attributes to shader parameters 
+            GL.VertexAttribPointer(shader.attribute_uv, 2, VertexAttribPointerType.Float, false, 56, 0);
             GL.VertexAttribPointer(shader.attribute_position, 3, VertexAttribPointerType.Float, false, 56, 5 * 4);
 
             // bind triangle index data and render

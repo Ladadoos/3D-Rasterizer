@@ -47,9 +47,9 @@ namespace Template
             }
         }
 
-        public void RenderToDepth(DepthShader shader, Matrix4 transform, Matrix4 viewProjMatrix, Vector3 lightPosition)
+        public void RenderToDepth(DepthShader shader, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
-            if (mesh != null) { mesh.RenderToDepth(shader, transform, viewProjMatrix, lightPosition); }
+            if (mesh != null) { mesh.RenderToDepth(shader, this, viewProjMatrix, lightPosition); }
         }
 
         public virtual void Update()
