@@ -133,6 +133,10 @@ namespace Template
             if(gameObject is PointLight)
             {
                 GL.Uniform1(shader.uniform_isLightTarget, ((PointLight)gameObject).id);
+            }
+            if (gameObject is SpotLight)
+            {
+                GL.Uniform1(shader.uniform_isLightTarget, ((SpotLight)gameObject).id + 100);
             } else
             {
                 GL.Uniform1(shader.uniform_isLightTarget, -1);

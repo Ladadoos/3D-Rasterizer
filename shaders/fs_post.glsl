@@ -53,7 +53,7 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 vec3 standard(){
 	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
-	hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
+	//hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
 	float exposure = 2f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 

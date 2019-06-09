@@ -5,12 +5,11 @@ namespace Template
     public class PointLight : Light
     {
         public CubeDepthMap depthCube;
-        public Matrix4[] viewMatrices = new Matrix4[6];
 
         public PointLight(Mesh mesh, SurfaceTexture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
             : base(mesh, texture, position, rotationInAngle, scale)
         {
-
+            viewMatrices = new Matrix4[6];
         }
 
         public void CreateDepth(CubeDepthMap depthMap)

@@ -51,8 +51,9 @@
     <Compile Include="camera\TopDownCamera.cs" />
     <Compile Include="camera\ViewFrustum.cs" />
     <Compile Include="object\light\PointLight.cs" />
-    <Compile Include="texture\CubeDepthMap.cs" />
-    <Compile Include="texture\DepthMap.cs" />
+    <Compile Include="object\light\SpotLight.cs" />
+    <Compile Include="texture\depth\CubeDepthMap.cs" />
+    <Compile Include="texture\depth\DepthMap.cs" />
     <Compile Include="object\GameObject.cs" />
     <Compile Include="mesh.cs" />
     <Compile Include="meshLoader.cs" />
