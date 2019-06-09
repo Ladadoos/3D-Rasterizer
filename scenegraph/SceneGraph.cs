@@ -68,10 +68,10 @@ namespace Template
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader shader, CubeDepthMap[] cubeDepthMaps)
+        public void RenderScene(Camera camera, ModelShader shader)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.001f));
+            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.05f));
             for(int i = 0; i < lights.Count; i++)
             {
                 shader.LoadVector3(shader.uniform_lightColor[i], lights[i].color);
@@ -80,7 +80,7 @@ namespace Template
 
                 GL.Uniform1(shader.uniform_depthCubes[i], 2 + i);
                 GL.ActiveTexture(TextureUnit.Texture2 + i);
-                GL.BindTexture(TextureTarget.TextureCubeMap, cubeDepthMaps[i].cubeDepthMapId);
+                GL.BindTexture(TextureTarget.TextureCubeMap, lights[i].depthCube.cubeDepthMapId);
             }
             shader.LoadVector3(shader.uniform_cameraPosition, camera.position);
             shader.LoadMatrix(shader.uniform_viewMatrix, camera.GetViewMatrix());

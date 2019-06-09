@@ -21,11 +21,9 @@ namespace Template
         public static Camera camera;
         SceneGraph sceneGraph;
         bool useRenderTarget = true;
-        DepthMap depthMap;
         CubeTexture skyboxTexture;
         Skybox skybox;
         PointLight skylight, light2;
-        CubeDepthMap[] cubeDepthMaps = new CubeDepthMap[Consts.LightsCount];
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
@@ -83,13 +81,11 @@ namespace Template
 
             skylight = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(300, 400, 0), Vector3.Zero, Vector3.One);
             skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
-            cubeDepthMaps[0] = new CubeDepthMap(1024, 1024);
-            skylight.CreateDepth(cubeDepthMaps[0]);
+            skylight.CreateDepth(new CubeDepthMap(1024, 1024));
 
             light2 = new PointLight(meshesAsset[3], texturesAsset[1], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(4));
             light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 10000;
-            cubeDepthMaps[1] = new CubeDepthMap(512, 512);
-            light2.CreateDepth(cubeDepthMaps[1]);
+            light2.CreateDepth(new CubeDepthMap(512, 512));
 
             // create the render target
             screenFBO = new RenderTarget(2, screen.width, screen.height);
@@ -110,11 +106,8 @@ namespace Template
             sceneGraph.gameObjects.Add(floorBottom); 
             sceneGraph.gameObjects.Add(sphere2);
 
-
             sceneGraph.AddLight(skylight);
             sceneGraph.AddLight(light2);
-
-            //depthMap = new DepthMap(screen.width, screen.height);
 
             skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
                 "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" });
@@ -163,20 +156,18 @@ namespace Template
                 screenFBO.Bind();
                 Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
                 skybox.Render(skyboxShader, skyboxTexture.id, viewProjMatrix);
-                sceneGraph.RenderScene(camera, modelShader, cubeDepthMaps);
+                sceneGraph.RenderScene(camera, modelShader);
                 screenFBO.Unbind();
 
                 quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), screenFBO.GetTargetTextureId(1));
             } else
             {
-                // render scene directly to the screen
-                depthMap.Bind();
                 sceneGraph.RenderDepthMap(camera, depthShader);
-                depthMap.Unbind();
 
-                Matrix4 viewProjMatrix = camera.GetViewMatrix() * camera.GetProjectionMatrix();
+                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
+                Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
                 skybox.Render(skyboxShader, skyboxTexture.id, viewProjMatrix);
-                sceneGraph.RenderScene(camera, modelShader, cubeDepthMaps);
+                sceneGraph.RenderScene(camera, modelShader);
             }
         }
     }
