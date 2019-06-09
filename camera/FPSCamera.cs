@@ -11,6 +11,7 @@ namespace Template
 
         public FPSCamera(Vector3 position) : base(position)
         {
+            previousMousePosition = new Vector2(1,1);
         }
 
         public override void ProcessInput(OpenTKApp app, float deltaTime)

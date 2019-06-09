@@ -95,7 +95,7 @@ namespace Template
             screenFBO = new RenderTarget(2, screen.width, screen.height);
             
             quad = new ScreenQuad();
-            camera = new TopDownCamera(new Vector3(-100, 100, 0));
+            camera = new FPSCamera(new Vector3(-100, 100, 0));
 
             centerBox.AddChild(sphere2);
             sphere2.AddChild(sphere1);
