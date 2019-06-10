@@ -10,6 +10,7 @@ flat in int useNormalMap;
 
 uniform sampler2D uTextureMap;	 // diffuse texture
 uniform sampler2D uNormalMap;    // normal texture
+uniform samplerCube uLocalEnvironmentMap;
 uniform samplerCube uDepthCube[LightCount];     // depth texture
 uniform float uShininess;
 uniform vec3 uAmbientLightColor;
@@ -18,6 +19,7 @@ uniform vec3 uCameraPosition;
 uniform vec3 uLightPosition[LightCount];
 uniform float uLightBrightness[LightCount];
 uniform int uIsLightTarget;
+uniform int uMaterialType;
 
 layout (location = 0) out vec4 outputFragColor;
 layout (location = 1) out vec4 outputBrightnessColor;
@@ -29,6 +31,7 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 {
 	vec3 fragToLight = fragmentPosition.xyz - uLightPosition[lightIndex];
 	float currentDepth = length(fragToLight);
+	//float bias = clamp(0.05 * tan(acos(dot(norm, toLightDirection))), 0, 0.1);
 	float bias = max(0.025 * (1.0 - dot(norm, toLightDirection)), 0.2);  
 	float accumulatedShadow = 0;
 	for(int x = -1; x <= 1; x++){
@@ -41,7 +44,6 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 			}
 		}
 	}
-	//float bias = clamp(0.05 * tan(acos(dot(norm, toLightDirection))), 0, 0.1);
 	return (accumulatedShadow / 27);
 }
 
@@ -72,6 +74,8 @@ void main()
 		normalFromMap = normalFromMap * 2.0 - 1.0; //convert to range -1..1
 		normalFromMap = tbnMatrix * normalFromMap; //convert coordinate system
 		norm = normalize(normalFromMap.xyz);
+	}else{
+		norm = normalize(norm);
 	}
 
 	vec3 ambient = ambientStrenght * uAmbientLightColor;
@@ -92,6 +96,15 @@ void main()
 
 		float shadowFactor = GetShadowFactor(norm, i, toLightDirection);
 		lighting += (1.0 - shadowFactor) * (diffuse + specular) * lightAttenuation * uLightBrightness[i];
+	}
+
+	if(uMaterialType == 1){ //See SurfaceTexture.cs
+		vec3 reflected = reflect(-toCameraDir, norm);
+		textureColor = texture(uLocalEnvironmentMap, reflected);
+	}else if(uMaterialType == 2){
+	    float ratio = 1.00 / 1.52;
+		vec3 refracted = refract(-toCameraDir, norm, ratio);
+		textureColor = texture(uLocalEnvironmentMap, refracted);
 	}
 
 	outputFragColor = textureColor * vec4(lighting, 1.0);

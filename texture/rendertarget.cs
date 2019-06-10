@@ -56,49 +56,6 @@ namespace Template
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to regular framebuffer
         }
 
-        public RenderTarget(int[] textureIds, int width, int height)
-        {
-            this.width = width;
-            this.height = height;
-            colorTextures = (int[])textureIds.Clone();
-
-            // bind color and depth textures to fbo
-            GL.Ext.GenFramebuffers(1, out fbo);
-            GL.Ext.GenRenderbuffers(1, out depthBuffer);
-            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
-
-            // create color texture
-            for (int i = 0; i < textureIds.Length; i++)
-            {
-                GL.BindTexture(TextureTarget.Texture2D, colorTextures[i]);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f,
-                    this.width, this.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
-
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
-
-                GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0 + i,
-                    TextureTarget.Texture2D, colorTextures[i], 0);
-            }
-
-            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textureIds.Length];
-            for (int i = 0; i < textureIds.Length; i++)
-            {
-                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
-            }
-            GL.DrawBuffers(textureIds.Length, buffers);
-
-            GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
-            GL.Ext.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, (RenderbufferStorage)All.DepthComponent24, this.width, this.height);
-            GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
-
-            // test FBO integrity
-            bool untestedBoolean = CheckFBOStatus();
-            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to regular framebuffer
-        }
-
         public int GetTargetTextureId(int id)
         {
             return colorTextures[id];

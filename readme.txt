@@ -13,3 +13,4 @@ frustum culling
 HDR glow
 box filter using kernels
 multiple different kernel effects
+reflective and dielectric materials with textures

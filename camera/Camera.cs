@@ -4,6 +4,18 @@ namespace Template
 {
     abstract class Camera
     {
+        public static Matrix4[] GetSurroundViews(Vector3 position)
+        {
+            Matrix4[] viewMatrices = new Matrix4[6];
+            viewMatrices[0] = Matrix4.LookAt(position, position + new Vector3(1, 0, 0), new Vector3(0, -1, 0));
+            viewMatrices[1] = Matrix4.LookAt(position, position + new Vector3(-1, 0, 0), new Vector3(0, -1, 0));
+            viewMatrices[2] = Matrix4.LookAt(position, position + new Vector3(0, 1, 0), new Vector3(0, 0, 1));
+            viewMatrices[3] = Matrix4.LookAt(position, position + new Vector3(0, -1, 0), new Vector3(0, 0, -1));
+            viewMatrices[4] = Matrix4.LookAt(position, position + new Vector3(0, 0, 1), new Vector3(0, -1, 0));
+            viewMatrices[5] = Matrix4.LookAt(position, position + new Vector3(0, 0, -1), new Vector3(0, -1, 0));
+            return viewMatrices;
+        }
+
         public ViewFrustum frustum;
         public Vector3 position;
         public float pitch, yaw;

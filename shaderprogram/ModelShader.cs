@@ -28,6 +28,8 @@ namespace Template
         public int[] uniform_lightBrightness = new int[Consts.LightsCount];
 
         public int uniform_isLightTarget;
+        public int uniform_materialType;
+        public int uniform_localEnvironmentMap;
 
         protected override void DefineShaderDirectories()
         {
@@ -70,6 +72,8 @@ namespace Template
             }
             
             uniform_isLightTarget = GL.GetUniformLocation(programID, "uIsLightTarget");
+            uniform_materialType = GL.GetUniformLocation(programID, "uMaterialType");
+            uniform_localEnvironmentMap = GL.GetUniformLocation(programID, "uLocalEnvironmentMap");
 
             Console.WriteLine("ModelShader locations: " + attribute_position + " / " +
                                                         attribute_normal + " / " +
@@ -84,7 +88,9 @@ namespace Template
                                                         attribute_tangent + " / " +
                                                         attribute_bitangent + " / " +
                                                         uniform_useNormalMap + " / " +
-                                                        uniform_shininess
+                                                        uniform_shininess + " / " +
+                                                        uniform_localEnvironmentMap + " / " +
+                                                        uniform_materialType
             );
         }
     }

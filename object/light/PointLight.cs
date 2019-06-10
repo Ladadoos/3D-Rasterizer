@@ -24,12 +24,7 @@ namespace Template
             base.Update();
 
             Vector3 position = globalTransform.ExtractTranslation();
-            viewMatrices[0] = Matrix4.LookAt(position, position + new Vector3(1, 0, 0), new Vector3(0, -1, 0));
-            viewMatrices[1] = Matrix4.LookAt(position, position + new Vector3(-1, 0, 0), new Vector3(0, -1, 0));
-            viewMatrices[2] = Matrix4.LookAt(position, position + new Vector3(0, 1, 0), new Vector3(0, 0, 1));
-            viewMatrices[3] = Matrix4.LookAt(position, position + new Vector3(0, -1, 0), new Vector3(0, 0, -1));
-            viewMatrices[4] = Matrix4.LookAt(position, position + new Vector3(0, 0, 1), new Vector3(0, -1, 0));
-            viewMatrices[5] = Matrix4.LookAt(position, position + new Vector3(0, 0, -1), new Vector3(0, -1, 0));
+            viewMatrices = Camera.GetSurroundViews(position);
         }
     }
 

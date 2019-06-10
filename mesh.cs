@@ -126,6 +126,14 @@ namespace Template
             }
             GL.Uniform1(shader.uniform_useNormalMap, useNormalMap);
 
+            if (gameObject.texture.materialType != MaterialType.Diffuse)
+            {
+                GL.Uniform1(shader.uniform_localEnvironmentMap, 2);
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.TextureCubeMap, gameObject.texture.environmentCubeMap.cubeMapId);
+            }
+            GL.Uniform1(shader.uniform_materialType, (int)gameObject.texture.materialType);
+
             // pass transform to vertex shader
             GL.UniformMatrix4(shader.uniform_modelMatrix, false, ref gameObject.globalTransform);
             shader.LoadFloat(shader.uniform_shininess, gameObject.texture.shininess);
