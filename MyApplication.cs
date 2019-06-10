@@ -14,7 +14,7 @@ namespace Template
     {
         public Surface screen;                  // background surface for printing etc.
         Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
-        Model floorBottom;
+        Model floorBottom, glassBall, shinyBall;
         float a = 0;
         RenderTarget screenFBO;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
@@ -42,29 +42,32 @@ namespace Template
 
             sceneGraph = new SceneGraph();
 
-            meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
-            meshesAsset.Add(new Mesh("../../assets/teapot.obj"));
-            meshesAsset.Add(new Mesh("../../assets/floor.obj"));
-            meshesAsset.Add(new Mesh("../../assets/sphere.obj"));
-            meshesAsset.Add(new Mesh("../../assets/cube.obj"));
-            meshesAsset.Add(new Mesh("../../assets/palm.obj"));
-            meshesAsset.Add(new Mesh("../../assets/grass.obj"));
+            meshesAsset.Add(new Mesh("../../assets/dragon.obj")); //0
+            meshesAsset.Add(new Mesh("../../assets/teapot.obj")); //1
+            meshesAsset.Add(new Mesh("../../assets/floor.obj")); //2
+            meshesAsset.Add(new Mesh("../../assets/sphere.obj")); //3
+            meshesAsset.Add(new Mesh("../../assets/cube.obj")); //4
+            meshesAsset.Add(new Mesh("../../assets/palm.obj")); //5
+            meshesAsset.Add(new Mesh("../../assets/grass.obj")); //6
 
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null, 4, MaterialType.Diffuse)); 
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null, 8, MaterialType.Diffuse));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png"), 8, MaterialType.Diffuse));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGreen.png"), null, 2, MaterialType.Diffuse));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/grass.png"), null, 2, MaterialType.Diffuse));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/dirt.png"), new Texture("../../assets/dirtnormal.png"), 16, MaterialType.Diffuse));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/gunMetalGray.jpg"), null, 0.5F, MaterialType.Dieletric, new CubeTexture(256, 256)));
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/stoneDiffuse.jpg"), new Texture("../../assets/stoneNormal.jpg"), 16, MaterialType.Diffuse));
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null, 4, MaterialType.Diffuse)); //0
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null, 8, MaterialType.Reflective, new CubeTexture(256, 256))); //1
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png"), 8, MaterialType.Diffuse)); //2
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGreen.png"), null, 2, MaterialType.Diffuse)); //3
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/grass.png"), null, 2, MaterialType.Diffuse)); //4
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/dirt.png"), new Texture("../../assets/dirtnormal.png"), 16, MaterialType.Diffuse)); //5
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/gunMetalGray.jpg"), null, 0.5F, MaterialType.Diffuse)); //6
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/stoneDiffuse.jpg"), new Texture("../../assets/stoneNormal.jpg"), 16, MaterialType.Diffuse)); //7
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseBlue.png"), null, 16, MaterialType.Dieletric, new CubeTexture(256, 256))); //8
 
-            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, 30, 80), new Vector3(0,65 , 0), new Vector3(7));
+            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, 0, 80), new Vector3(0, 65, 0), new Vector3(7));
             sphere1 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(3, 0, 0), Vector3.Zero, new Vector3(0.5F));
             sphere2 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(0, -0.2F, 2), Vector3.Zero, new Vector3(0.3F, 0.3F, 0.3F));
             centerBox = new Model(meshesAsset[4], texturesAsset[0], new Vector3(0, 45, 0), Vector3.Zero, new Vector3(25));
             towerBoxBig = new Model(meshesAsset[4], texturesAsset[7], new Vector3(-70, 12, -70), new Vector3(0, 45, 0), new Vector3(23));
             towerBoxSmall = new Model(meshesAsset[4], texturesAsset[7], new Vector3(-70, 28, -70), new Vector3(0, 15, 0), new Vector3(12));
+            glassBall = new Model(meshesAsset[3], texturesAsset[8], new Vector3(70, 28, -70), new Vector3(0, 15, 0), new Vector3(16));
+            shinyBall = new Model(meshesAsset[3], texturesAsset[1], new Vector3(-70, 28, 70), new Vector3(0, 15, 0), new Vector3(16));
 
             for (int i = 0; i < 50; i++)
             {
@@ -105,6 +108,8 @@ namespace Template
             sceneGraph.gameObjects.Add(towerBoxSmall);
             sceneGraph.gameObjects.Add(floorBottom); 
             sceneGraph.gameObjects.Add(sphere2);
+            sceneGraph.gameObjects.Add(glassBall);
+            sceneGraph.gameObjects.Add(shinyBall);
 
             sceneGraph.AddLight(skylight);
             sceneGraph.AddLight(light2);

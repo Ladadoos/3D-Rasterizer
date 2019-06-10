@@ -50,16 +50,17 @@ namespace Template
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
 
             GL.Ext.GenFramebuffers(1, out cubeFBOId);
-            GL.Ext.GenRenderbuffers(1, out depthBuffer);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, cubeFBOId);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
+            GL.Ext.GenRenderbuffers(1, out depthBuffer);
             GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
             GL.Ext.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, (RenderbufferStorage)All.DepthComponent24, this.width, this.height);
             GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
 
-            GL.Ext.FramebufferTexture(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0, cubeMapId, 0);
             bool untestedBoolean = RenderTarget.CheckFBOStatus();
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
         }

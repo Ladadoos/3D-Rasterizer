@@ -74,7 +74,8 @@ namespace Template
         }
         public static bool CheckFBOStatus()
         {
-            switch (GL.Ext.CheckFramebufferStatus(FramebufferTarget.FramebufferExt))
+            FramebufferErrorCode code = GL.Ext.CheckFramebufferStatus(FramebufferTarget.FramebufferExt);
+            switch (code)
             {
                 case FramebufferErrorCode.FramebufferCompleteExt:
                     Console.WriteLine("FBO: The framebuffer is complete and valid for rendering.");
@@ -101,7 +102,7 @@ namespace Template
                     Console.WriteLine("FBO: This particular FBO configuration is not supported by the implementation.");
                     break;
                 default:
-                    Console.WriteLine("FBO: Status unknown.");
+                    Console.WriteLine("FBO: Status unknown: " + code);
                     break;
             }
             return false;
