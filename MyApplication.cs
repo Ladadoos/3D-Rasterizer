@@ -25,11 +25,14 @@ namespace Template
         Skybox skybox;
         PointLight skylight, light2;
 
+        RenderTarget blurTarget;
+
         //Shaders
         private DepthShader depthShader = new DepthShader();
         private ModelShader modelShader = new ModelShader();
         private PostProcessingShader postProcessingShader = new PostProcessingShader();
         private SkyboxShader skyboxShader = new SkyboxShader();
+        private GaussianBlurShader blurShader = new GaussianBlurShader();
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
@@ -72,10 +75,10 @@ namespace Template
             for (int i = 0; i < 50; i++)
             {
                 sceneGraph.gameObjects.Add(new Model(
-                    meshesAsset[6], 
-                    texturesAsset[4], 
-                    new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)), 
-                    new Vector3(0, random.Next(360), 0) ,
+                    meshesAsset[6],
+                    texturesAsset[4],
+                    new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
+                    new Vector3(0, random.Next(360), 0),
                     new Vector3(12 + random.Next(16)))
                 );
             }
@@ -92,7 +95,8 @@ namespace Template
 
             // create the render target
             screenFBO = new RenderTarget(2, screen.width, screen.height);
-            
+            blurTarget = new RenderTarget(1, screen.width, screen.height);
+
             quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(-100, 100, 0));
 
@@ -106,7 +110,7 @@ namespace Template
             sceneGraph.gameObjects.Add(centerBox);
             sceneGraph.gameObjects.Add(towerBoxBig);
             sceneGraph.gameObjects.Add(towerBoxSmall);
-            sceneGraph.gameObjects.Add(floorBottom); 
+            sceneGraph.gameObjects.Add(floorBottom);
             sceneGraph.gameObjects.Add(sphere2);
             sceneGraph.gameObjects.Add(glassBall);
             sceneGraph.gameObjects.Add(shinyBall);
@@ -133,49 +137,48 @@ namespace Template
         // tick for OpenGL rendering code
         public void RenderGL(OpenTKApp app, float deltaTime)
         {
-            camera.ProcessInput(app, deltaTime);
-
             // update rotation
             a += 15 * deltaTime;
             if (a > 360) { a -= 360; }
             float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
             float sin = (float)Math.Sin(MathHelper.DegreesToRadians(a));
-
             sphere2.rotationInAngle.Y += deltaTime * 100;
             centerBox.rotationInAngle.Y += deltaTime * 50;
             centerBox.position.Y += sin / 5;
-           // light2.color.Y += 0.01F ;
-           // dragon.rotationInAngle.Y = 100 * cos;
 
             light2.position.X = (float)(155 * cos);
             light2.position.Z = (float)(155 * sin);
 
+            camera.ProcessInput(app, deltaTime);
             camera.CalculateFrustumPlanes();
             sceneGraph.UpdateScene(camera);
+            sceneGraph.RenderDepthMap(camera, depthShader);
+            sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skyboxShader, skybox, skyboxTexture);
 
-            if (useRenderTarget)
+            GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
+            screenFBO.Bind();
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
+            skybox.Render(skyboxShader, skyboxTexture.cubeMapId, viewProjMatrix);
+            sceneGraph.RenderScene(camera, modelShader);
+            screenFBO.Unbind();
+
+            GL.Viewport(0, 0, blurTarget.width, blurTarget.height);
+            blurTarget.Bind();
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            quad.Render(blurShader, screenFBO.GetTargetTextureId(1), screenFBO.GetTargetTextureId(0));
+            blurTarget.Unbind();
+            for (int i = 0; i < 10; i++)
             {
-                sceneGraph.RenderDepthMap(camera, depthShader);
-
-                sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skyboxShader, skybox, skyboxTexture);
-
-                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
-                screenFBO.Bind();
-                Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
-                skybox.Render(skyboxShader, skyboxTexture.cubeMapId /*texturesAsset[6].environmentCubeMap.cubeMapId*/, viewProjMatrix);
-                sceneGraph.RenderScene(camera, modelShader);
-                screenFBO.Unbind();
-
-                quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), screenFBO.GetTargetTextureId(1));
-            } else
-            {
-                sceneGraph.RenderDepthMap(camera, depthShader);
-
-                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
-                Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
-                skybox.Render(skyboxShader, skyboxTexture.cubeMapId, viewProjMatrix);
-                sceneGraph.RenderScene(camera, modelShader);
+                blurTarget.Bind();
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                quad.Render(blurShader, blurTarget.GetTargetTextureId(0), screenFBO.GetTargetTextureId(0));
+                blurTarget.Unbind();
             }
+
+            quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), blurTarget.GetTargetTextureId(0));
         }
     }
 }

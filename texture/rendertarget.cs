@@ -64,8 +64,6 @@ namespace Template
         public void Bind()
         {
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
         }
         public void Unbind()
         {

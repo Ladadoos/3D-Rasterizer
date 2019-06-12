@@ -11,14 +11,6 @@ out vec3 outputColor;
 const int KernelWidth = 5;
 const int KernelHeight = 5;
 
-const float blurKernel[25] = float[](
-	0.003765,	0.015019,	0.023792,	0.015019,	0.003765,
-	0.015019,	0.059912,	0.094907,	0.059912,	0.015019,
-	0.023792,	0.094907,	0.150342,	0.094907,	0.023792,
-	0.015019,	0.059912,	0.094907,	0.059912,	0.015019,
-	0.003765,	0.015019,	0.023792,	0.015019,	0.003765
-);
-
 const float edgeKernel[25] = float[](
 	1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1,
@@ -53,7 +45,7 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 vec3 standard(){
 	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
-	hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
+	hdrColor += texture(uBlurTexture, uv).rgb;
 	float exposure = 2f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
