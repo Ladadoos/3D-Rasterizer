@@ -5,6 +5,7 @@ in vec2 uv;						  // interpolated texture coordinates
 
 uniform sampler2D uScreenTexture; // input texture (1st pass render target)
 uniform sampler2D uBlurTexture;   // texture with only the brightest parts of the uScreenTexture
+uniform sampler2D uGodRayTexture;
 
 out vec3 outputColor;
 
@@ -53,7 +54,7 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 vec3 standard(){
 	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
-	hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
+	//hdrColor += applyKernelEffect(uBlurTexture, blurKernel);
 	float exposure = 2f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
@@ -100,5 +101,5 @@ void main()
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);
 	//color = vignette(color);
 
-	outputColor = color;
+	outputColor = color + texture(uGodRayTexture, uv).xyz;
 }

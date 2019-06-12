@@ -51,6 +51,8 @@
     <Compile Include="camera\TopDownCamera.cs" />
     <Compile Include="camera\ViewFrustum.cs" />
     <Compile Include="object\light\PointLight.cs" />
+    <Compile Include="shaderprogram\GodRayShaderScene.cs" />
+    <Compile Include="shaderprogram\GodRayShader.cs" />
     <Compile Include="texture\CubeDepthMap.cs" />
     <Compile Include="texture\DepthMap.cs" />
     <Compile Include="object\GameObject.cs" />
@@ -81,10 +83,14 @@
     <None Include="packages.config" />
     <None Include="shaders\fs.glsl" />
     <None Include="shaders\fs_depth.glsl" />
+    <None Include="shaders\fs_godray_scene.glsl" />
+    <None Include="shaders\fs_godray.glsl" />
     <None Include="shaders\fs_post.glsl" />
     <None Include="shaders\fs_skybox.glsl" />
+    <None Include="shaders\vs_godray_scene.glsl" />
     <None Include="shaders\vs.glsl" />
     <None Include="shaders\vs_depth.glsl" />
+    <None Include="shaders\vs_godray.glsl" />
     <None Include="shaders\vs_post.glsl" />
   </ItemGroup>
   <ItemGroup>

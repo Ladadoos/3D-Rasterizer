@@ -9,7 +9,7 @@ namespace Template
     {
         public List<GameObject> gameObjects = new List<GameObject>();
 
-        private List<PointLight> lights = new List<PointLight>();
+        public List<PointLight> lights = new List<PointLight>();
         private List<GameObject> toRenderObjects = new List<GameObject>();
         private int rendered = 0;
 
@@ -58,7 +58,7 @@ namespace Template
                 }
 
                 Vector3 position = source.globalTransform.ExtractTranslation();
-                position.Y += 5;
+                position.Y += 2;
                 Matrix4[] viewMatrices = Camera.GetSurroundViews(position);
                 Matrix4 projectionMatrix;
                 Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), 1, 1, 1000, out projectionMatrix);
@@ -119,7 +119,7 @@ namespace Template
         public void RenderScene(Camera camera, ModelShader shader)
         {
             shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.05f));
+            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.001F));
             shader.LoadVector3(shader.uniform_cameraPosition, camera.position);
             shader.LoadMatrix(shader.uniform_viewMatrix, camera.GetViewMatrix());
             shader.LoadMatrix(shader.uniform_projectionMatrix, camera.GetProjectionMatrix());

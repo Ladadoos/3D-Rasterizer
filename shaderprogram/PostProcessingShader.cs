@@ -9,6 +9,7 @@ namespace Template
         public int attribute_uv;
         public int uniform_screenTexture;
         public int uniform_blurTexture;
+        public int uniform_godRayTexture;
 
         protected override void DefineShaderDirectories()
         {
@@ -22,9 +23,11 @@ namespace Template
             attribute_uv = GL.GetAttribLocation(programID, "iUV");
             uniform_screenTexture = GL.GetUniformLocation(programID, "uScreenTexture");
             uniform_blurTexture = GL.GetUniformLocation(programID, "uBlurTexture");
+            uniform_godRayTexture = GL.GetUniformLocation(programID, "uGodRayTexture");
 
             Console.WriteLine("PostProcessing locations: " + attribute_position + " / " +
-                         attribute_uv + " / " + uniform_screenTexture + " / " + uniform_blurTexture);
+                         attribute_uv + " / " + uniform_screenTexture + " / " + uniform_blurTexture
+                         + " / " + uniform_godRayTexture);
         }
     }
 }

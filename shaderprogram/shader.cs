@@ -60,6 +60,11 @@ namespace Template
             GL.Uniform3(location, vector);
         }
 
+        public void LoadVector2(int location, Vector2 vector)
+        {
+            GL.Uniform2(location, vector);
+        }
+
         public void LoadBoolean(int location, bool value)
         {
             GL.Uniform1(location, value ? 1 : 0);

@@ -1,6 +1,6 @@
 ﻿#version 330
  
-const int LightCount = 2; //Number of lights in our scene
+const int LightCount = 1; //Number of lights in our scene
 
 in vec2 uv;						// interpolated texture coordinates
 in vec4 normal;					// interpolated normal

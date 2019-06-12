@@ -26,7 +26,7 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( PostProcessingShader shader, int colorTextureId, int blurTextureId )
+		public void Render( PostProcessingShader shader, int colorTextureId, int blurTextureId, int godraytextureid )
 		{
 			// on first run, prepare buffers
 			Prepare();
@@ -43,8 +43,12 @@ namespace Template
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, blurTextureId);
 
-			// enable position and uv attributes
-			GL.EnableVertexAttribArray( shader.attribute_position );
+            GL.Uniform1(shader.uniform_godRayTexture, 2);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, godraytextureid);
+
+            // enable position and uv attributes
+            GL.EnableVertexAttribArray( shader.attribute_position );
 			GL.EnableVertexAttribArray( shader.attribute_uv );
 
 			// bind interleaved vertex data
