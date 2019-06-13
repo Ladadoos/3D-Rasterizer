@@ -2,6 +2,7 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 namespace Template
 {
@@ -120,6 +121,8 @@ namespace Template
             skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
                 "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" });
             skybox = new Skybox();
+
+            selectedLight = light2;
         }
 
         public void OnWindowResize(int width, int height)
@@ -128,9 +131,37 @@ namespace Template
             screenFBO.height = height;
         }
 
+        private PointLight selectedLight;
+        private int action = 0;
         public void Tick(OpenTKApp app, float deltaTime)
         {
+            var keyboard = Keyboard.GetState();
 
+            for(int i = 0; i < sceneGraph.lights.Count; i++)
+            {
+                if (keyboard[Key.Number0 + i])
+                {
+                    selectedLight = sceneGraph.lights[i];
+                    break;
+                }
+            }
+
+            if (keyboard[Key.Plus]) { action = 0; }
+            if (keyboard[Key.Minus]) { action = 1; }
+
+            float delta = 0.01F;
+            if (keyboard[Key.R])
+            {
+                selectedLight.color.X += action == 1 ? -delta : delta;
+            }
+            if (keyboard[Key.G])
+            {
+                selectedLight.color.Y += action == 1 ? -delta : delta;
+            }
+            if (keyboard[Key.B])
+            {
+                selectedLight.color.Z += action == 1 ? -delta : delta;
+            }
         }
 
         // tick for OpenGL rendering code

@@ -63,40 +63,5 @@ namespace Template
 			// disable shader
 			GL.UseProgram( 0 );
 		}
-
-        // render the mesh using the supplied shader and matrix
-        public void Render2(PostProcessingShader shader, int colorTextureId)
-        {
-            // on first run, prepare buffers
-            Prepare();
-
-            // enable texture
-            GL.Uniform1(shader.uniform_screenTexture, 0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, colorTextureId);
-
-            // enable shader
-            GL.UseProgram(shader.programID);
-
-            // enable position and uv attributes
-            GL.EnableVertexAttribArray(shader.attribute_position);
-            GL.EnableVertexAttribArray(shader.attribute_uv);
-
-            // bind interleaved vertex data
-            GL.EnableClientState(ArrayCap.VertexArray);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_vert);
-            GL.InterleavedArrays(InterleavedArrayFormat.T2fV3f, 20, IntPtr.Zero);
-
-            // link vertex attributes to shader parameters 
-            GL.VertexAttribPointer(shader.attribute_position, 3, VertexAttribPointerType.Float, false, 20, 0);
-            GL.VertexAttribPointer(shader.attribute_uv, 2, VertexAttribPointerType.Float, false, 20, 3 * 4);
-
-            // bind triangle index data and render
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, vbo_idx);
-            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-
-            // disable shader
-            GL.UseProgram(0);
-        }
     }
 }
