@@ -14,8 +14,9 @@ namespace Template
             previousMousePosition = new Vector2(1,1);
         }
 
-        public override void ProcessInput(OpenTKApp app, float deltaTime)
+        public override bool ProcessInput(OpenTKApp app, float deltaTime)
         {
+            bool inputGiven = false;
             var keyboard = Keyboard.GetState();
             var mouse = Mouse.GetState();
 
@@ -23,16 +24,20 @@ namespace Template
             if (keyboard[Key.W])
             {
                 position += movementSpeed * deltaTime * forward;
+                inputGiven = true;
             } else if (keyboard[Key.S])
             {
                 position -= movementSpeed * deltaTime * forward;
+                inputGiven = true;
             }
             if (keyboard[Key.A])
             {
                 position += movementSpeed * deltaTime * right;
+                inputGiven = true;
             } else if (keyboard[Key.D])
             {
                 position -= movementSpeed * deltaTime * right;
+                inputGiven = true;
             }
 
             if (app.Focused && currentMousePosition != previousMousePosition)
@@ -55,7 +60,10 @@ namespace Template
                 right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
                 previousMousePosition = currentMousePosition;
                 Mouse.SetPosition(app.Bounds.Left + app.Bounds.Width / 2, app.Bounds.Top + app.Bounds.Height / 2);
+                inputGiven = true;
             }
+
+            return inputGiven;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Template
             app.screen = new Surface(Width, Height);
             Sprite.target = app.screen;
             screenID = app.screen.GenTexture();
-            app.Init();
+            app.Initialize();
         }
         protected override void OnUnload(EventArgs e)
         {

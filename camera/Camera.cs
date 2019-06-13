@@ -46,6 +46,6 @@ namespace Template
             return Matrix4.LookAt(position, position + forward, Vector3.UnitY);
         }
 
-        public abstract void ProcessInput(OpenTKApp app, float deltaTime);
+        public abstract bool ProcessInput(OpenTKApp app, float deltaTime);
     }
 }

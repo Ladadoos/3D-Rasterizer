@@ -16,16 +16,16 @@ namespace Template
         Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
         Model floorBottom, glassBall, shinyBall;
         float a = 0;
-        RenderTarget screenFBO;                    // intermediate render target
         ScreenQuad quad;                        // screen filling quad for post processing
         public static Camera camera;
         SceneGraph sceneGraph;
-        bool useRenderTarget = true;
         CubeTexture skyboxTexture;
         Skybox skybox;
         PointLight skylight, light2;
 
-        RenderTarget blurTarget;
+        //Frame buffer objects
+        private RenderTarget gaussianBlurFBO;
+        private RenderTarget screenFBO; 
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
@@ -38,8 +38,7 @@ namespace Template
         private List<Mesh> meshesAsset = new List<Mesh>();
         private List<SurfaceTexture> texturesAsset = new List<SurfaceTexture>();
 
-        // initialize
-        public void Init()
+        public void Initialize()
         {
             Random random = new Random();
 
@@ -95,7 +94,7 @@ namespace Template
 
             // create the render target
             screenFBO = new RenderTarget(2, screen.width, screen.height);
-            blurTarget = new RenderTarget(1, screen.width, screen.height);
+            gaussianBlurFBO = new RenderTarget(1, screen.width, screen.height);
 
             quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(-100, 100, 0));
@@ -146,11 +145,13 @@ namespace Template
             centerBox.rotationInAngle.Y += deltaTime * 50;
             centerBox.position.Y += sin / 5;
 
-            light2.position.X = (float)(155 * cos);
-            light2.position.Z = (float)(155 * sin);
+            light2.position.X = 155 * cos;
+            light2.position.Z = 155 * sin;
 
-            camera.ProcessInput(app, deltaTime);
-            camera.CalculateFrustumPlanes();
+            if(camera.ProcessInput(app, deltaTime))
+            {
+                camera.CalculateFrustumPlanes();
+            }           
             sceneGraph.UpdateScene(camera);
             sceneGraph.RenderDepthMap(camera, depthShader);
             sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skyboxShader, skybox, skyboxTexture);
@@ -164,21 +165,21 @@ namespace Template
             sceneGraph.RenderScene(camera, modelShader);
             screenFBO.Unbind();
 
-            GL.Viewport(0, 0, blurTarget.width, blurTarget.height);
-            blurTarget.Bind();
+            GL.Viewport(0, 0, gaussianBlurFBO.width, gaussianBlurFBO.height);
+            gaussianBlurFBO.Bind();
             GL.Clear(ClearBufferMask.DepthBufferBit);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             quad.Render(blurShader, screenFBO.GetTargetTextureId(1), screenFBO.GetTargetTextureId(0));
-            blurTarget.Unbind();
-            for (int i = 0; i < 10; i++)
+            gaussianBlurFBO.Unbind();
+            for (int i = 0; i < 3; i++)
             {
-                blurTarget.Bind();
+                gaussianBlurFBO.Bind();
                 GL.Clear(ClearBufferMask.DepthBufferBit);
-                quad.Render(blurShader, blurTarget.GetTargetTextureId(0), screenFBO.GetTargetTextureId(0));
-                blurTarget.Unbind();
+                quad.Render(blurShader, gaussianBlurFBO.GetTargetTextureId(0), screenFBO.GetTargetTextureId(0));
+                gaussianBlurFBO.Unbind();
             }
 
-            quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), blurTarget.GetTargetTextureId(0));
+            quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), gaussianBlurFBO.GetTargetTextureId(0));
         }
     }
 }
