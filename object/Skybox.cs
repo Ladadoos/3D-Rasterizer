@@ -6,7 +6,9 @@ namespace Template
 {
     class Skybox
     {
-        int positionsVboId;
+        private int positionsVboId;
+        private SkyboxShader skyboxShader = new SkyboxShader();
+        private CubeTexture skyboxTexture;
 
         private static float[] skyboxVertices =
         {
@@ -55,29 +57,31 @@ namespace Template
 
         public Skybox()
         {
-            positionsVboId = GL.GenBuffer();
+            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
+                "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" }); ;
 
+            positionsVboId = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, positionsVboId);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(skyboxVertices.Length * sizeof(float)), skyboxVertices, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        public void Render(SkyboxShader shader, int cubeTextureId, Matrix4 cameraViewProjMatrix)
+        public void Render(Matrix4 viewProjectionMatrix)
         {
             GL.DepthMask(false);
-            shader.Bind();
+            skyboxShader.Bind();
 
-            shader.LoadMatrix(shader.uniform_viewProjectionMatrix, cameraViewProjMatrix);
+            skyboxShader.LoadMatrix(skyboxShader.uniform_viewProjectionMatrix, viewProjectionMatrix);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, positionsVboId);
-            GL.EnableVertexAttribArray(shader.attribute_position);
+            GL.EnableVertexAttribArray(skyboxShader.attribute_position);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, cubeTextureId);
+            GL.BindTexture(TextureTarget.TextureCubeMap, skyboxTexture.cubeMapId);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
-            GL.DisableVertexAttribArray(shader.attribute_position);
+            GL.DisableVertexAttribArray(skyboxShader.attribute_position);
             GL.DepthMask(true);
-            shader.Unbind();
+            skyboxShader.Unbind();
         }
     }
 }

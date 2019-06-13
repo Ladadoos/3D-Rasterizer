@@ -47,10 +47,16 @@ namespace Template
            // Console.WriteLine("Objects rendered:" + rendered);
         }
 
-        public void UpdateEnvironmentMaps(Camera camera, ModelShader shader, SkyboxShader skyboxShader, Skybox skybox,
-            CubeTexture skyboxTexture)
+        public void UpdateEnvironmentMaps(Camera camera, ModelShader modelShader, Skybox skybox)
         {
-            foreach(GameObject source in gameObjects)
+            Matrix4 projectionMatrix;
+            Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), 1, 1, 1000, out projectionMatrix);
+
+            modelShader.Bind();
+            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, projectionMatrix);
+            modelShader.Unbind();
+
+            foreach (GameObject source in gameObjects)
             {
                 if (source.texture.materialType == MaterialType.Diffuse)
                 {
@@ -60,25 +66,23 @@ namespace Template
                 Vector3 position = source.globalTransform.ExtractTranslation();
                 position.Y += 5;
                 Matrix4[] viewMatrices = Camera.GetSurroundViews(position);
-                Matrix4 projectionMatrix;
-                Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), 1, 1, 1000, out projectionMatrix);
 
-                shader.Bind();
-                shader.LoadVector3(shader.uniform_cameraPosition, position);
-                shader.LoadMatrix(shader.uniform_projectionMatrix, projectionMatrix);
-                shader.Unbind();
+                modelShader.Bind();
+                modelShader.LoadVector3(modelShader.uniform_cameraPosition, position);
+                modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, projectionMatrix);
+                modelShader.Unbind();
 
                 source.texture.environmentCubeMap.Bind();
                 for (int i = 0; i < 6; i++)
                 {
                     source.texture.environmentCubeMap.SetRenderSide(i);
 
-                    shader.Bind();
-                    shader.LoadMatrix(shader.uniform_viewMatrix, viewMatrices[i]);
-                    shader.Unbind();
+                    modelShader.Bind();
+                    modelShader.LoadMatrix(modelShader.uniform_viewMatrix, viewMatrices[i]);
+                    modelShader.Unbind();
 
                     Matrix4 viewProjMatrix = viewMatrices[i].ClearTranslation() * projectionMatrix;
-                    skybox.Render(skyboxShader, skyboxTexture.cubeMapId, viewProjMatrix);
+                    skybox.Render(viewProjMatrix);
 
                     foreach (GameObject gameObject in gameObjects)
                     {
@@ -87,7 +91,7 @@ namespace Template
                             continue;
                         }
 
-                        gameObject.RenderToScene(shader);
+                        gameObject.RenderToScene(modelShader);
                     }
                 }
 
@@ -95,7 +99,7 @@ namespace Template
             }
         }
 
-        public void RenderDepthMap(Camera camera, DepthShader shader)
+        public void RenderDepthMap(Camera camera, DepthShader depthShader)
         {
             foreach (PointLight light in lights)
             {
@@ -109,36 +113,36 @@ namespace Template
                         {
                             continue;
                         }
-                        gameObject.RenderToDepth(shader, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
+                        gameObject.RenderToDepth(depthShader, light.viewMatrices[i] * light.projectionMatrix, light.globalTransform.ExtractTranslation());
                     }
                 }
                 light.depthCube.Unbind();
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader shader)
+        public void RenderScene(Camera camera, ModelShader modelShader)
         {
-            shader.Bind();
-            shader.LoadVector3(shader.uniform_ambientLightColor, new Vector3(0.001f));
-            shader.LoadVector3(shader.uniform_cameraPosition, camera.position);
-            shader.LoadMatrix(shader.uniform_viewMatrix, camera.GetViewMatrix());
-            shader.LoadMatrix(shader.uniform_projectionMatrix, camera.GetProjectionMatrix());
+            modelShader.Bind();
+            modelShader.LoadVector3(modelShader.uniform_ambientLightColor, new Vector3(0.001f));
+            modelShader.LoadVector3(modelShader.uniform_cameraPosition, camera.position);
+            modelShader.LoadMatrix(modelShader.uniform_viewMatrix, camera.GetViewMatrix());
+            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, camera.GetProjectionMatrix());
 
             for (int i = 0; i < lights.Count; i++)
             {
-                shader.LoadVector3(shader.uniform_lightColor[i], lights[i].color);
-                shader.LoadFloat(shader.uniform_lightBrightness[i], lights[i].brightness);
-                shader.LoadVector3(shader.uniform_lightPosition[i], lights[i].globalTransform.ExtractTranslation());
+                modelShader.LoadVector3(modelShader.uniform_lightColor[i], lights[i].color);
+                modelShader.LoadFloat(modelShader.uniform_lightBrightness[i], lights[i].brightness);
+                modelShader.LoadVector3(modelShader.uniform_lightPosition[i], lights[i].globalTransform.ExtractTranslation());
 
-                GL.Uniform1(shader.uniform_depthCubes[i], 3 + i);
+                GL.Uniform1(modelShader.uniform_depthCubes[i], 3 + i);
                 GL.ActiveTexture(TextureUnit.Texture0 + 3 + i);
                 GL.BindTexture(TextureTarget.TextureCubeMap, lights[i].depthCube.cubeDepthMapId);
             }
-            shader.Unbind();
+            modelShader.Unbind();
 
             foreach (GameObject gameObject in toRenderObjects)
             {
-                gameObject.RenderToScene(shader);
+                gameObject.RenderToScene(modelShader);
             }
         }
     }

@@ -32,7 +32,7 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 	vec3 fragToLight = fragmentPosition.xyz - uLightPosition[lightIndex];
 	float currentDepth = length(fragToLight);
 	//float bias = clamp(0.05 * tan(acos(dot(norm, toLightDirection))), 0, 0.1);
-	float bias = max(0.025 * (1.0 - dot(norm, toLightDirection)), 0.2);  
+	float bias = max(0.25 * (1.0 - dot(norm, toLightDirection)), 1);  
 	float accumulatedShadow = 0;
 	for(int x = -1; x <= 1; x++){
 		for(int y = -1; y <= 1; y++){

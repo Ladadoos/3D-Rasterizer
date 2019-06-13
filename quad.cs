@@ -26,22 +26,13 @@ namespace Template
 		}
 
 		// render the mesh using the supplied shader and matrix
-		public void Render( PostProcessingShader shader, int colorTextureId, int blurTextureId )
+		public void Render(PostProcessingShader shader)
 		{
 			// on first run, prepare buffers
 			Prepare();
 
             // enable shader
             GL.UseProgram(shader.programID);
-
-            // enable texture
-            GL.Uniform1( shader.uniform_screenTexture, 0 );
-			GL.ActiveTexture( TextureUnit.Texture0 );
-			GL.BindTexture( TextureTarget.Texture2D, colorTextureId );
-
-            GL.Uniform1(shader.uniform_blurTexture, 1);
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, blurTextureId);
 
 			// enable position and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_position );

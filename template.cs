@@ -36,12 +36,13 @@ namespace Template
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            ClientSize = new Size(750, 750);
+            ClientSize = new Size(1000, 1000);
             app = new MyApplication();
             app.screen = new Surface(Width, Height);
             Sprite.target = app.screen;
             screenID = app.screen.GenTexture();
             app.Initialize();
+            VSync = VSyncMode.On;
         }
         protected override void OnUnload(EventArgs e)
         {

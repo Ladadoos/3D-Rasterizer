@@ -13,16 +13,17 @@ namespace Template
 
     class MyApplication
     {
-        public Surface screen;                  // background surface for printing etc.
-        Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
-        Model floorBottom, glassBall, shinyBall;
-        float a = 0;
-        ScreenQuad quad;                        // screen filling quad for post processing
+        private bool applyPostProcessing = true;
+
+        public Surface screen;                     // background surface for printing etc.
+        private Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
+        private Model floorBottom, glassBall, shinyBall;
+        private float a = 0;
+        private ScreenQuad quad = new ScreenQuad(); // screen filling quad for post processing
         public static Camera camera;
-        SceneGraph sceneGraph;
-        CubeTexture skyboxTexture;
-        Skybox skybox;
-        PointLight skylight, light2;
+        private SceneGraph sceneGraph = new SceneGraph();
+        private Skybox skybox = new Skybox();
+        private PointLight skylight, light2;
 
         //Frame buffer objects
         private RenderTarget gaussianBlurFBO;
@@ -32,7 +33,6 @@ namespace Template
         private DepthShader depthShader = new DepthShader();
         private ModelShader modelShader = new ModelShader();
         private PostProcessingShader postProcessingShader = new PostProcessingShader();
-        private SkyboxShader skyboxShader = new SkyboxShader();
         private GaussianBlurShader blurShader = new GaussianBlurShader();
 
         //Assets
@@ -42,8 +42,6 @@ namespace Template
         public void Initialize()
         {
             Random random = new Random();
-
-            sceneGraph = new SceneGraph();
 
             meshesAsset.Add(new Mesh("../../assets/dragon.obj")); //0
             meshesAsset.Add(new Mesh("../../assets/teapot.obj")); //1
@@ -88,16 +86,13 @@ namespace Template
             skylight = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(300, 400, 0), Vector3.Zero, Vector3.One);
             skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
             skylight.CreateDepth(new CubeDepthMap(1024, 1024));
-
             light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(4));
-            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 100000;
+            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 90000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
-            // create the render target
             screenFBO = new RenderTarget(2, screen.width, screen.height);
-            gaussianBlurFBO = new RenderTarget(1, screen.width, screen.height);
+            gaussianBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
 
-            quad = new ScreenQuad();
             camera = new FPSCamera(new Vector3(-100, 100, 0));
 
             centerBox.AddChild(sphere2);
@@ -117,10 +112,6 @@ namespace Template
 
             sceneGraph.AddLight(skylight);
             sceneGraph.AddLight(light2);
-
-            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
-                "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" });
-            skybox = new Skybox();
 
             selectedLight = light2;
         }
@@ -164,10 +155,8 @@ namespace Template
             }
         }
 
-        // tick for OpenGL rendering code
         public void RenderGL(OpenTKApp app, float deltaTime)
         {
-            // update rotation
             a += 30 * deltaTime;
             if (a > 360) { a -= 360; }
             float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
@@ -175,7 +164,6 @@ namespace Template
             sphere2.rotationInAngle.Y += deltaTime * 100;
             centerBox.rotationInAngle.Y += deltaTime * 50;
             centerBox.position.Y += sin / 10;
-
             light2.position.X = 155 * cos;
             light2.position.Z = 155 * sin * cos;
 
@@ -185,32 +173,65 @@ namespace Template
             }           
             sceneGraph.UpdateScene(camera);
             sceneGraph.RenderDepthMap(camera, depthShader);
-            sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skyboxShader, skybox, skyboxTexture);
+            sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skybox);
 
-            GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
-            screenFBO.Bind();
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            Matrix4 viewProjMatrix = camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix();
-            skybox.Render(skyboxShader, skyboxTexture.cubeMapId, viewProjMatrix);
-            sceneGraph.RenderScene(camera, modelShader);
-            screenFBO.Unbind();
-
-            GL.Viewport(0, 0, gaussianBlurFBO.width, gaussianBlurFBO.height);
-            gaussianBlurFBO.Bind();
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            quad.Render(blurShader, screenFBO.GetTargetTextureId(1), screenFBO.GetTargetTextureId(0));
-            gaussianBlurFBO.Unbind();
-            for (int i = 0; i < 3; i++)
+            if (applyPostProcessing)
             {
+                //Do first render pass
+                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
+                screenFBO.Bind();
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+                skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
+                sceneGraph.RenderScene(camera, modelShader);
+                screenFBO.Unbind();
+
+                //Apply gaussian blur to highlight texture from first render pass
+                GL.Viewport(0, 0, gaussianBlurFBO.width, gaussianBlurFBO.height);
                 gaussianBlurFBO.Bind();
                 GL.Clear(ClearBufferMask.DepthBufferBit);
-                quad.Render(blurShader, gaussianBlurFBO.GetTargetTextureId(0), screenFBO.GetTargetTextureId(0));
-                gaussianBlurFBO.Unbind();
-            }
+                GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            quad.Render(postProcessingShader, screenFBO.GetTargetTextureId(0), gaussianBlurFBO.GetTargetTextureId(0));
+                blurShader.Bind();
+                GL.Uniform1(blurShader.uniform_screenTexture, 0);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(1));
+                blurShader.Unbind();
+
+                quad.Render(blurShader);
+                for (int i = 0; i < 2; i++)
+                {
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
+
+                    blurShader.Bind();
+                    GL.Uniform1(blurShader.uniform_screenTexture, 0);
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
+                    blurShader.Unbind();
+
+                    quad.Render(blurShader);
+                }
+                gaussianBlurFBO.Unbind();
+
+                //Render the final state of post processing
+                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
+                postProcessingShader.Bind();
+                GL.Uniform1(postProcessingShader.uniform_screenTexture, 0);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(0));
+
+                GL.Uniform1(postProcessingShader.uniform_blurTexture, 1);
+                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
+                postProcessingShader.Unbind();
+
+                quad.Render(postProcessingShader);
+            } else
+            {
+                GL.Viewport(0, 0, screen.width, screen.height);
+                skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
+                sceneGraph.RenderScene(camera, modelShader);
+            }
         }
     }
 }
