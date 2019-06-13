@@ -89,7 +89,7 @@ namespace Template
             skylight.CreateDepth(new CubeDepthMap(1024, 1024));
 
             light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(4));
-            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 10000;
+            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 100000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
             // create the render target
@@ -137,16 +137,16 @@ namespace Template
         public void RenderGL(OpenTKApp app, float deltaTime)
         {
             // update rotation
-            a += 15 * deltaTime;
+            a += 30 * deltaTime;
             if (a > 360) { a -= 360; }
             float cos = (float)Math.Cos(MathHelper.DegreesToRadians(a));
             float sin = (float)Math.Sin(MathHelper.DegreesToRadians(a));
             sphere2.rotationInAngle.Y += deltaTime * 100;
             centerBox.rotationInAngle.Y += deltaTime * 50;
-            centerBox.position.Y += sin / 5;
+            centerBox.position.Y += sin / 10;
 
             light2.position.X = 155 * cos;
-            light2.position.Z = 155 * sin;
+            light2.position.Z = 155 * sin * cos;
 
             if(camera.ProcessInput(app, deltaTime))
             {
