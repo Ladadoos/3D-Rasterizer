@@ -27,7 +27,7 @@ namespace Template
 
         //Frame buffer objects
         private RenderTarget gaussianBlurFBO;
-        private RenderTarget screenFBO; 
+        private RenderTarget screenFBO;
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
@@ -62,8 +62,10 @@ namespace Template
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/gunMetalGray.jpg"), null, 1, MaterialType.Diffuse)); //6
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/stoneDiffuse.jpg"), new Texture("../../assets/stoneNormal.jpg"), 16, MaterialType.Diffuse)); //7
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseBlue.png"), null, 16, MaterialType.Dieletric, new CubeTexture(cms, cms))); //8
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/flower.png"), null, 2, MaterialType.Diffuse)); //9
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/flower2.png"), null, 2, MaterialType.Diffuse)); //10
 
-            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, 0, 80), new Vector3(0, 65, 0), new Vector3(7));
+            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, -5, 80), new Vector3(0, 65, 0), new Vector3(7));
             sphere1 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(2, 0, 0), Vector3.Zero, new Vector3(0.5F));
             sphere2 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(0, -0.2F, 1.5F), Vector3.Zero, new Vector3(0.3F, 0.3F, 0.3F));
             centerBox = new Model(meshesAsset[4], texturesAsset[0], new Vector3(40, 45, 0), Vector3.Zero, new Vector3(25));
@@ -75,13 +77,26 @@ namespace Template
 
             for (int i = 0; i < 50; i++)
             {
-                sceneGraph.gameObjects.Add(new Model(
-                    meshesAsset[6],
-                    texturesAsset[4],
-                    new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
-                    new Vector3(0, random.Next(360), 0),
-                    new Vector3(12 + random.Next(16)))
-                );
+                if (random.Next(8) == 1)
+                {
+                    int texture = random.Next(2) == 1 ? 9 : 10;
+                    sceneGraph.gameObjects.Add(new Model(
+                        meshesAsset[6],
+                        texturesAsset[texture],
+                        new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
+                        new Vector3(0, random.Next(360), 0),
+                        new Vector3(14 + random.Next(10)))
+                    );
+                } else
+                {
+                    sceneGraph.gameObjects.Add(new Model(
+                        meshesAsset[6],
+                        texturesAsset[4],
+                        new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
+                        new Vector3(0, random.Next(360), 0),
+                        new Vector3(12 + random.Next(10)))
+                    );
+                }
             }
 
             floorBottom = new Model(meshesAsset[2], texturesAsset[5], new Vector3(0, 40, 0), Vector3.Zero, new Vector3(20));
@@ -126,7 +141,7 @@ namespace Template
         {
             var keyboard = Keyboard.GetState();
 
-            for(int i = 0; i < sceneGraph.lights.Count; i++)
+            for (int i = 0; i < sceneGraph.lights.Count; i++)
             {
                 if (keyboard[Key.Number0 + i])
                 {
@@ -165,10 +180,10 @@ namespace Template
             light2.position.X = 155 * cos;
             light2.position.Z = 155 * sin * cos;
 
-            if(camera.ProcessInput(app, deltaTime))
+            if (camera.ProcessInput(app, deltaTime))
             {
                 camera.CalculateFrustumPlanes();
-            }           
+            }
             sceneGraph.UpdateScene(camera);
             sceneGraph.RenderDepthMap(camera, depthShader);
             sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skybox);

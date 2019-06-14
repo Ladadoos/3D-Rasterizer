@@ -103,7 +103,7 @@ void main()
 		vec3 reflected = reflect(-toCameraDir, norm);
 		textureColor = texture(uLocalEnvironmentMap, reflected);
 	}else if(uMaterialType == 2){
-	    const float ratio = 1.00 / 1.32;
+	    const float ratio = 1.00 / 1.42;
 		vec3 refracted = refract(-toCameraDir, norm, ratio);
 		textureColor = texture(uLocalEnvironmentMap, refracted);
 	}
