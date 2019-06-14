@@ -177,6 +177,68 @@ namespace Template
                     Bitangent = bitangent
                 };
             }
+
+            for (int i = 0; i < objQuads.Count; i++)
+            {
+                Mesh.ObjVertex vert1 = objVertices[objQuads[i].Index0];
+                Mesh.ObjVertex vert2 = objVertices[objQuads[i].Index1];
+                Mesh.ObjVertex vert3 = objVertices[objQuads[i].Index2];
+
+                Vector3 v0 = vert1.Vertex;
+                Vector3 v1 = vert2.Vertex;
+                Vector3 v2 = vert3.Vertex;
+
+                Vector2 uv0 = vert1.TexCoord;
+                Vector2 uv1 = vert2.TexCoord;
+                Vector2 uv2 = vert3.TexCoord;
+
+                Vector3 deltaPos1 = v1 - v0;
+                Vector3 deltaPos2 = v2 - v0;
+
+                Vector2 deltaUV1 = uv1 - uv0;
+                Vector2 deltaUV2 = uv2 - uv0;
+
+                float r = 1 / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                Vector3 tangent = Vector3.Normalize((deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r);
+                Vector3 bitangent = Vector3.Normalize((deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r);
+
+                objVertices[objQuads[i].Index0] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert1.TexCoord,
+                    Normal = vert1.Normal,
+                    Vertex = vert1.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+                objVertices[objQuads[i].Index1] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert2.TexCoord,
+                    Normal = vert2.Normal,
+                    Vertex = vert2.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+                objVertices[objQuads[i].Index2] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert3.TexCoord,
+                    Normal = vert3.Normal,
+                    Vertex = vert3.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+
+                Mesh.ObjVertex vert4 = objVertices[objQuads[i].Index3];
+                objVertices[objQuads[i].Index3] = new Mesh.ObjVertex()
+                {
+                    TexCoord = vert4.TexCoord,
+                    Normal = vert4.Normal,
+                    Vertex = vert4.Vertex,
+                    Tangent = tangent,
+                    Bitangent = bitangent
+                };
+            }
         }
 
         char[] faceParamaterSplitter = new char[] { '/' };
