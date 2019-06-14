@@ -9,7 +9,7 @@ namespace Template
         private float cameraSensitivity = 0.1F;
         private Vector2 previousMousePosition;
 
-        public FPSCamera(Vector3 position) : base(position)
+        public FPSCamera(Vector3 position, float screenWidth, float screenHeight) : base(position, screenWidth, screenHeight)
         {
             previousMousePosition = new Vector2(1,1);
         }

@@ -36,12 +36,14 @@ namespace Template
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            ClientSize = new Size(1000, 1000);
+            ClientSize = new Size(1280, 720);
+            X = 100;
             app = new MyApplication();
             app.screen = new Surface(Width, Height);
             Sprite.target = app.screen;
             screenID = app.screen.GenTexture();
             app.Initialize();
+
             VSync = VSyncMode.On;
         }
         protected override void OnUnload(EventArgs e)
@@ -57,7 +59,6 @@ namespace Template
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
-            app.OnWindowResize(Width, Height);
         }
         protected override void OnUpdateFrame(FrameEventArgs e)
         {

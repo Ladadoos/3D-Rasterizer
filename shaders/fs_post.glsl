@@ -90,7 +90,7 @@ void main()
 	//color = invert(color);
 	//color += applyKernelEffect(uScreenTexture, edgeKernel);
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);
-	//color = vignette(color);
+	color = vignette(color);
 
 	outputColor = color;
 }

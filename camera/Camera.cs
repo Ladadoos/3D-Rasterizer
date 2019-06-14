@@ -24,11 +24,16 @@ namespace Template
         private Matrix4 projectionMatrix;
         protected float movementSpeed = 50;
 
-        public Camera(Vector3 position)
+        public Camera(Vector3 position, float screenWidth, float screenHeight)
         {
             this.position = position;
-            frustum = new ViewFrustum(1.2F, 1.3F, 0.1F, 1000);
+            CreateFrustum(screenWidth, screenHeight);
             projectionMatrix = frustum.CreateProjectionMatrix();
+        }
+
+        private void CreateFrustum(float screenWidth, float screenHeight)
+        {
+            frustum = new ViewFrustum(1.2F, screenWidth / screenHeight, 0.1F, 1000);
         }
 
         public Matrix4 GetProjectionMatrix()

@@ -65,32 +65,32 @@ namespace Template
             frustumPlanes[1].point = farCenter; //far plane
             frustumPlanes[1].distanceToOrigin = Vector3.Dot(frustumPlanes[1].normal, frustumPlanes[1].point);
 
-            Vector3 aux, normal;
+            Vector3 temporary, normal;
 
-            aux = (nearCenter + yAxis * halfNearHeight) - camera.position;
-            aux.Normalize();
-            normal = Vector3.Cross(aux, xAxis);
+            temporary = (nearCenter + yAxis * halfNearHeight) - camera.position;
+            temporary.Normalize();
+            normal = Vector3.Cross(temporary, xAxis);
             frustumPlanes[2].normal = normal;
             frustumPlanes[2].point = (nearCenter + yAxis * halfNearHeight); //top plane
             frustumPlanes[2].distanceToOrigin = Vector3.Dot(frustumPlanes[2].normal, frustumPlanes[2].point);
 
-            aux = (nearCenter - yAxis * halfNearHeight) - camera.position;
-            aux.Normalize();
-            normal = Vector3.Cross(xAxis, aux);
+            temporary = (nearCenter - yAxis * halfNearHeight) - camera.position;
+            temporary.Normalize();
+            normal = Vector3.Cross(xAxis, temporary);
             frustumPlanes[3].normal = normal;
             frustumPlanes[3].point = (nearCenter - yAxis * halfNearHeight); //bottom plane
             frustumPlanes[3].distanceToOrigin = Vector3.Dot(frustumPlanes[3].normal, frustumPlanes[3].point);
 
-            aux = (nearCenter - xAxis * halfNearWidth) - camera.position;
-            aux.Normalize();
-            normal = Vector3.Cross(aux, yAxis);
+            temporary = (nearCenter - xAxis * halfNearWidth) - camera.position;
+            temporary.Normalize();
+            normal = Vector3.Cross(temporary, yAxis);
             frustumPlanes[4].normal = normal;
             frustumPlanes[4].point = (nearCenter - xAxis * halfNearWidth); //left plane
             frustumPlanes[4].distanceToOrigin = Vector3.Dot(frustumPlanes[4].normal, frustumPlanes[4].point);
 
-            aux = (nearCenter + xAxis * halfNearWidth) - camera.position;
-            aux.Normalize();
-            normal = Vector3.Cross(yAxis, aux);
+            temporary = (nearCenter + xAxis * halfNearWidth) - camera.position;
+            temporary.Normalize();
+            normal = Vector3.Cross(yAxis, temporary);
             frustumPlanes[5].normal = normal;
             frustumPlanes[5].point = (nearCenter + xAxis * halfNearWidth); //right plane
             frustumPlanes[5].distanceToOrigin = Vector3.Dot(frustumPlanes[5].normal, frustumPlanes[5].point);

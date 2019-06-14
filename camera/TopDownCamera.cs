@@ -10,7 +10,7 @@ namespace Template
         private float zoomSpeed = 100;
         private float rotationSpeed = 150;
 
-        public TopDownCamera(Vector3 position) : base(position)
+        public TopDownCamera(Vector3 position, float screenWidth, float screenHeight) : base(position, screenWidth, screenHeight)
         {
             pitch = -45F;
         }
