@@ -57,8 +57,8 @@ namespace Template
 
         public Skybox()
         {
-            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right2.png", "../../assets/left2.png", "../../assets/top2.png",
-                "../../assets/bottom2.png", "../../assets/front2.png", "../../assets/back2.png" }); ;
+            skyboxTexture = new CubeTexture(new string[]{ "../../assets/right.png", "../../assets/left.png", "../../assets/top.png",
+                "../../assets/bottom.png", "../../assets/front.png", "../../assets/back.png" }); ;
 
             positionsVboId = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, positionsVboId);

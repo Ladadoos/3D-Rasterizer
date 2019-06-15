@@ -9,8 +9,7 @@ uniform sampler2D uDepthTexture;
 
 out vec3 outputColor;
 
-const bool applyFog = false;
-const float fogIntensity = 5;
+const bool applyFog = true;
 
 const int KernelWidth = 5;
 const int KernelHeight = 5;
@@ -47,11 +46,11 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 }
 
 vec3 standard(){
-	const float gamma = 2.2;
+	const float gamma = 1.5;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
 	hdrColor += texture(uBlurTexture, uv).rgb;
-	if(applyFog){hdrColor += texture(uDepthTexture, uv).rgb * fogIntensity;}
-	float exposure = 2f;
+	if(applyFog){hdrColor += texture(uDepthTexture, uv).rgb * 0.05F * vec3(0f, 0.4F, 0.8F);}
+	float exposure = 1f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
     return mapped;

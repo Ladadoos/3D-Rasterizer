@@ -8,12 +8,12 @@ namespace Template
 {
     class Consts
     {
-        public static int LightsCount = 2;
+        public static int LightsCount = 3;
     }
 
     class MyApplication
     {
-        private bool applyPostProcessing = true;
+        private bool applyPostProcessing = false;
 
         public Surface screen;                     // background surface for printing etc.
         private Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
@@ -54,7 +54,7 @@ namespace Template
 
             int cms = 512; //cube map size for reflections/refractions
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/wood.jpg"), null, 4, MaterialType.Diffuse)); //0
-            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null, 8, MaterialType.Reflective, new CubeTexture(cms, cms))); //1
+            texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGray.png"), null, 8, MaterialType.Diffuse)); //1
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/floor.png"), new Texture("../../assets/floorNormal.png"), 8, MaterialType.Diffuse)); //2
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/diffuseGreen.png"), null, 2, MaterialType.Diffuse)); //3
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/grass.png"), null, 2, MaterialType.Diffuse)); //4
@@ -65,7 +65,7 @@ namespace Template
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/flower.png"), null, 2, MaterialType.Diffuse)); //9
             texturesAsset.Add(new SurfaceTexture(new Texture("../../assets/flower2.png"), null, 2, MaterialType.Diffuse)); //10
 
-            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(80, -5, 80), new Vector3(0, 65, 0), new Vector3(7));
+            dragon = new Model(meshesAsset[0], texturesAsset[6], new Vector3(-50, -5, 100), new Vector3(0, 15, 0), new Vector3(7));
             sphere1 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(2, 0, 0), Vector3.Zero, new Vector3(0.5F));
             sphere2 = new Model(meshesAsset[3], texturesAsset[0], new Vector3(0, -0.2F, 1.5F), Vector3.Zero, new Vector3(0.3F, 0.3F, 0.3F));
             centerBox = new Model(meshesAsset[4], texturesAsset[0], new Vector3(40, 45, 0), Vector3.Zero, new Vector3(25));
@@ -75,7 +75,7 @@ namespace Template
             shinyBall = new Model(meshesAsset[3], texturesAsset[1], new Vector3(-70, 28, 70), new Vector3(0, 15, 0), new Vector3(16));
             tower = new Model(meshesAsset[7], texturesAsset[2], new Vector3(-90, 25, 0), new Vector3(0, 15, 0), new Vector3(9));
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 450; i++)
             {
                 if (random.Next(8) == 1)
                 {
@@ -83,7 +83,7 @@ namespace Template
                     sceneGraph.gameObjects.Add(new Model(
                         meshesAsset[6],
                         texturesAsset[texture],
-                        new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
+                        new Vector3(random.Next(-250, 250), -0.2F, random.Next(-250, 250)),
                         new Vector3(0, random.Next(360), 0),
                         new Vector3(14 + random.Next(10)))
                     );
@@ -92,45 +92,51 @@ namespace Template
                     sceneGraph.gameObjects.Add(new Model(
                         meshesAsset[6],
                         texturesAsset[4],
-                        new Vector3(random.Next(-150, 150), -0.2F, random.Next(-150, 150)),
+                        new Vector3(random.Next(-250, 250), -0.2F, random.Next(-250, 250)),
                         new Vector3(0, random.Next(360), 0),
                         new Vector3(12 + random.Next(10)))
                     );
                 }
             }
 
-            floorBottom = new Model(meshesAsset[2], texturesAsset[5], new Vector3(0, 40, 0), Vector3.Zero, new Vector3(20));
+            floorBottom = new Model(meshesAsset[2], texturesAsset[5], new Vector3(0, 80, 0), Vector3.Zero, new Vector3(40));
 
             skylight = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(300, 400, 0), Vector3.Zero, Vector3.One);
-            skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
+            skylight.color = new Vector3(0f, 0.2F, 0.4F); skylight.brightness = 70000;
             skylight.CreateDepth(new CubeDepthMap(1024, 1024));
-            light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 155, 0), Vector3.Zero, new Vector3(4));
-            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 80000;
+            light2 = new PointLight(null, texturesAsset[3], new Vector3(-90, 100, 0), Vector3.Zero, new Vector3(4));
+            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 2000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
+
+            PointLight light3 = new PointLight(null, texturesAsset[3], new Vector3(-20, 25, 70), Vector3.Zero, new Vector3(2));
+            light3.color = new Vector3(0.8f, 0.4F, 0.2F); light3.brightness = 2000;
+            light3.CreateDepth(new CubeDepthMap(512, 512));
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
             gaussianBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
 
             camera = new FPSCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
 
-            centerBox.AddChild(sphere2);
-            sphere2.AddChild(sphere1);
+          //  centerBox.AddChild(sphere2);
+           // sphere2.AddChild(sphere1);
 
             sceneGraph.gameObjects.Add(dragon);
             sceneGraph.gameObjects.Add(skylight);
             sceneGraph.gameObjects.Add(light2);
-            sceneGraph.gameObjects.Add(sphere1);
-            sceneGraph.gameObjects.Add(centerBox);
+            sceneGraph.gameObjects.Add(light3);
+            //sceneGraph.gameObjects.Add(sphere1);
+            //sceneGraph.gameObjects.Add(centerBox);
             sceneGraph.gameObjects.Add(towerBoxBig);
             sceneGraph.gameObjects.Add(towerBoxSmall);
             sceneGraph.gameObjects.Add(floorBottom);
             sceneGraph.gameObjects.Add(sphere2);
             sceneGraph.gameObjects.Add(glassBall);
-            sceneGraph.gameObjects.Add(shinyBall);
+            //sceneGraph.gameObjects.Add(shinyBall);
             sceneGraph.gameObjects.Add(tower);
 
             sceneGraph.AddLight(skylight);
             sceneGraph.AddLight(light2);
+            sceneGraph.AddLight(light3);
 
             selectedLight = light2;
         }
@@ -177,8 +183,8 @@ namespace Template
             sphere2.rotationInAngle.Y += deltaTime * 100;
             centerBox.rotationInAngle.Y += deltaTime * 50;
             centerBox.position.Y += sin / 10;
-            light2.position.X = 155 * cos;
-            light2.position.Z = 155 * sin * cos;
+            //light2.position.X = 155 * cos;
+            //light2.position.Z = 155 * sin * cos;
 
             if (camera.ProcessInput(app, deltaTime))
             {
