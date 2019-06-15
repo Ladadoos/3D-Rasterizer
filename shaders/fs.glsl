@@ -23,6 +23,7 @@ uniform int uMaterialType;
 
 layout (location = 0) out vec4 outputFragColor;
 layout (location = 1) out vec4 outputBrightnessColor;
+layout (location = 2) out vec4 outputDepth;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
@@ -63,6 +64,10 @@ void main()
 		discard;
 	}
 
+	vec3 toCamera = uCameraPosition - fragmentPosition.xyz;
+	float toCameraDist = length(toCamera);
+	outputDepth = vec4(vec3(toCameraDist / 1000), 1);
+
 	if(uIsLightTarget != -1){
 		outputFragColor = vec4(uLightColor[uIsLightTarget], 1);
 		CalculateBrightness();
@@ -80,7 +85,7 @@ void main()
 	}
 
 	vec3 ambient = ambientStrenght * uAmbientLightColor;
-	vec3 toCameraDir = normalize(uCameraPosition - fragmentPosition.xyz);
+	vec3 toCameraDir = toCamera / toCameraDist;
 
 	vec3 lighting = ambient;
 	for(int i = 0; i < LightCount; i++){

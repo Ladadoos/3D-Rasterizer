@@ -5,8 +5,12 @@ in vec2 uv;						  // interpolated texture coordinates
 
 uniform sampler2D uScreenTexture; // input texture (1st pass render target)
 uniform sampler2D uBlurTexture;   // texture with only the brightest parts of the uScreenTexture
+uniform sampler2D uDepthTexture;
 
 out vec3 outputColor;
+
+const bool applyFog = true;
+const float fogIntensity = 5;
 
 const int KernelWidth = 5;
 const int KernelHeight = 5;
@@ -46,6 +50,7 @@ vec3 standard(){
 	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
 	hdrColor += texture(uBlurTexture, uv).rgb;
+	if(applyFog){hdrColor += texture(uDepthTexture, uv).rgb * fogIntensity;}
 	float exposure = 2f;
     vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
     mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
@@ -76,7 +81,7 @@ vec3 invert(vec3 color){
 vec3 vignette(vec3 color){
 	vec2 relativeToCenter = gl_FragCoord.xy / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
 	float vig = smoothstep(0.6F, 0.4F, length(relativeToCenter));
-	color.rgb = mix(color, color * vig, 0.25F);
+	color.rgb = mix(color, color * vig, 0.05F);
 	return color;
 }   
 

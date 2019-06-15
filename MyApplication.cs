@@ -108,7 +108,7 @@ namespace Template
             light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 80000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
-            screenFBO = new RenderTarget(2, screen.width, screen.height);
+            screenFBO = new RenderTarget(3, screen.width, screen.height);
             gaussianBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
 
             camera = new FPSCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
@@ -236,6 +236,10 @@ namespace Template
                 GL.Uniform1(postProcessingShader.uniform_blurTexture, 1);
                 GL.ActiveTexture(TextureUnit.Texture1);
                 GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
+
+                GL.Uniform1(postProcessingShader.uniform_depthTexture, 2);
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(2));
                 postProcessingShader.Unbind();
 
                 quad.Render(postProcessingShader);
