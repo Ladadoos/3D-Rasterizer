@@ -9,7 +9,7 @@ uniform sampler2D uDepthTexture;
 
 out vec3 outputColor;
 
-const bool applyFog = true;
+const bool applyFog = false;
 const float fogIntensity = 5;
 
 const int KernelWidth = 5;
