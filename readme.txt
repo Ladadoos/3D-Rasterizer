@@ -16,3 +16,4 @@ multiple different kernel effects
 reflective and dielectric materials with textures
 interactive lights + - and rgb and numbers to select light
 godrays
+fog
