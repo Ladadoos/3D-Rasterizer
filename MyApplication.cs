@@ -26,14 +26,16 @@ namespace Template
         private PointLight skylight, light2;
 
         //Frame buffer objects
-        private RenderTarget gaussianBlurFBO;
+        private RenderTarget bloomBlurFBO;
+        private RenderTarget depthOfFieldBlurFBO;
         private RenderTarget screenFBO;
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
         private ModelShader modelShader = new ModelShader();
         private PostProcessingShader postProcessingShader = new PostProcessingShader();
-        private GaussianBlurShader blurShader = new GaussianBlurShader();
+        private BloomShader bloomShader = new BloomShader();
+        private DepthOfFieldShader depthOfFieldShader = new DepthOfFieldShader();
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
@@ -75,7 +77,7 @@ namespace Template
             shinyBall = new Model(meshesAsset[3], texturesAsset[1], new Vector3(-70, 28, 70), new Vector3(0, 15, 0), new Vector3(16));
             tower = new Model(meshesAsset[7], texturesAsset[2], new Vector3(-90, 25, 0), new Vector3(0, 15, 0), new Vector3(9));
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 250; i++)
             {
                 if (random.Next(8) == 1)
                 {
@@ -109,7 +111,8 @@ namespace Template
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
-            gaussianBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
+            bloomBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
+            depthOfFieldBlurFBO = new RenderTarget(1, screen.width, screen.height);
 
             camera = new FPSCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
 
@@ -119,12 +122,12 @@ namespace Template
             sceneGraph.gameObjects.Add(dragon);
             sceneGraph.gameObjects.Add(skylight);
             sceneGraph.gameObjects.Add(light2);
-            sceneGraph.gameObjects.Add(sphere1);
-            sceneGraph.gameObjects.Add(centerBox);
+            //sceneGraph.gameObjects.Add(sphere1);
+            //sceneGraph.gameObjects.Add(centerBox);
             sceneGraph.gameObjects.Add(towerBoxBig);
             sceneGraph.gameObjects.Add(towerBoxSmall);
             sceneGraph.gameObjects.Add(floorBottom);
-            sceneGraph.gameObjects.Add(sphere2);
+            //sceneGraph.gameObjects.Add(sphere2);
             sceneGraph.gameObjects.Add(glassBall);
             sceneGraph.gameObjects.Add(shinyBall);
             sceneGraph.gameObjects.Add(tower);
@@ -200,42 +203,75 @@ namespace Template
                 screenFBO.Unbind();
 
                 //Apply gaussian blur to highlight texture from first render pass
-                GL.Viewport(0, 0, gaussianBlurFBO.width, gaussianBlurFBO.height);
-                gaussianBlurFBO.Bind();
+                GL.Viewport(0, 0, bloomBlurFBO.width, bloomBlurFBO.height);
+                bloomBlurFBO.Bind();
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
 
-                blurShader.Bind();
-                GL.Uniform1(blurShader.uniform_screenTexture, 0);
+                bloomShader.Bind();
+                GL.Uniform1(bloomShader.uniform_screenTexture, 0);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(1));
-                blurShader.Unbind();
+                bloomShader.Unbind();
 
-                quad.Render(blurShader);
+                quad.Render(bloomShader);
                 for (int i = 0; i < 1; i++)
                 {
                     GL.Clear(ClearBufferMask.DepthBufferBit);
 
-                    blurShader.Bind();
-                    GL.Uniform1(blurShader.uniform_screenTexture, 0);
+                    bloomShader.Bind();
+                    GL.Uniform1(bloomShader.uniform_screenTexture, 0);
                     GL.ActiveTexture(TextureUnit.Texture0);
-                    GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
-                    blurShader.Unbind();
+                    GL.BindTexture(TextureTarget.Texture2D, bloomBlurFBO.GetTargetTextureId(0));
+                    bloomShader.Unbind();
 
-                    quad.Render(blurShader);
+                    quad.Render(bloomShader);
                 }
-                gaussianBlurFBO.Unbind();
+                bloomBlurFBO.Unbind();
+
+                //Apply gaussian blur to normal scene for depth of field
+                GL.Viewport(0, 0, depthOfFieldBlurFBO.width, depthOfFieldBlurFBO.height);
+                depthOfFieldBlurFBO.Bind();
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+
+                depthOfFieldShader.Bind();
+                depthOfFieldShader.LoadVector2(depthOfFieldShader.uniform_focalDistance, new Vector2(0.1F, 0.2F));
+
+                GL.Uniform1(depthOfFieldShader.uniform_screenTexture, 0);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(0));
+
+                GL.Uniform1(depthOfFieldShader.uniform_depthTexture, 1);
+                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(2));
+                depthOfFieldShader.Unbind();
+
+                quad.Render(depthOfFieldShader);
+                for (int i = 0; i < 1; i++)
+                {
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
+
+                    depthOfFieldShader.Bind();
+                    GL.Uniform1(depthOfFieldShader.uniform_screenTexture, 0);
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, depthOfFieldBlurFBO.GetTargetTextureId(0));
+                    depthOfFieldShader.Unbind();
+
+                    quad.Render(depthOfFieldShader);
+                }
+                depthOfFieldBlurFBO.Unbind();
 
                 //Render the final state of post processing
                 GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
                 postProcessingShader.Bind();
                 GL.Uniform1(postProcessingShader.uniform_screenTexture, 0);
                 GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(0));
+                GL.BindTexture(TextureTarget.Texture2D, depthOfFieldBlurFBO.GetTargetTextureId(0));
 
                 GL.Uniform1(postProcessingShader.uniform_blurTexture, 1);
                 GL.ActiveTexture(TextureUnit.Texture1);
-                GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
+                GL.BindTexture(TextureTarget.Texture2D, bloomBlurFBO.GetTargetTextureId(0));
 
                 GL.Uniform1(postProcessingShader.uniform_depthTexture, 2);
                 GL.ActiveTexture(TextureUnit.Texture2);

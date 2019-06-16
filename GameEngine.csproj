@@ -51,7 +51,8 @@
     <Compile Include="camera\TopDownCamera.cs" />
     <Compile Include="camera\ViewFrustum.cs" />
     <Compile Include="object\light\PointLight.cs" />
-    <Compile Include="shaderprogram\GaussianBlurShader.cs" />
+    <Compile Include="shaderprogram\BloomShader.cs" />
+    <Compile Include="shaderprogram\DepthOfFieldShader.cs" />
     <Compile Include="texture\CubeDepthMap.cs" />
     <Compile Include="texture\DepthMap.cs" />
     <Compile Include="object\GameObject.cs" />
@@ -82,7 +83,8 @@
     <None Include="packages.config" />
     <None Include="shaders\fs.glsl" />
     <None Include="shaders\fs_depth.glsl" />
-    <None Include="shaders\fs_gaussianBlur.glsl" />
+    <None Include="shaders\fs_bloomBlur.glsl" />
+    <None Include="shaders\fs_depthOfFieldBlur.glsl" />
     <None Include="shaders\fs_post.glsl" />
     <None Include="shaders\fs_skybox.glsl" />
     <None Include="shaders\vs.glsl" />
