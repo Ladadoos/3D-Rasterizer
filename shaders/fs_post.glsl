@@ -46,15 +46,20 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 	return finalColor;
 }
 
+const float gamma = 2.2;
+const float exposure = 1;
+vec3 reinhardToneMapping(vec3 color)
+{
+	color *= exposure/(1.0 + color / exposure);
+	color = pow(color, vec3(1.0 / gamma));
+	return color;
+}
+
 vec3 standard(){
-	const float gamma = 2.2;
     vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
 	hdrColor += texture(uBlurTexture, uv).rgb;
 	if(applyFog){hdrColor += texture(uDepthTexture, uv).rgb * fogIntensity;}
-	float exposure = 2f;
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);   // exposure tone mapping
-    mapped = pow(mapped, vec3(1.0 / gamma));    // gamma correction 
-    return mapped;
+	return reinhardToneMapping(hdrColor);
 }
 
 vec3 chromaticAbberation(vec3 color){
