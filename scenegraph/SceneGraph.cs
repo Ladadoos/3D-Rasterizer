@@ -11,7 +11,9 @@ namespace Template
 
         public List<PointLight> lights = new List<PointLight>();
         private List<GameObject> toRenderObjects = new List<GameObject>();
-        private int rendered = 0;
+
+        private int renderedPreviousFrame = 0;
+        private int renderedThisFrame = 0;
 
         public void AddLight(PointLight light)
         {
@@ -21,7 +23,7 @@ namespace Template
 
         public void UpdateScene(Camera camera)
         {
-            rendered = 0;
+            renderedThisFrame = 0;
 
             toRenderObjects.Clear();
             foreach (GameObject gameObject in gameObjects)
@@ -39,12 +41,16 @@ namespace Template
 
                 if (camera.frustum.IsSphereInFrustum(center.Xyz, gameObject.mesh.hitboxRadius * radius))
                 {
-                    rendered++;
+                    renderedThisFrame++;
                     toRenderObjects.Add(gameObject);
                 }
             }
 
-           // Console.WriteLine("Objects rendered:" + rendered);
+            if(renderedThisFrame != renderedPreviousFrame)
+            {
+                Console.WriteLine("Objects rendered this frame:" + renderedThisFrame);
+            }
+            renderedPreviousFrame = renderedThisFrame;
         }
 
         public void UpdateEnvironmentMaps(Camera camera, ModelShader modelShader, Skybox skybox)
