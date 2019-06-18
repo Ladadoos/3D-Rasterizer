@@ -31,6 +31,8 @@ namespace Template
 
         protected override void OnLoad(EventArgs e)
         {
+            Console.WriteLine("OpenGL version: " + GL.GetString(StringName.Version));
+
             // called during application initialization
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.Texture2D);
