@@ -16,6 +16,9 @@ namespace Template
         public GameObject parent;
         public List<GameObject> children;
 
+        public Vector3 previousPosition;
+        public Matrix4 previousGlobalTransform;
+
         public GameObject(Mesh mesh, SurfaceTexture texture, Vector3 position, Vector3 rotationInAngle, Vector3 scale)
         {
             this.position = position;
@@ -49,12 +52,21 @@ namespace Template
 
         public void RenderToDepth(DepthShader shader, Matrix4 viewProjMatrix, Vector3 lightPosition)
         {
-            if (mesh != null) { mesh.RenderToDepth(shader, this, viewProjMatrix, lightPosition); }
+            if (mesh != null)
+            {
+                mesh.RenderToDepth(shader, this, viewProjMatrix, lightPosition);
+            }
         }
 
         public virtual void Update()
         {
             globalTransform = GetGlobalTransformationMatrix();
+        }
+
+        public virtual void EndUpdate()
+        {
+            previousGlobalTransform = globalTransform;
+            previousPosition = globalTransform.ExtractTranslation();
         }
 
         private Matrix4 GetGlobalTransformationMatrix()

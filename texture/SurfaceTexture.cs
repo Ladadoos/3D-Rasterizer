@@ -7,7 +7,7 @@
         Dieletric = 2
     }
 
-    public struct SurfaceTexture
+    public class SurfaceTexture
     {
         public Texture diffuse;
         public Texture normal;

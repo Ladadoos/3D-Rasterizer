@@ -70,6 +70,13 @@ namespace Template
             GL.UniformMatrix4(location, false, ref matrix);
         }
 
+        public void LoadTexture(int location, int textureUnit, int textureId, TextureTarget target = TextureTarget.Texture2D)
+        {
+            GL.Uniform1(location, textureUnit);
+            GL.ActiveTexture(TextureUnit.Texture0 + textureUnit);
+            GL.BindTexture(target, textureId);
+        }
+
         // loading shaders
         void Load(String filename, ShaderType type, int program, out int ID)
         {

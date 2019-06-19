@@ -31,9 +31,6 @@ namespace Template
 			// on first run, prepare buffers
 			Prepare();
 
-            // enable shader
-            GL.UseProgram(shader.programID);
-
 			// enable position and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_position );
 			GL.EnableVertexAttribArray( shader.attribute_uv );
@@ -50,9 +47,6 @@ namespace Template
 			// bind triangle index data and render
 			GL.BindBuffer( BufferTarget.ElementArrayBuffer, vbo_idx );
 			GL.DrawArrays( PrimitiveType.Quads, 0, 4 );
-
-			// disable shader
-			GL.UseProgram( 0 );
 		}
     }
 }

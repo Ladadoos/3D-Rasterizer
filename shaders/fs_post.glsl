@@ -48,8 +48,7 @@ vec3 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 
 const float gamma = 2.2;
 const float exposure = 1;
-vec3 reinhardToneMapping(vec3 color)
-{
+vec3 reinhardToneMapping(vec3 color){
 	color *= exposure/(1.0 + color / exposure);
 	color = pow(color, vec3(1.0 / gamma));
 	return color;
@@ -84,7 +83,7 @@ vec3 invert(vec3 color){
 }
 
 vec3 vignette(vec3 color){
-	vec2 relativeToCenter = gl_FragCoord.xy / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
+	vec2 relativeToCenter = uv / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
 	float vig = smoothstep(0.6F, 0.4F, length(relativeToCenter));
 	color.rgb = mix(color, color * vig, 0.05F);
 	return color;
@@ -101,6 +100,5 @@ void main()
 	//color += applyKernelEffect(uScreenTexture, edgeKernel);
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);
 	color = vignette(color);
-
 	outputColor = color;
 }

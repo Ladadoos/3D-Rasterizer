@@ -8,12 +8,19 @@ namespace Template
     class SceneGraph
     {
         public List<GameObject> gameObjects = new List<GameObject>();
-
         public List<PointLight> lights = new List<PointLight>();
-        private List<GameObject> toRenderObjects = new List<GameObject>();
+
+        private List<GameObject> toRenderGameObjects = new List<GameObject>();
 
         private int renderedPreviousFrame = 0;
         private int renderedThisFrame = 0;
+
+        private Matrix4 pointLightProjection;
+
+        public SceneGraph()
+        {
+            Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), 1, 1, 1000, out pointLightProjection);
+        }
 
         public void AddLight(PointLight light)
         {
@@ -25,7 +32,7 @@ namespace Template
         {
             renderedThisFrame = 0;
 
-            toRenderObjects.Clear();
+            toRenderGameObjects.Clear();
             foreach (GameObject gameObject in gameObjects)
             {
                 gameObject.Update();
@@ -42,7 +49,7 @@ namespace Template
                 if (camera.frustum.IsSphereInFrustum(center.Xyz, gameObject.mesh.hitboxRadius * radius))
                 {
                     renderedThisFrame++;
-                    toRenderObjects.Add(gameObject);
+                    toRenderGameObjects.Add(gameObject);
                 }
             }
 
@@ -53,16 +60,21 @@ namespace Template
             renderedPreviousFrame = renderedThisFrame;
         }
 
+        public void EndUpdateScene()
+        {
+            foreach (GameObject gameObject in gameObjects)
+            {
+                gameObject.EndUpdate();
+            }
+        }
+
         public void UpdateEnvironmentMaps(Camera camera, ModelShader modelShader, Skybox skybox)
         {
-            Matrix4 projectionMatrix;
-            Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), 1, 1, 1000, out projectionMatrix);
-
             modelShader.Bind();
-            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, projectionMatrix);
+            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, pointLightProjection);
             modelShader.Unbind();
 
-            foreach (GameObject source in gameObjects)
+            foreach (GameObject source in toRenderGameObjects)
             {
                 if (source.texture.materialType == MaterialType.Diffuse)
                 {
@@ -75,7 +87,6 @@ namespace Template
 
                 modelShader.Bind();
                 modelShader.LoadVector3(modelShader.uniform_cameraPosition, position);
-                modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, projectionMatrix);
                 modelShader.Unbind();
 
                 source.texture.environmentCubeMap.Bind();
@@ -87,7 +98,7 @@ namespace Template
                     modelShader.LoadMatrix(modelShader.uniform_viewMatrix, viewMatrices[i]);
                     modelShader.Unbind();
 
-                    Matrix4 viewProjMatrix = viewMatrices[i].ClearTranslation() * projectionMatrix;
+                    Matrix4 viewProjMatrix = viewMatrices[i].ClearTranslation() * pointLightProjection;
                     skybox.Render(viewProjMatrix);
 
                     foreach (GameObject gameObject in gameObjects)
@@ -113,7 +124,7 @@ namespace Template
                 for (int i = 0; i < 6; i++)
                 {
                     light.depthCube.SetRenderSide(i);
-                    foreach (GameObject gameObject in toRenderObjects)
+                    foreach (GameObject gameObject in toRenderGameObjects)
                     {
                         if(gameObject is Light)
                         {
@@ -139,14 +150,11 @@ namespace Template
                 modelShader.LoadVector3(modelShader.uniform_lightColor[i], lights[i].color);
                 modelShader.LoadFloat(modelShader.uniform_lightBrightness[i], lights[i].brightness);
                 modelShader.LoadVector3(modelShader.uniform_lightPosition[i], lights[i].globalTransform.ExtractTranslation());
-
-                GL.Uniform1(modelShader.uniform_depthCubes[i], 3 + i);
-                GL.ActiveTexture(TextureUnit.Texture0 + 3 + i);
-                GL.BindTexture(TextureTarget.TextureCubeMap, lights[i].depthCube.cubeDepthMapId);
+                modelShader.LoadTexture(modelShader.uniform_depthCubes[i], 3 + i, lights[i].depthCube.cubeDepthMapId, TextureTarget.TextureCubeMap);
             }
             modelShader.Unbind();
 
-            foreach (GameObject gameObject in toRenderObjects)
+            foreach (GameObject gameObject in toRenderGameObjects)
             {
                 gameObject.RenderToScene(modelShader);
             }

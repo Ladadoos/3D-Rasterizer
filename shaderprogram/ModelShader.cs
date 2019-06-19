@@ -48,11 +48,7 @@ namespace Template
             uniform_textureMap = GL.GetUniformLocation(programID, "uTextureMap");
             uniform_normalMap = GL.GetUniformLocation(programID, "uNormalMap");
             uniform_useNormalMap = GL.GetUniformLocation(programID, "uUseNormalMap");
-            for (int i = 0; i < Consts.LightsCount; i++)
-            {
-                uniform_depthCubes[i] = GL.GetUniformLocation(programID, "uDepthCube[" + i + "]");
-                Console.Write(uniform_depthCubes[i]);
-            }
+
             uniform_shininess = GL.GetUniformLocation(programID, "uShininess");
 
             uniform_modelMatrix = GL.GetUniformLocation(programID, "uModel");
@@ -61,15 +57,6 @@ namespace Template
 
             uniform_ambientLightColor = GL.GetUniformLocation(programID, "uAmbientLightColor");
             uniform_cameraPosition = GL.GetUniformLocation(programID, "uCameraPosition");
-            for (int i = 0; i < Consts.LightsCount; i++)
-            {
-                uniform_lightColor[i] = GL.GetUniformLocation(programID, "uLightColor[" + i + "]");
-                uniform_lightPosition[i] = GL.GetUniformLocation(programID, "uLightPosition[" + i + "]");
-                uniform_lightBrightness[i] = GL.GetUniformLocation(programID, "uLightBrightness[" + i + "]");
-                Console.Write(uniform_lightColor[i]);
-                Console.Write(uniform_lightPosition[i]);
-                Console.Write(uniform_lightBrightness[i]);
-            }
             
             uniform_isLightTarget = GL.GetUniformLocation(programID, "uIsLightTarget");
             uniform_materialType = GL.GetUniformLocation(programID, "uMaterialType");
@@ -92,6 +79,24 @@ namespace Template
                                                         uniform_localEnvironmentMap + " / " +
                                                         uniform_materialType
             );
+
+            Console.Write("    |>");
+            for (int i = 0; i < Consts.LightsCount; i++)
+            {
+                uniform_depthCubes[i] = GL.GetUniformLocation(programID, "uDepthCube[" + i + "]");
+                Console.Write(" / " + uniform_depthCubes[i]);
+            }
+            Console.Write(" -");
+            for (int i = 0; i < Consts.LightsCount; i++)
+            {
+                uniform_lightColor[i] = GL.GetUniformLocation(programID, "uLightColor[" + i + "]");
+                uniform_lightPosition[i] = GL.GetUniformLocation(programID, "uLightPosition[" + i + "]");
+                uniform_lightBrightness[i] = GL.GetUniformLocation(programID, "uLightBrightness[" + i + "]");
+                Console.Write(" / " + uniform_lightColor[i]);
+                Console.Write(" / " + uniform_lightPosition[i]);
+                Console.Write(" / " + uniform_lightBrightness[i]);
+            }
+            Console.Write("\n");
         }
     }
 }

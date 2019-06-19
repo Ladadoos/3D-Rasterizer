@@ -11,7 +11,7 @@ supports multiple lights
 cube mapping
 frustum culling
 HDR glow
-box filter using kernels
+seperable box and gaussian filter with variable kernel width
 multiple different kernel effects
 reflective and dielectric materials with textures
 interactive lights + - and rgb and numbers to select light

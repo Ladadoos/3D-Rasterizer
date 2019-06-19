@@ -26,14 +26,15 @@ namespace Template
         private PointLight skylight, light2;
 
         //Frame buffer objects
-        private RenderTarget gaussianBlurFBO;
+        private RenderTarget verBlurFilterFBO;
+        private RenderTarget horBlurFilterFBO;
         private RenderTarget screenFBO;
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
         private ModelShader modelShader = new ModelShader();
-        private PostProcessingShader postProcessingShader = new PostProcessingShader();
-        private GaussianBlurShader blurShader = new GaussianBlurShader();
+        private PostProcessingShader postProShadder = new PostProcessingShader();
+        private BoxFilterShader boxFilterShader = new BoxFilterShader();
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
@@ -109,7 +110,8 @@ namespace Template
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
-            gaussianBlurFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
+            verBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
+            horBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
 
             camera = new FPSCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
 
@@ -133,6 +135,7 @@ namespace Template
             sceneGraph.AddLight(light2);
 
             selectedLight = light2;
+            camera.previousViewProjection = camera.GetViewMatrix() * camera.GetProjectionMatrix();
         }
 
         private PointLight selectedLight;
@@ -180,7 +183,7 @@ namespace Template
             light2.position.X = 155 * cos;
             light2.position.Z = 155 * sin * cos;
 
-            if (camera.ProcessInput(app, deltaTime))
+            if (camera.ProcessInput(app, deltaTime)) //only update frustum if camera moved
             {
                 camera.CalculateFrustumPlanes();
             }
@@ -199,56 +202,48 @@ namespace Template
                 sceneGraph.RenderScene(camera, modelShader);
                 screenFBO.Unbind();
 
-                //Apply gaussian blur to highlight texture from first render pass
-                GL.Viewport(0, 0, gaussianBlurFBO.width, gaussianBlurFBO.height);
-                gaussianBlurFBO.Bind();
-                GL.Clear(ClearBufferMask.DepthBufferBit);
-                GL.Clear(ClearBufferMask.ColorBufferBit);
-
-                blurShader.Bind();
-                GL.Uniform1(blurShader.uniform_screenTexture, 0);
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(1));
-                blurShader.Unbind();
-
-                quad.Render(blurShader);
-                for (int i = 0; i < 1; i++)
+                //Apply box blur to highlight texture from first render pass
+                GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
+                boxFilterShader.Bind();   
+                boxFilterShader.LoadInt32(boxFilterShader.uniform_kernelWidth, 5);
+                for (int i = 0; i < 5; i++)
                 {
+                    horBlurFilterFBO.Bind();
                     GL.Clear(ClearBufferMask.DepthBufferBit);
+                    boxFilterShader.LoadTexture(boxFilterShader.uniform_screenTexture, 0, 
+                        i == 0 ? screenFBO.GetTargetTextureId(1) : verBlurFilterFBO.GetTargetTextureId(0));
 
-                    blurShader.Bind();
-                    GL.Uniform1(blurShader.uniform_screenTexture, 0);
-                    GL.ActiveTexture(TextureUnit.Texture0);
-                    GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
-                    blurShader.Unbind();
+                    boxFilterShader.LoadBoolean(boxFilterShader.uniform_isHorizontalPass, true);
+                    quad.Render(boxFilterShader);
 
-                    quad.Render(blurShader);
+                    verBlurFilterFBO.Bind();
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
+                    boxFilterShader.LoadTexture(boxFilterShader.uniform_screenTexture, 0,
+                                            horBlurFilterFBO.GetTargetTextureId(0));
+                    boxFilterShader.LoadBoolean(boxFilterShader.uniform_isHorizontalPass, false);
+                    quad.Render(boxFilterShader);
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
                 }
-                gaussianBlurFBO.Unbind();
+                boxFilterShader.Unbind();
+                verBlurFilterFBO.Unbind();
 
                 //Render the final state of post processing
-                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
-                postProcessingShader.Bind();
-                GL.Uniform1(postProcessingShader.uniform_screenTexture, 0);
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(0));
-
-                GL.Uniform1(postProcessingShader.uniform_blurTexture, 1);
-                GL.ActiveTexture(TextureUnit.Texture1);
-                GL.BindTexture(TextureTarget.Texture2D, gaussianBlurFBO.GetTargetTextureId(0));
-
-                GL.Uniform1(postProcessingShader.uniform_depthTexture, 2);
-                GL.ActiveTexture(TextureUnit.Texture2);
-                GL.BindTexture(TextureTarget.Texture2D, screenFBO.GetTargetTextureId(2));
-                postProcessingShader.Unbind();
-
-                quad.Render(postProcessingShader);
+                GL.Viewport(0, 0, screen.width, screen.height);
+                postProShadder.Bind();
+                postProShadder.LoadTexture(postProShadder.uniform_screenTexture, 0, screenFBO.GetTargetTextureId(0));
+                postProShadder.LoadTexture(postProShadder.uniform_blurTexture, 1, verBlurFilterFBO.GetTargetTextureId(0));
+                postProShadder.LoadTexture(postProShadder.uniform_depthTexture, 2, screenFBO.GetTargetTextureId(2));
+                quad.Render(postProShadder);
+                postProShadder.Unbind();
             } else
             {
                 GL.Viewport(0, 0, screen.width, screen.height);
                 skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
                 sceneGraph.RenderScene(camera, modelShader);
             }
+
+            sceneGraph.EndUpdateScene();
+            camera.previousViewProjection = camera.GetViewMatrix() * camera.GetProjectionMatrix();
         }
     }
 }
