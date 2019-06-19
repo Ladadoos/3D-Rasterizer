@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using OpenTK;
 using System;
 
-namespace Template
+namespace Rasterizer
 {
     // mesh and loader based on work by JTalton; http://www.opentk.com/node/642
 

@@ -3,7 +3,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace Template
+namespace Rasterizer
 {
     public abstract class Shader
     {

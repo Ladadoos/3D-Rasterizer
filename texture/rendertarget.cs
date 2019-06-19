@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 // based on http://www.opentk.com/doc/graphics/frame-buffer-objects
 
-namespace Template
+namespace Rasterizer
 {
     class RenderTarget
     {

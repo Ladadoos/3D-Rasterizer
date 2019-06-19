@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace Template
+namespace Rasterizer
 {
     // mesh and loader based on work by JTalton; http://www.opentk.com/node/642
 

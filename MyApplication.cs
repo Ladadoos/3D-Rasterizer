@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace Template
+namespace Rasterizer
 {
     class Consts
     {
@@ -222,7 +222,6 @@ namespace Template
                                             horBlurFilterFBO.GetTargetTextureId(0));
                     boxFilterShader.LoadBoolean(boxFilterShader.uniform_isHorizontalPass, false);
                     quad.Render(boxFilterShader);
-                    GL.Clear(ClearBufferMask.DepthBufferBit);
                 }
                 boxFilterShader.Unbind();
                 verBlurFilterFBO.Unbind();

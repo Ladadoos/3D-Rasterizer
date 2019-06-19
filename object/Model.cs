@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace Template
+namespace Rasterizer
 {
     class Model : GameObject
     {

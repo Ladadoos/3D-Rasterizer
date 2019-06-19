@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace Template
+namespace Rasterizer
 {
     public class PointLight : Light
     {

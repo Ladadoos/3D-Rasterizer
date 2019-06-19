@@ -21,7 +21,7 @@ using OpenTK.Graphics.OpenGL;
 // tutorial. After the tutorial you can throw away this template code, or modify it at
 // will, or maybe it simply suits your needs.
 
-namespace Template
+namespace Rasterizer
 {
     public class OpenTKApp : GameWindow
     {

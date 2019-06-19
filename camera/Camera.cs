@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace Template
+namespace Rasterizer
 {
     abstract class Camera
     {

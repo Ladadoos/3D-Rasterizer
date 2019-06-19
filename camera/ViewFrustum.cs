@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using System;
 
-namespace Template
+namespace Rasterizer
 {
     class ViewFrustum
     {

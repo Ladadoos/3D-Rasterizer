@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 
-namespace Template
+namespace Rasterizer
 {
     public abstract class GameObject
     {

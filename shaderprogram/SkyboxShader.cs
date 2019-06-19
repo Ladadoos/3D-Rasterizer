@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System;
 
-namespace Template
+namespace Rasterizer
 {
     class SkyboxShader : Shader
     {

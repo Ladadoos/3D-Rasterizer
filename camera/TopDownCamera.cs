@@ -2,7 +2,7 @@
 using OpenTK.Input;
 using System;
 
-namespace Template
+namespace Rasterizer
 {
     class TopDownCamera : Camera
     {
