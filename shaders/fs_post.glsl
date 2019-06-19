@@ -83,9 +83,9 @@ vec3 invert(vec3 color){
 }
 
 vec3 vignette(vec3 color){
-	vec2 relativeToCenter = uv / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
+	vec2 relativeToCenter = gl_FragCoord.xy / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
 	float vig = smoothstep(0.6F, 0.4F, length(relativeToCenter));
-	color.rgb = mix(color, color * vig, 0.05F);
+	color.rgb = mix(color, color * vig, 0.5F);
 	return color;
 }   
 
