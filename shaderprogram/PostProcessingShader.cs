@@ -22,7 +22,7 @@ namespace Rasterizer
             attribute_position = GL.GetAttribLocation(programID, "iPosition");
             attribute_uv = GL.GetAttribLocation(programID, "iUV");
             uniform_screenTexture = GL.GetUniformLocation(programID, "uScreenTexture");
-            uniform_blurTexture = GL.GetUniformLocation(programID, "uBlurTexture");
+            uniform_blurTexture = GL.GetUniformLocation(programID, "uBloomBlurTexture");
             uniform_depthTexture = GL.GetUniformLocation(programID, "uDepthTexture");
 
             Console.WriteLine("PostProcessing locations: " + attribute_position + " / " +
