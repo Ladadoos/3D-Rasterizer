@@ -8,5 +8,5 @@ out vec4 outputColor;
 
 void main()
 {    
-    outputColor = texture(uSkyboxCubeMap, textureCoords);
+    outputColor = vec4(texture(uSkyboxCubeMap, textureCoords).rgb, 0);
 }
