@@ -102,8 +102,8 @@ namespace Rasterizer
 
             floorBottom = new Model(meshesAsset[2], texturesAsset[5], new Vector3(0, 40, 0), Vector3.Zero, new Vector3(20));
 
-            skylight = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(300, 400, 0), Vector3.Zero, Vector3.One);
-            skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
+            skylight = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(300, 400, 0), Vector3.Zero, new Vector3(10));
+            skylight.color = new Vector3(1f, 0.5F, 0.1f); skylight.brightness = 70000;
             skylight.CreateDepth(new CubeDepthMap(1024, 1024));
             light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 155, 0), Vector3.Zero, new Vector3(4));
             light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 80000;
@@ -169,6 +169,11 @@ namespace Rasterizer
             {
                 selectedLight.color.Z += action == 1 ? -delta : delta;
             }
+
+            selectedLight.color.X = MathHelper.Clamp(selectedLight.color.X, 0.01F, 1);
+            selectedLight.color.Y = MathHelper.Clamp(selectedLight.color.Y, 0.01F, 1);
+            selectedLight.color.Z = MathHelper.Clamp(selectedLight.color.Z, 0.01F, 1);
+            Console.WriteLine(selectedLight.color);
         }
 
         public void RenderGL(OpenTKApp app, float deltaTime)

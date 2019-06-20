@@ -48,8 +48,7 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 }
 
 void CalculateBrightness(){
-	float brightness = dot(outputFragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1){
+    if(outputFragColor.r >= 1 || outputFragColor.g >= 1 || outputFragColor.b >= 1){
         outputBrightnessColor = vec4(outputFragColor.rgb, 1.0);
     }else{
         outputBrightnessColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -68,7 +67,7 @@ void main()
 	outputDepth = vec4(vec3(toCameraDist / 1000), 1);
 
 	if(uIsLightTarget != -1){
-		outputFragColor = vec4(uLightColor[uIsLightTarget], 1);
+		outputFragColor = vec4(uLightColor[uIsLightTarget] * 2, 1);
 		CalculateBrightness();
 		return;
 	}
