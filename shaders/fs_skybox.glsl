@@ -4,7 +4,7 @@ in vec3 textureCoords;
 
 uniform samplerCube uSkyboxCubeMap;
 
-out vec4 outputColor;
+layout (location = 0) out vec4 outputColor;
 
 void main()
 {    

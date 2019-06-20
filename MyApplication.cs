@@ -199,6 +199,8 @@ namespace Rasterizer
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
                 skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
+                GL.ClearTexImage(screenFBO.GetTargetTextureId(2), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 1, 1, 1, 1 });
+                GL.ClearTexImage(screenFBO.GetTargetTextureId(1), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 sceneGraph.RenderScene(camera, modelShader);
                 screenFBO.Unbind();
 
