@@ -49,7 +49,7 @@ float GetShadowFactor(vec3 norm, int lightIndex, vec3 toLightDirection)
 
 void CalculateBrightness(){
 	float brightness = dot(outputFragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.75){
+    if(brightness > 1){
         outputBrightnessColor = vec4(outputFragColor.rgb, 1.0);
     }else{
         outputBrightnessColor = vec4(0.0, 0.0, 0.0, 1.0);
