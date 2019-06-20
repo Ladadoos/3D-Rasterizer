@@ -46,22 +46,22 @@ vec4 applyKernelEffect(sampler2D sampleTexture, float[25] kernel){
 	return finalColor;
 }
 
-const float gamma = 2.2;
-const float exposure = 1;
 vec3 reinhardToneMapping(vec3 color){
+	const float gamma = 2.2;
+	const float exposure = 1;
 	color *= exposure/(1.0 + color / exposure);
 	color = pow(color, vec3(1.0 / gamma));
 	return color;
 }
 
 vec4 standard(){
-    vec3 hdrColor = texture(uScreenTexture, uv).rgb;  
-	hdrColor += texture(uBloomBlurTexture, uv).rgb;
-	if(applyFog){hdrColor += texture(uDepthTexture, uv).rgb * fogIntensity;}
-	return vec4(reinhardToneMapping(hdrColor), 1);
+    vec4 hdrColor = texture(uScreenTexture, uv);  
+	hdrColor.rgb += texture(uBloomBlurTexture, uv).rgb;
+	if(applyFog){hdrColor += vec4(texture(uDepthTexture, uv).rgb * fogIntensity, 0);}
+	return vec4(reinhardToneMapping(hdrColor.rgb), 1);
 }
 
-vec4 chromaticAbberation(vec3 color){
+vec4 chromaticAbberation(vec4 color){
 	float dr = uv.s + 0.01; 
 	if(dr > 1){dr = uv.s;}
 
@@ -79,14 +79,17 @@ vec4 chromaticAbberation(vec3 color){
 	 );
 }
 
-vec4 invert(vec3 color){
+vec4 invert(vec4 color){
 	return vec4(1 - color.r, 1 - color.g, 1 - color.b, 1);
 }
 
-vec4 vignette(vec3 color){
+vec4 vignette(vec4 color){
+	const float innerDistance = 0.6;
+	const float outerDistance = 0.8;
+	const float blendFactor = 0.725;
 	vec2 relativeToCenter = gl_FragCoord.xy / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
-	float vig = smoothstep(0.6F, 0.4F, length(relativeToCenter));
-	return vec4(mix(color, color * vig, 0.5F), 1);
+	float vignette = smoothstep(outerDistance, innerDistance, length(relativeToCenter));
+	return vec4(mix(color.rgb, color.rgb * vignette, blendFactor), 1);
 }   
 
 void main()
@@ -95,10 +98,10 @@ void main()
 	color = standard();
 
 	//Uncomment the lines as you wish to create the special effects.
+	color = vignette(color);
 	//color = chromaticAbberation(color);
 	//color = invert(color);
 	//color += applyKernelEffect(uScreenTexture, edgeKernel);
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);
-	//color = vignette(color);
 	outputColor = color;
 }
