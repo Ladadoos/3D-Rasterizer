@@ -13,7 +13,7 @@ namespace Rasterizer
 
     class MyApplication
     {
-        private bool applyPostProcessing = true;
+        private bool enablePostProcessing = true;
         private bool enableDepthOfField = true;
 
         public Surface screen;      
@@ -149,7 +149,6 @@ namespace Rasterizer
             sceneGraph.AddLight(light2);
 
             selectedLight = light2;
-            camera.previousViewProjection = camera.GetViewMatrix() * camera.GetProjectionMatrix();
         }
 
         private PointLight selectedLight;
@@ -210,7 +209,7 @@ namespace Rasterizer
             sceneGraph.RenderDepthMap(depthShader);
             sceneGraph.UpdateEnvironmentMaps(modelShader, skybox);
 
-            if (applyPostProcessing)
+            if (enablePostProcessing)
             {
                 //Do first render pass to multisample fbo
                 multisampleScreenFBO.Bind();
@@ -339,7 +338,6 @@ namespace Rasterizer
             }
 
             sceneGraph.EndUpdateScene();
-            camera.previousViewProjection = camera.GetViewMatrix() * camera.GetProjectionMatrix();
         }
     }
 }

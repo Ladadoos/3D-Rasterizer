@@ -24,8 +24,6 @@ namespace Rasterizer
         private Matrix4 projectionMatrix;
         protected float movementSpeed = 50;
 
-        public Matrix4 previousViewProjection;
-
         public Camera(Vector3 position, float screenWidth, float screenHeight)
         {
             this.position = position;
