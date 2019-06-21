@@ -28,6 +28,7 @@ namespace Rasterizer
         //Frame buffer objects
         private RenderTarget verBlurFilterFBO;
         private RenderTarget horBlurFilterFBO;
+        private RenderTarget multisampleScreenFBO;
         private RenderTarget screenFBO;
 
         //Shaders
@@ -110,6 +111,7 @@ namespace Rasterizer
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
+            multisampleScreenFBO = new RenderTarget(3, screen.width, screen.height, 4);
             verBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
             horBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
 
@@ -173,7 +175,6 @@ namespace Rasterizer
             selectedLight.color.X = MathHelper.Clamp(selectedLight.color.X, 0.01F, 1);
             selectedLight.color.Y = MathHelper.Clamp(selectedLight.color.Y, 0.01F, 1);
             selectedLight.color.Z = MathHelper.Clamp(selectedLight.color.Z, 0.01F, 1);
-            Console.WriteLine(selectedLight.color);
         }
 
         public void RenderGL(OpenTKApp app, float deltaTime)
@@ -198,16 +199,28 @@ namespace Rasterizer
 
             if (applyPostProcessing)
             {
-                //Do first render pass
-                GL.Viewport(0, 0, screenFBO.width, screenFBO.height);
-                screenFBO.Bind();
+                //Do first render pass to multisample fbo
+                GL.Viewport(0, 0, multisampleScreenFBO.width, multisampleScreenFBO.height);
+                multisampleScreenFBO.Bind();
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
                 skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
-                GL.ClearTexImage(screenFBO.GetTargetTextureId(2), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 1, 1, 1, 1 });
-                GL.ClearTexImage(screenFBO.GetTargetTextureId(1), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
+                GL.ClearTexImage(multisampleScreenFBO.GetTargetTextureId(2), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 1, 1, 1, 1 });
+                GL.ClearTexImage(multisampleScreenFBO.GetTargetTextureId(1), 0, PixelFormat.Rgba, PixelType.Float, new float[] { 0, 0, 0, 0 });
                 sceneGraph.RenderScene(camera, modelShader);
-                screenFBO.Unbind();
+                multisampleScreenFBO.Unbind();
+
+                //Resolve multisample
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, multisampleScreenFBO.fbo);
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, screenFBO.fbo);
+                for(int i = 0; i < multisampleScreenFBO.colorTextures.Length; i++)
+                {
+                    GL.ReadBuffer(ReadBufferMode.ColorAttachment0 + i);
+                    GL.DrawBuffer(DrawBufferMode.ColorAttachment0 + i);
+                    GL.BlitFramebuffer(0, 0, multisampleScreenFBO.width, multisampleScreenFBO.height, 0, 0,
+                        screenFBO.width, screenFBO.height, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+                }
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
                 //Apply box blur to highlight texture from first render pass
                 GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);

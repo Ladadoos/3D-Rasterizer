@@ -7,51 +7,83 @@ namespace Rasterizer
 {
     class RenderTarget
     {
-        uint fbo;
-        int[] colorTextures;
-        uint depthBuffer;
         public int width, height;
 
-        public RenderTarget(int colorTexturesCount, int width, int height)
+        public int fbo;
+        public int[] colorTextures;
+        private int depthBuffer;
+        private int samples;
+
+        public RenderTarget(int colorTexturesCount, int width, int height, int pixelSamples = 1)
         {
             this.width = width;
             this.height = height;
+            this.samples = pixelSamples;
             colorTextures = new int[colorTexturesCount];
 
-            // bind color and depth textures to fbo
+            // create and bind fbo
             GL.Ext.GenFramebuffers(1, out fbo);
-            GL.Ext.GenRenderbuffers(1, out depthBuffer);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fbo);
 
-            // create color texture
-            GL.GenTextures(colorTexturesCount, colorTextures);
-            for (int i = 0; i < colorTexturesCount; i++)
-            {
-                GL.BindTexture(TextureTarget.Texture2D, colorTextures[i]);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f,
-                    this.width, this.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
-
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
-
-                GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0 + i,
-                    TextureTarget.Texture2D, colorTextures[i], 0);
-            }
-
+            // create the color buffers
             DrawBuffersEnum[] buffers = new DrawBuffersEnum[colorTexturesCount];
-            for(int i = 0; i < colorTexturesCount; i++)
+            for (int i = 0; i < colorTexturesCount; i++)
             {
                 buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
             GL.DrawBuffers(colorTexturesCount, buffers);
-        
+
+            // create the color textures
+            GL.GenTextures(colorTexturesCount, colorTextures);
+            if (pixelSamples == 1)
+            {
+                for (int i = 0; i < colorTexturesCount; i++)
+                {
+                    GL.BindTexture(TextureTarget.Texture2D, colorTextures[i]);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f,
+                        this.width, this.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+
+                    GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0 + i,
+                        TextureTarget.Texture2D, colorTextures[i], 0);
+                }
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            } else
+            {
+                for (int i = 0; i < colorTexturesCount; i++)
+                {
+                    GL.BindTexture(TextureTarget.Texture2DMultisample, colorTextures[i]);
+                    GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, pixelSamples, PixelInternalFormat.Rgba32f,
+                        this.width, this.height, true);
+
+                    GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
+                    GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+
+                    GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0 + i,
+                        TextureTarget.Texture2DMultisample, colorTextures[i], 0);
+                }
+                GL.BindTexture(TextureTarget.Texture2DMultisample, 0);
+            }
+
+            // create depth buffer
+            GL.Ext.GenRenderbuffers(1, out depthBuffer);
             GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBuffer);
-            GL.Ext.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, (RenderbufferStorage)All.DepthComponent24, this.width, this.height);
+            if (pixelSamples == 1)
+            {
+                GL.Ext.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, (RenderbufferStorage)All.DepthComponent24, this.width, this.height);
+            } else
+            {
+                GL.Ext.RenderbufferStorageMultisample(RenderbufferTarget.RenderbufferExt, pixelSamples, (RenderbufferStorage)All.DepthComponent24, this.width, this.height);
+            }          
             GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBuffer);
 
-            // test FBO integrity
+            // test fbo integrity
             bool untestedBoolean = CheckFBOStatus();
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to regular framebuffer
         }
