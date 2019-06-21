@@ -15,15 +15,16 @@ namespace Rasterizer
     {
         private bool applyPostProcessing = true;
 
-        public Surface screen;                     // background surface for printing etc.
-        private Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
-        private Model floorBottom, glassBall, shinyBall, tower;
-        private float a = 0;
-        private ScreenQuad quad = new ScreenQuad(); // screen filling quad for post processing
-        public static Camera camera;
+        public Surface screen;      
+        private ScreenQuad quad = new ScreenQuad(); 
+        private Camera camera;
         private SceneGraph sceneGraph = new SceneGraph();
         private Skybox skybox = new Skybox();
         private PointLight skylight, light2;
+
+        //Models
+        private Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
+        private Model floorBottom, glassBall, shinyBall, tower;
 
         //Frame buffer objects
         private RenderTarget verBlurFilterFBO, horBlurFilterFBO;
@@ -32,8 +33,8 @@ namespace Rasterizer
         //Shaders
         private DepthShader depthShader = new DepthShader();
         private ModelShader modelShader = new ModelShader();
-        private PostProcessingShader postProShadder = new PostProcessingShader();
-        private BoxFilterShader boxFilterShader = new BoxFilterShader();
+        private PostProcessingShader postProShader = new PostProcessingShader();
+        private BlurFilterShader blurFilterShader = new BlurFilterShader();
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
@@ -41,6 +42,7 @@ namespace Rasterizer
 
         public void Initialize()
         {
+
             Random random = new Random();
 
             meshesAsset.Add(new Mesh("../../assets/dragon.obj")); //0
@@ -175,6 +177,7 @@ namespace Rasterizer
             selectedLight.color.Z = MathHelper.Clamp(selectedLight.color.Z, 0.01F, 1);
         }
 
+        private float a = 0;
         public void RenderGL(OpenTKApp app, float deltaTime)
         {
             a += 30 * deltaTime;
@@ -221,36 +224,36 @@ namespace Rasterizer
 
                 //Apply blur to highlight texture from first render pass
                 GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
-                boxFilterShader.Bind();   
-                boxFilterShader.LoadInt32(boxFilterShader.uniform_kernelWidth, 5);
+                blurFilterShader.Bind();   
+                blurFilterShader.LoadInt32(blurFilterShader.uniform_kernelWidth, 5);
                 for (int i = 0; i < 5; i++)
                 {
                     horBlurFilterFBO.Bind();
                     GL.Clear(ClearBufferMask.DepthBufferBit);
-                    boxFilterShader.LoadTexture(boxFilterShader.uniform_screenTexture, 0, 
+                    blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0, 
                         i == 0 ? screenFBO.GetTargetTextureId(1) : verBlurFilterFBO.GetTargetTextureId(0));
 
-                    boxFilterShader.LoadBoolean(boxFilterShader.uniform_isHorizontalPass, true);
-                    quad.Render(boxFilterShader);
+                    blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, true);
+                    quad.Render(blurFilterShader);
 
                     verBlurFilterFBO.Bind();
                     GL.Clear(ClearBufferMask.DepthBufferBit);
-                    boxFilterShader.LoadTexture(boxFilterShader.uniform_screenTexture, 0,
+                    blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0,
                                             horBlurFilterFBO.GetTargetTextureId(0));
-                    boxFilterShader.LoadBoolean(boxFilterShader.uniform_isHorizontalPass, false);
-                    quad.Render(boxFilterShader);
+                    blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, false);
+                    quad.Render(blurFilterShader);
                 }
-                boxFilterShader.Unbind();
+                blurFilterShader.Unbind();
                 verBlurFilterFBO.Unbind();
 
                 //Render the final state of post processing
                 GL.Viewport(0, 0, screen.width, screen.height);
-                postProShadder.Bind();
-                postProShadder.LoadTexture(postProShadder.uniform_screenTexture, 0, screenFBO.GetTargetTextureId(0));
-                postProShadder.LoadTexture(postProShadder.uniform_blurTexture, 1, verBlurFilterFBO.GetTargetTextureId(0));
-                postProShadder.LoadTexture(postProShadder.uniform_depthTexture, 2, screenFBO.GetTargetTextureId(2));
-                quad.Render(postProShadder);
-                postProShadder.Unbind();
+                postProShader.Bind();
+                postProShader.LoadTexture(postProShader.uniform_screenTexture, 0, screenFBO.GetTargetTextureId(0));
+                postProShader.LoadTexture(postProShader.uniform_blurTexture, 1, verBlurFilterFBO.GetTargetTextureId(0));
+                postProShader.LoadTexture(postProShader.uniform_depthTexture, 2, screenFBO.GetTargetTextureId(2));
+                quad.Render(postProShader);
+                postProShader.Unbind();
             } else
             {
                 GL.Viewport(0, 0, screen.width, screen.height);

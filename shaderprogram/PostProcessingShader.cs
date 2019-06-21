@@ -25,7 +25,7 @@ namespace Rasterizer
             uniform_blurTexture = GL.GetUniformLocation(programID, "uBloomBlurTexture");
             uniform_depthTexture = GL.GetUniformLocation(programID, "uDepthTexture");
 
-            Console.WriteLine("PostProcessing locations: " + attribute_position + " / " +
+            Console.WriteLine(GetType().Name + " locations: " + attribute_position + " / " +
                          attribute_uv + " / " + uniform_screenTexture + " / " + uniform_blurTexture
                          + " / " + uniform_depthTexture);
         }

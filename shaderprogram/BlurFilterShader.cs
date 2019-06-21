@@ -3,7 +3,7 @@ using System;
 
 namespace Rasterizer
 {
-    public class BoxFilterShader : PostProcessingShader
+    public class BlurFilterShader : PostProcessingShader
     {
         public int uniform_kernelWidth;
         public int uniform_isHorizontalPass;
@@ -20,7 +20,7 @@ namespace Rasterizer
 
             uniform_kernelWidth = GL.GetUniformLocation(programID, "uKernelWidth");
             uniform_isHorizontalPass = GL.GetUniformLocation(programID, "uHorizontalPass");
-            Console.WriteLine("Box Filter locations: " + uniform_kernelWidth + " / " + uniform_isHorizontalPass);
+            Console.WriteLine("\t" + GetType().Name + " EXT locations: " + uniform_kernelWidth + " / " + uniform_isHorizontalPass);
         }
     }
 }

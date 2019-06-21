@@ -70,7 +70,7 @@ namespace Rasterizer
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            Title = "FPS: " + (int)(1 / e.Time) + " Camera pos: " + MyApplication.camera.position;
+            Title = "FPS: " + (int)(1 / e.Time);
             float deltaTime = (float)e.Time;
 
             // called once per frame; render

@@ -21,7 +21,7 @@ namespace Rasterizer
             uniform_viewProjectionMatrix = GL.GetUniformLocation(programID, "viewProjection");
             uniform_skyboxCubeMap = GL.GetUniformLocation(programID, "uSkyboxCubeMap");
 
-            Console.WriteLine("SkyboxShader locations: " + attribute_position + " / " + uniform_viewProjectionMatrix
+            Console.WriteLine(GetType().Name + " locations: " + attribute_position + " / " + uniform_viewProjectionMatrix
                  + " / " + uniform_skyboxCubeMap);
         }
     }

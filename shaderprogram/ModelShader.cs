@@ -80,13 +80,12 @@ namespace Rasterizer
                                                         uniform_materialType
             );
 
-            Console.Write("    |>");
+            Console.Write("\t" + GetType().Name + " Arrays:");
             for (int i = 0; i < Consts.LightsCount; i++)
             {
                 uniform_depthCubes[i] = GL.GetUniformLocation(programID, "uDepthCube[" + i + "]");
                 Console.Write(" / " + uniform_depthCubes[i]);
             }
-            Console.Write(" -");
             for (int i = 0; i < Consts.LightsCount; i++)
             {
                 uniform_lightColor[i] = GL.GetUniformLocation(programID, "uLightColor[" + i + "]");

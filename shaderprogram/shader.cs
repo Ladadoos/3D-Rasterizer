@@ -70,10 +70,10 @@ namespace Rasterizer
             GL.UniformMatrix4(location, false, ref matrix);
         }
 
-        public void LoadTexture(int location, int textureUnit, int textureId, TextureTarget target = TextureTarget.Texture2D)
+        public void LoadTexture(int uniformLocation, int textureUnitLayout, int textureId, TextureTarget target = TextureTarget.Texture2D)
         {
-            GL.Uniform1(location, textureUnit);
-            GL.ActiveTexture(TextureUnit.Texture0 + textureUnit);
+            GL.Uniform1(uniformLocation, textureUnitLayout);
+            GL.ActiveTexture(TextureUnit.Texture0 + textureUnitLayout);
             GL.BindTexture(target, textureId);
         }
 

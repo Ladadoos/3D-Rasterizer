@@ -31,7 +31,7 @@ namespace Rasterizer
             uniform_lightPosition = GL.GetUniformLocation(programID, "uLightPosition");
             uniform_textureMap = GL.GetUniformLocation(programID, "uTextureMap");
 
-            Console.WriteLine("DepthShader locations: " + attribute_position + " / " +
+            Console.WriteLine(GetType().Name + " locations: " + attribute_position + " / " +
                          uniform_modelMatrix + " / " + uniform_viewProjectionMatrix + " / " + uniform_lightPosition
                          + " / " + attribute_uv);
         }
