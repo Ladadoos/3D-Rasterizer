@@ -14,6 +14,7 @@ namespace Rasterizer
     class MyApplication
     {
         private bool applyPostProcessing = true;
+        private bool enableDepthOfField = true;
 
         public Surface screen;      
         private ScreenQuad quad = new ScreenQuad(); 
@@ -21,6 +22,7 @@ namespace Rasterizer
         private SceneGraph sceneGraph = new SceneGraph();
         private Skybox skybox = new Skybox();
         private PointLight skylight, light2;
+        private Texture[] depthOfFieldBlurTextures = new Texture[3];
 
         //Models
         private Model dragon, sphere1, sphere2, centerBox, towerBoxBig, towerBoxSmall;
@@ -28,6 +30,7 @@ namespace Rasterizer
 
         //Frame buffer objects
         private RenderTarget verBlurFilterFBO, horBlurFilterFBO;
+        private RenderTarget depthOfFieldFBO;
         private RenderTarget multisampleScreenFBO, screenFBO;
 
         //Shaders
@@ -35,6 +38,7 @@ namespace Rasterizer
         private ModelShader modelShader = new ModelShader();
         private PostProcessingShader postProShader = new PostProcessingShader();
         private BlurFilterShader blurFilterShader = new BlurFilterShader();
+        private DepthOfFieldShader depthOfFieldShader = new DepthOfFieldShader();
 
         //Assets
         private List<Mesh> meshesAsset = new List<Mesh>();
@@ -42,6 +46,13 @@ namespace Rasterizer
 
         public void Initialize()
         {
+            if (enableDepthOfField)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    depthOfFieldBlurTextures[i] = new Texture(screen.width, screen.height);
+                }
+            }
 
             Random random = new Random();
 
@@ -112,8 +123,9 @@ namespace Rasterizer
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
             multisampleScreenFBO = new RenderTarget(3, screen.width, screen.height, 4);
-            verBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
-            horBlurFilterFBO = new RenderTarget(1, screen.width / 2, screen.height / 2);
+            verBlurFilterFBO = new RenderTarget(1, screen.width, screen.height);
+            horBlurFilterFBO = new RenderTarget(1, screen.width, screen.height);
+            depthOfFieldFBO = new RenderTarget(1, screen.width, screen.height);
 
             camera = new FPSCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
 
@@ -197,11 +209,12 @@ namespace Rasterizer
             sceneGraph.UpdateScene(camera);
             sceneGraph.RenderDepthMap(depthShader);
             sceneGraph.UpdateEnvironmentMaps(modelShader, skybox);
+
             if (applyPostProcessing)
             {
                 //Do first render pass to multisample fbo
-                GL.Viewport(0, 0, multisampleScreenFBO.width, multisampleScreenFBO.height);
                 multisampleScreenFBO.Bind();
+                GL.Viewport(0, 0, multisampleScreenFBO.width, multisampleScreenFBO.height);
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
                 skybox.Render(camera.GetViewMatrix().ClearTranslation() * camera.GetProjectionMatrix());
@@ -210,7 +223,7 @@ namespace Rasterizer
                 sceneGraph.RenderScene(camera, modelShader);
                 multisampleScreenFBO.Unbind();
 
-                //Resolve multisample
+                //Resolve multisample to normal fbo (non multisample) 
                 GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, multisampleScreenFBO.fbo);
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, screenFBO.fbo);
                 for(int i = 0; i < multisampleScreenFBO.colorTextures.Length; i++)
@@ -222,35 +235,99 @@ namespace Rasterizer
                 }
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-                //Apply blur to highlight texture from first render pass
-                GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
+                //Apply blur to texture with only the bright parts from first render pass
                 blurFilterShader.Bind();   
                 blurFilterShader.LoadInt32(blurFilterShader.uniform_kernelWidth, 5);
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     horBlurFilterFBO.Bind();
+                    GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
                     GL.Clear(ClearBufferMask.DepthBufferBit);
                     blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0, 
                         i == 0 ? screenFBO.GetTargetTextureId(1) : verBlurFilterFBO.GetTargetTextureId(0));
-
                     blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, true);
                     quad.Render(blurFilterShader);
 
                     verBlurFilterFBO.Bind();
+                    GL.Viewport(0, 0, verBlurFilterFBO.width, verBlurFilterFBO.height);
                     GL.Clear(ClearBufferMask.DepthBufferBit);
-                    blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0,
-                                            horBlurFilterFBO.GetTargetTextureId(0));
+                    blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0, horBlurFilterFBO.GetTargetTextureId(0));
                     blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, false);
                     quad.Render(blurFilterShader);
                 }
                 blurFilterShader.Unbind();
                 verBlurFilterFBO.Unbind();
 
+                //Copy the blurred texture with the highlighted parts to its original fbo to free up the blur fbo
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, verBlurFilterFBO.fbo);
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, screenFBO.fbo);
+                GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
+                GL.DrawBuffer(DrawBufferMode.ColorAttachment1);
+                GL.BlitFramebuffer(0, 0, verBlurFilterFBO.width, verBlurFilterFBO.height, 0, 0,
+                        screenFBO.width, screenFBO.height, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                if (enableDepthOfField)
+                {
+                    //Copy the normal rendered texture from first render pass to blur fbo
+                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, screenFBO.fbo);
+                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, verBlurFilterFBO.fbo);
+                    GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
+                    GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+                    GL.BlitFramebuffer(0, 0, screenFBO.width, screenFBO.height, 0, 0,
+                            verBlurFilterFBO.width, verBlurFilterFBO.height, ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                    //Generate three layers of blurred textures by continously storing the current blurred texture and applying extra layer of blur
+                    blurFilterShader.Bind();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        blurFilterShader.LoadInt32(blurFilterShader.uniform_kernelWidth, 3 + i * 2);
+
+                        horBlurFilterFBO.Bind();
+                        GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
+                        GL.Clear(ClearBufferMask.DepthBufferBit);
+                        blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0, verBlurFilterFBO.GetTargetTextureId(0));
+                        blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, true);
+                        quad.Render(blurFilterShader);
+
+                        verBlurFilterFBO.Bind();
+                        GL.Viewport(0, 0, verBlurFilterFBO.width, verBlurFilterFBO.height);
+                        GL.Clear(ClearBufferMask.DepthBufferBit);
+                        blurFilterShader.LoadTexture(blurFilterShader.uniform_screenTexture, 0, horBlurFilterFBO.GetTargetTextureId(0));
+                        blurFilterShader.LoadBoolean(blurFilterShader.uniform_isHorizontalPass, false);
+                        quad.Render(blurFilterShader);
+
+                        //Take snapshot of current blurred texture by storing it. Image is being taken from vertical blur fbo
+                        GL.BindTexture(TextureTarget.Texture2D, depthOfFieldBlurTextures[i].id);
+                        GL.CopyTexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 0, 0, verBlurFilterFBO.width, verBlurFilterFBO.height);
+                        GL.BindTexture(TextureTarget.Texture2D, 0);
+                    }
+                    blurFilterShader.Unbind();
+                    verBlurFilterFBO.Unbind();
+
+                    //Apply the depth of field effect on the original rendered texture
+                    depthOfFieldShader.Bind();
+                    depthOfFieldShader.LoadTexture(depthOfFieldShader.uniform_screenTexture, 0, screenFBO.GetTargetTextureId(0));
+                    depthOfFieldShader.LoadTexture(depthOfFieldShader.uniform_depthTexture, 1, screenFBO.GetTargetTextureId(2));
+                    depthOfFieldShader.LoadTexture(depthOfFieldShader.uniform_blurTextureOne, 2, depthOfFieldBlurTextures[0].id);
+                    depthOfFieldShader.LoadTexture(depthOfFieldShader.uniform_blurTextureTwo, 3, depthOfFieldBlurTextures[1].id);
+                    depthOfFieldShader.LoadTexture(depthOfFieldShader.uniform_blurTextureThree, 4, depthOfFieldBlurTextures[2].id);
+
+                    depthOfFieldFBO.Bind();
+                    GL.Viewport(0, 0, depthOfFieldFBO.width, depthOfFieldFBO.height);
+                    GL.Clear(ClearBufferMask.DepthBufferBit);
+                    quad.Render(depthOfFieldShader);
+                    depthOfFieldFBO.Unbind();
+                    depthOfFieldShader.Unbind();
+                }
+
                 //Render the final state of post processing
                 GL.Viewport(0, 0, screen.width, screen.height);
                 postProShader.Bind();
-                postProShader.LoadTexture(postProShader.uniform_screenTexture, 0, screenFBO.GetTargetTextureId(0));
-                postProShader.LoadTexture(postProShader.uniform_blurTexture, 1, verBlurFilterFBO.GetTargetTextureId(0));
+                postProShader.LoadTexture(postProShader.uniform_screenTexture, 0, 
+                    enableDepthOfField ? depthOfFieldFBO.GetTargetTextureId(0) : screenFBO.GetTargetTextureId(0));
+                postProShader.LoadTexture(postProShader.uniform_bloomBlurTexture, 1, screenFBO.GetTargetTextureId(1));
                 postProShader.LoadTexture(postProShader.uniform_depthTexture, 2, screenFBO.GetTargetTextureId(2));
                 quad.Render(postProShader);
                 postProShader.Unbind();

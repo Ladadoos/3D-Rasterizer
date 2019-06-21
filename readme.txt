@@ -18,3 +18,4 @@ interactive lights + - and rgb and numbers to select light
 godrays
 fog
 multi sample anti aliasing (MSAA): multi sample multi render target frame buffer objects. option to determine sample count
+depth of field

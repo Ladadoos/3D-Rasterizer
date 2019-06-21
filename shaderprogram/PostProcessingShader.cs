@@ -8,7 +8,7 @@ namespace Rasterizer
         public int attribute_position;
         public int attribute_uv;
         public int uniform_screenTexture;
-        public int uniform_blurTexture;
+        public int uniform_bloomBlurTexture;
         public int uniform_depthTexture;
 
         protected override void DefineShaderDirectories()
@@ -22,11 +22,11 @@ namespace Rasterizer
             attribute_position = GL.GetAttribLocation(programID, "iPosition");
             attribute_uv = GL.GetAttribLocation(programID, "iUV");
             uniform_screenTexture = GL.GetUniformLocation(programID, "uScreenTexture");
-            uniform_blurTexture = GL.GetUniformLocation(programID, "uBloomBlurTexture");
+            uniform_bloomBlurTexture = GL.GetUniformLocation(programID, "uBloomBlurTexture");
             uniform_depthTexture = GL.GetUniformLocation(programID, "uDepthTexture");
 
             Console.WriteLine(GetType().Name + " locations: " + attribute_position + " / " +
-                         attribute_uv + " / " + uniform_screenTexture + " / " + uniform_blurTexture
+                         attribute_uv + " / " + uniform_screenTexture + " / " + uniform_bloomBlurTexture
                          + " / " + uniform_depthTexture);
         }
     }

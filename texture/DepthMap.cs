@@ -36,8 +36,8 @@ namespace Rasterizer
         public void Bind()
         {
             GL.CullFace(CullFaceMode.Front);
-            GL.Viewport(0, 0, width, height);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, depthMapFBO);
+            GL.Viewport(0, 0, width, height);
             GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 

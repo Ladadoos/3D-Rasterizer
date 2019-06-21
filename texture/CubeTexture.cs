@@ -67,8 +67,8 @@ namespace Rasterizer
         public void Bind()
         {
             GL.CullFace(CullFaceMode.Front);
-            GL.Viewport(0, 0, width, height);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, cubeFBOId);
+            GL.Viewport(0, 0, width, height);
         }
 
         public void SetRenderSide(int side)

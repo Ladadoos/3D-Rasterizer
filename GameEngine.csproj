@@ -51,6 +51,7 @@
     <Compile Include="camera\TopDownCamera.cs" />
     <Compile Include="camera\ViewFrustum.cs" />
     <Compile Include="object\light\PointLight.cs" />
+    <Compile Include="shaderprogram\DepthOfFieldShader.cs" />
     <Compile Include="shaderprogram\BlurFilterShader.cs" />
     <Compile Include="texture\CubeDepthMap.cs" />
     <Compile Include="texture\DepthMap.cs" />
@@ -81,6 +82,7 @@
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="shaders\fs.glsl" />
+    <None Include="shaders\fs_depthOfField.glsl" />
     <None Include="shaders\fs_depth.glsl" />
     <None Include="shaders\fs_post.glsl" />
     <None Include="shaders\fs_skybox.glsl" />
