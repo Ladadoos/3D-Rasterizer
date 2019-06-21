@@ -26,10 +26,8 @@ namespace Rasterizer
         private PointLight skylight, light2;
 
         //Frame buffer objects
-        private RenderTarget verBlurFilterFBO;
-        private RenderTarget horBlurFilterFBO;
-        private RenderTarget multisampleScreenFBO;
-        private RenderTarget screenFBO;
+        private RenderTarget verBlurFilterFBO, horBlurFilterFBO;
+        private RenderTarget multisampleScreenFBO, screenFBO;
 
         //Shaders
         private DepthShader depthShader = new DepthShader();
@@ -77,9 +75,9 @@ namespace Rasterizer
             shinyBall = new Model(meshesAsset[3], texturesAsset[1], new Vector3(-70, 28, 70), new Vector3(0, 15, 0), new Vector3(16));
             tower = new Model(meshesAsset[7], texturesAsset[2], new Vector3(-90, 25, 0), new Vector3(0, 15, 0), new Vector3(9));
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 25; i++)
             {
-                if (random.Next(8) == 1)
+                if (random.Next(4) == 1)
                 {
                     int texture = random.Next(2) == 1 ? 9 : 10;
                     sceneGraph.gameObjects.Add(new Model(
@@ -194,9 +192,8 @@ namespace Rasterizer
                 camera.CalculateFrustumPlanes();
             }
             sceneGraph.UpdateScene(camera);
-            sceneGraph.RenderDepthMap(camera, depthShader);
-            sceneGraph.UpdateEnvironmentMaps(camera, modelShader, skybox);
-
+            sceneGraph.RenderDepthMap(depthShader);
+            sceneGraph.UpdateEnvironmentMaps(modelShader, skybox);
             if (applyPostProcessing)
             {
                 //Do first render pass to multisample fbo
@@ -222,7 +219,7 @@ namespace Rasterizer
                 }
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-                //Apply box blur to highlight texture from first render pass
+                //Apply blur to highlight texture from first render pass
                 GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
                 boxFilterShader.Bind();   
                 boxFilterShader.LoadInt32(boxFilterShader.uniform_kernelWidth, 5);

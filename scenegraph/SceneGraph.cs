@@ -68,7 +68,7 @@ namespace Rasterizer
             }
         }
 
-        public void UpdateEnvironmentMaps(Camera camera, ModelShader modelShader, Skybox skybox)
+        public void UpdateEnvironmentMaps(ModelShader modelShader, Skybox skybox)
         {
             modelShader.Bind();
             modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, pointLightProjection);
@@ -116,7 +116,7 @@ namespace Rasterizer
             }
         }
 
-        public void RenderDepthMap(Camera camera, DepthShader depthShader)
+        public void RenderDepthMap(DepthShader depthShader)
         {
             foreach (PointLight light in lights)
             {
@@ -137,13 +137,9 @@ namespace Rasterizer
             }
         }
 
-        public void RenderScene(Camera camera, ModelShader modelShader)
+        public void PrepareLightingInScene(ModelShader modelShader)
         {
-            modelShader.Bind();
             modelShader.LoadVector3(modelShader.uniform_ambientLightColor, new Vector3(0.001f));
-            modelShader.LoadVector3(modelShader.uniform_cameraPosition, camera.position);
-            modelShader.LoadMatrix(modelShader.uniform_viewMatrix, camera.GetViewMatrix());
-            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, camera.GetProjectionMatrix());
 
             for (int i = 0; i < lights.Count; i++)
             {
@@ -152,6 +148,15 @@ namespace Rasterizer
                 modelShader.LoadVector3(modelShader.uniform_lightPosition[i], lights[i].globalTransform.ExtractTranslation());
                 modelShader.LoadTexture(modelShader.uniform_depthCubes[i], 3 + i, lights[i].depthCube.cubeDepthMapId, TextureTarget.TextureCubeMap);
             }
+        }
+
+        public void RenderScene(Camera camera, ModelShader modelShader)
+        {
+            modelShader.Bind();
+            modelShader.LoadVector3(modelShader.uniform_cameraPosition, camera.position);
+            modelShader.LoadMatrix(modelShader.uniform_viewMatrix, camera.GetViewMatrix());
+            modelShader.LoadMatrix(modelShader.uniform_projectionMatrix, camera.GetProjectionMatrix());
+            PrepareLightingInScene(modelShader);
             modelShader.Unbind();
 
             foreach (GameObject gameObject in toRenderGameObjects)
