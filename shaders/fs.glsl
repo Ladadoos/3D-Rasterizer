@@ -2,17 +2,17 @@
  
 const int LightCount = 2; //Number of lights in our scene
 
-in vec2 uv;						// interpolated texture coordinates
-in vec4 normal;					// interpolated normal
+in vec2 uv;	//interpolated texture coordinates
+in vec4 normal;	//interpolated normal
 in vec4 fragmentPosition;       
-in mat3 tbnMatrix;
-flat in int useNormalMap;
+in mat3 tbnMatrix; //tangent, bitagent and normal matrix for normal calculations
+flat in int useNormalMap; //whether this object uses a normal map or not
 
-uniform sampler2D uTextureMap;	 // diffuse texture
-uniform sampler2D uNormalMap;    // normal texture
-uniform samplerCube uLocalEnvironmentMap;
-uniform samplerCube uDepthCube[LightCount];     // depth texture
-uniform float uShininess;
+uniform sampler2D uTextureMap; //diffuse texture
+uniform sampler2D uNormalMap; //normal texture
+uniform samplerCube uLocalEnvironmentMap; //cube texture for if the object is dieletric/reflective
+uniform samplerCube uDepthCube[LightCount]; //cube depth textures
+uniform float uShininess; //determines how shiny this material is
 uniform vec3 uAmbientLightColor;
 uniform vec3 uLightColor[LightCount];
 uniform vec3 uCameraPosition;
@@ -20,6 +20,7 @@ uniform vec3 uLightPosition[LightCount];
 uniform float uLightBrightness[LightCount];
 uniform int uIsLightTarget;
 uniform int uMaterialType;
+uniform int uEnableShadows;
 
 layout (location = 0) out vec4 outputFragColor;
 layout (location = 1) out vec4 outputBrightnessColor;
@@ -98,7 +99,10 @@ void main()
 		float spec = pow(max(dot(-toCameraDir, reflectDir), 0), uShininess);
 		vec3 specular = specularStrength * spec * uLightColor[i];
 
-		float shadowFactor = GetShadowFactor(norm, i, toLightDirection);
+		float shadowFactor = 0;
+		if(uEnableShadows == 1){
+			shadowFactor = GetShadowFactor(norm, i, toLightDirection);
+		}
 		lighting += (1.0 - shadowFactor) * (diffuse + specular) * lightAttenuation * uLightBrightness[i];
 	}
 

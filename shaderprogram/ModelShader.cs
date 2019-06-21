@@ -30,6 +30,7 @@ namespace Rasterizer
         public int uniform_isLightTarget;
         public int uniform_materialType;
         public int uniform_localEnvironmentMap;
+        public int uniform_enableShadows;
 
         protected override void DefineShaderDirectories()
         {
@@ -61,6 +62,7 @@ namespace Rasterizer
             uniform_isLightTarget = GL.GetUniformLocation(programID, "uIsLightTarget");
             uniform_materialType = GL.GetUniformLocation(programID, "uMaterialType");
             uniform_localEnvironmentMap = GL.GetUniformLocation(programID, "uLocalEnvironmentMap");
+            uniform_enableShadows = GL.GetUniformLocation(programID, "uEnableShadows");
 
             Console.WriteLine("ModelShader locations: " + attribute_position + " / " +
                                                         attribute_normal + " / " +
@@ -77,7 +79,8 @@ namespace Rasterizer
                                                         uniform_useNormalMap + " / " +
                                                         uniform_shininess + " / " +
                                                         uniform_localEnvironmentMap + " / " +
-                                                        uniform_materialType
+                                                        uniform_materialType + " / " +
+                                                        uniform_enableShadows
             );
 
             Console.Write("\t" + GetType().Name + " Arrays:");

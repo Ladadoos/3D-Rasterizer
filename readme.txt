@@ -1,21 +1,46 @@
-camera movement, rotation and zoom in and out. also included an FPS camera
-scenegraph
-improved shader class
-chromatic abberation and vignette
-smoothed shadows from pointlights using depthcubes. inter-object shadows and self-shadowing included
-improved mesh loading speed by reading meshes from file only once
-two different camera types: topdown and first person shooter (needed that FPS camera to be able to enjoy 3D at its fullest)
-skybox (cube map)
-option to use normal map on meshes
-supports multiple lights
-cube mapping
-frustum culling
-HDR glow
-seperable box and gaussian filter with variable kernel width
-multiple different kernel effects
-reflective and dielectric materials with textures
-interactive lights + - and rgb and numbers to select light
-godrays
-fog
-multi sample anti aliasing (MSAA): multi sample multi render target frame buffer objects. option to determine sample count
-depth of field
+Rasterizer by Dion Kamerman, 6410359
+
+Before I start my readme, I want to thank you guys (TA's and lecturers) for this awesome course. Best one so far and I am sad it needs to come to an end :/
+
+Features I added:
+- Player controlled camera:
+	- Top down camera: WASD to move, QE to rotate and mousewheel to zoom in and out
+	- First person camera: WASD to move and mouse to look around
+- Scenegraph as described in the requirements: objects can be children of other objects, which affects their global position. Lights can be added to scengraph too
+- Improved shader class. I knew I wanted to get into post processing, so splitting the shader code into seperate classes was a must
+- Pointlights using Phong shading model. 
+- Smoothed shadows from pointlights using depthcubes. My shadows cause inter-object shadows and self-shadowing
+- Colorful skybox using a cubemap
+- Option to use normal map on meshes. If no normal map is provided, then the normals from the .obj file are used
+- Support for multiple lights.
+- Cube mapping (environment maps, shadow maps, skybox etc...)
+- Frustum culling by creating bounding spheres around each object and checking if that bounding sphere is inside the view frustum or not
+- HDR rendertarget and HDR glow
+- Sepperable box and gaussian filter with variable kernel width
+- Reflective and dieletric materials with textures using environmental maps that update real time
+- Interactive lights:
+	- Press numbers 0 to 9 to select light 0 to 9 
+	- Press - or + to toggle between adding or subtracting to the color of the current selected light
+	- Press r, g or b to change the color of the selected light, depending on the mode (+ or -) currently selected
+- Multisample anti-aliasing (MSAA) on frame buffer objects. 
+	- The multiple different render targets on the frame buffer object used for the first render pass are set to 2x MSAA. Sample count can be changed.
+- Post processing effects:
+	- Chromatic abberation
+	- Vignette
+	- Color invert
+	- Fog by using the depth buffer
+	- Depth of field by using the depth buffer and three different levels of blurred images. 
+	- Small feature to be able to apply non-seperable filter kernels at the last step of post processing
+		- Two 5x5 filter kernels added as example
+	
+A few extra notes:
+- In MyApplication.cs there are a couple of toggleable settings. They are all (except depth of field) turned on by default. This includes:
+	- Enable postprocessing, enable depth of field, enable first person camera, enable shadows and enable bloom
+	(You are encouraged to enable depth of field and check it out)
+- In fs_blurFilter.glsl in the main function you can call applyBoxBlur() instead of applyGaussianBlur() to view a box blur. I made the standard blur gaussian because it looks better
+- I made the standard camera the first person camera, because only then you can admire the beauty (or I atleast hope you find it beautifull). But as mentioned before, this can be toggled (to meet the requirements)
+- I also tried to add per-object motion blur using velocity buffer. I got it semi-working at some point, but I wasn't fully satisfied with it so I just left it out.
+- Another feature I tried to add was screen space god rays. I added an (outdated) version of my project with godrays in it. They don't really work well, but if taken at a right angle a screenshot can still look like (see screenshots).
+- In fs_post.glsl there is a boolean to toggle fog and to change fog intensity. In the main function of this file you can also toggle chromatic abberation and other filter kernel effects.
+- I tested all my features on three different machines and it worked on all three. I hope it works for you too.
+- I included some awesome screenshots of my work, if I do say so myself. I am proud of them.

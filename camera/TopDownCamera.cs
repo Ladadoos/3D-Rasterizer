@@ -13,6 +13,7 @@ namespace Rasterizer
         public TopDownCamera(Vector3 position, float screenWidth, float screenHeight) : base(position, screenWidth, screenHeight)
         {
             pitch = -45F;
+            UpdateCameraSpace();
         }
 
         public override bool ProcessInput(OpenTKApp app, float deltaTime)
@@ -65,19 +66,24 @@ namespace Rasterizer
 
             if (inputGiven)
             {
-                if (yaw > 360) { yaw -= 360; }
-                if (yaw < 0) { yaw += 360; }
-                double pitchRad = pitch * Math.PI / 180;
-                double yawRad = yaw * Math.PI / 180;
-                double cosPitch = Math.Cos(pitchRad);
-                forward.X = (float)(cosPitch * Math.Cos(yawRad));
-                forward.Y = (float)(Math.Sin(pitchRad));
-                forward.Z = (float)(cosPitch * Math.Sin(yawRad));
-                forward.Normalize();
-                right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
+                UpdateCameraSpace();
             }
 
             return inputGiven;
+        }
+
+        private void UpdateCameraSpace()
+        {
+            if (yaw > 360) { yaw -= 360; }
+            if (yaw < 0) { yaw += 360; }
+            double pitchRad = pitch * Math.PI / 180;
+            double yawRad = yaw * Math.PI / 180;
+            double cosPitch = Math.Cos(pitchRad);
+            forward.X = (float)(cosPitch * Math.Cos(yawRad));
+            forward.Y = (float)(Math.Sin(pitchRad));
+            forward.Z = (float)(cosPitch * Math.Sin(yawRad));
+            forward.Normalize();
+            right = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, forward));
         }
     }
 }
