@@ -14,7 +14,7 @@ namespace Rasterizer
     class MyApplication
     {
         private bool enablePostProcessing = true;
-        private bool enableDepthOfField = true;
+        private bool enableDepthOfField = false;
         private bool enableFirstPersonCamera = true;
         private bool enableShadows = true;
         private bool enableBloom = true;

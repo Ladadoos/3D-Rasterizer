@@ -61,34 +61,32 @@ vec4 standard(){
 	return vec4(reinhardToneMapping(hdrColor.rgb), 1);
 }
 
-vec4 chromaticAbberation(vec4 color){
-	float dr = uv.s + 0.01; 
-	if(dr > 1){dr = uv.s;}
-
-	float dg = uv.s + 0.02; 
-	if(dg > 1){dg = uv.s;}
-
-	float db = uv.s + 0.03; 
-	if(db > 1){db = uv.s;}
-
-	return vec4(
-      (texture(uScreenTexture, vec2(dr, uv.t)).r + color.r) / 2, 
-      (texture(uScreenTexture, vec2(dg, uv.t)).g + color.g) / 2,
-      (texture(uScreenTexture, vec2(db, uv.t)).b + color.b) / 2,
-	  1
-	 );
+vec4 chromaticAbberation(vec4 color, float distToCenter, vec2 centerToFrag){
+	centerToFrag *= -1;
+	const float redOffset = 0.02;
+	const float greenOffset = 0.025;
+	const float blueOffset = 0.03;
+	float dr = uv.s + redOffset * distToCenter * centerToFrag.x; 
+	float dg = uv.s + greenOffset * distToCenter * centerToFrag.x; 
+	float db = uv.s + blueOffset * distToCenter * centerToFrag.x; 
+	float br = uv.t + redOffset * distToCenter * centerToFrag.y; 
+	float bg = uv.t + greenOffset * distToCenter * centerToFrag.y; 
+	float bb = uv.t + blueOffset * distToCenter * centerToFrag.y; 
+	float newRed = (texture(uScreenTexture, vec2(dr, br)).r + color.r) / 2;
+	float newGreen = (texture(uScreenTexture, vec2(dg, bg)).g + color.g) / 2;
+	float newBlue = (texture(uScreenTexture, vec2(db, bb)).b + color.b) / 2;
+	return vec4(newRed, newGreen, newBlue, 1);
 }
 
 vec4 invert(vec4 color){
 	return vec4(1 - color.r, 1 - color.g, 1 - color.b, 1);
 }
 
-vec4 vignette(vec4 color){
+vec4 vignette(vec4 color, float distToCenter){
 	const float innerDistance = 0.6;
 	const float outerDistance = 0.8;
 	const float blendFactor = 0.725;
-	vec2 relativeToCenter = gl_FragCoord.xy / textureSize(uScreenTexture, 0) - 0.5F; //screen coordinates
-	float vignette = smoothstep(outerDistance, innerDistance, length(relativeToCenter));
+	float vignette = smoothstep(outerDistance, innerDistance, distToCenter);
 	return vec4(mix(color.rgb, color.rgb * vignette, blendFactor), 1);
 }   
 
@@ -97,9 +95,13 @@ void main()
 	vec4 color = vec4(0);
 	color = standard();
 
+	vec2 texSize = textureSize(uScreenTexture, 0);
+	vec2 relativeToCenter = gl_FragCoord.xy / texSize - 0.5F;
+	float distToCenter = length(relativeToCenter);
+
 	//Uncomment the lines as you wish to create the special effects.
-	color = vignette(color);
-	//color = chromaticAbberation(color);
+	color = chromaticAbberation(color, distToCenter, relativeToCenter);
+		color = vignette(color, distToCenter);
 	//color = invert(color);
 	//color += applyKernelEffect(uScreenTexture, edgeKernel);
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);
