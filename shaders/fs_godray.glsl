@@ -11,9 +11,12 @@ out vec3 outputColor;
 void main()
 {
 	outputColor = texture(uScreenTexture, uv).xyz;
+	if(uLightPositionScreen.x < 0 || uLightPositionScreen.x > 1 || uLightPositionScreen.y < 0 || uLightPositionScreen.y > 1){
+		return;
+	}
 
-	float decay = 1;
-	float density = 2;
+	float decay = 0.98;
+	float density = 3;
 
 	vec2 toFragmentVec = uv - uLightPositionScreen;
 	toFragmentVec /= (100 * density);

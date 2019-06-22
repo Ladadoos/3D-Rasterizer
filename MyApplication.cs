@@ -91,7 +91,7 @@ namespace Template
             // skylight.color = new Vector3(1f, 0.5F, 0.1F); skylight.brightness = 70000;
             // skylight.CreateDepth(new CubeDepthMap(1024, 1024));
 
-            light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(1));
+            light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 105, 0), Vector3.Zero, new Vector3(5));
             light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 10000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
@@ -171,7 +171,6 @@ namespace Template
                                      * camera.GetViewMatrix() * camera.GetProjectionMatrix();
             Vector3 ndcSpacePos = clipSpacePos.Xyz / clipSpacePos.W;
             Vector2 screenSpace = ((ndcSpacePos.Xy + new Vector2(1)) / 2);
-
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
             GL.ClearColor(new Color4(0.01f, 0.01f, 0.01f, 1));
             GL.Clear(ClearBufferMask.ColorBufferBit);
