@@ -17,8 +17,10 @@ const float rangeThree = 0.3;
 
 void main()
 {
-	float depth = texture(uDepthTexture, uv).r;
+	float currentDepth = texture(uDepthTexture, uv).r;
+	float targetDepth = texture(uDepthTexture, vec2(0.5, 0.5)).r;
 
+	float depth = abs(targetDepth - currentDepth);
 	if(depth < rangeOne){
 		vec4 originalColor = texture(uScreenTexture, uv);
 		vec4 blurColor = texture(uBlurTextureOne, uv);

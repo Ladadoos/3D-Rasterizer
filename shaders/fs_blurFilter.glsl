@@ -22,15 +22,22 @@ void applyGaussianBlur(){
 	int halfWidth = uKernelWidth / 2;
 	outputColor = vec4(0);
 	int j = 0;
+	float sumWeights = 0;
 	if(uHorizontalPass == 0){
 		for(int i = -halfWidth; i <= halfWidth; i++){
-			outputColor += texture(uScreenTexture, uv + vec2(0, offset.y * i)) * gaussian(j++, halfWidth, 1);
+			float gaussian = gaussian(j++, halfWidth, 1);
+			sumWeights += gaussian;
+			outputColor += texture(uScreenTexture, uv + vec2(0, offset.y * i)) * gaussian;
 		}
 	}else{
 		for(int i = -halfWidth; i <= halfWidth; i++){
-			outputColor += texture(uScreenTexture, uv + vec2(offset.x * i, 0)) * gaussian(j++, halfWidth, 1);
+			float gaussian = gaussian(j++, halfWidth, 1);
+			sumWeights += gaussian;
+			outputColor += texture(uScreenTexture, uv + vec2(offset.x * i, 0)) * gaussian;
 		}
 	}
+	//divide by sum weights to fix darkening/brightening of image
+	outputColor /= sumWeights;
 }
 
 void applyBoxBlur(){
@@ -51,5 +58,5 @@ void applyBoxBlur(){
 
 void main()
 {
-	applyGaussianBlur();
+	applyBoxBlur();
 }

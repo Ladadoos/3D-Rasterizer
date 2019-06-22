@@ -101,7 +101,7 @@ void main()
 
 	//Uncomment the lines as you wish to create the special effects.
 	color = chromaticAbberation(color, distToCenter, relativeToCenter);
-		color = vignette(color, distToCenter);
+	color = vignette(color, distToCenter);
 	//color = invert(color);
 	//color += applyKernelEffect(uScreenTexture, edgeKernel);
 	//color += applyKernelEffect(uScreenTexture, sharpKernel);

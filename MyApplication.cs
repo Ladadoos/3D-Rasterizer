@@ -14,7 +14,7 @@ namespace Rasterizer
     class MyApplication
     {
         private bool enablePostProcessing = true;
-        private bool enableDepthOfField = false;
+        private bool enableDepthOfField = true;
         private bool enableFirstPersonCamera = true;
         private bool enableShadows = true;
         private bool enableBloom = true;
@@ -142,7 +142,6 @@ namespace Rasterizer
                 camera = new TopDownCamera(new Vector3(-100, 150, 0), screen.width, screen.height);
             }
             
-
             centerBox.AddChild(sphere2);
             sphere2.AddChild(sphere1);
 
