@@ -13,23 +13,24 @@ out vec4 outputColor;
 
 const float rangeOne = 0.1;
 const float rangeTwo = 0.2;
-const float rangeThree = 0.3;
 
 void main()
 {
-	float currentDepth = texture(uDepthTexture, uv).r;
+	float currentDepth = texture(uDepthTexture, uv).r;	
 	float targetDepth = texture(uDepthTexture, vec2(0.5, 0.5)).r;
+	float deltaDepth = abs(targetDepth - currentDepth);
 
-	float depth = abs(targetDepth - currentDepth);
-	if(depth < rangeOne){
+	if(deltaDepth <= rangeOne){
 		vec4 originalColor = texture(uScreenTexture, uv);
-		vec4 blurColor = texture(uBlurTextureOne, uv);
-		outputColor = mix(originalColor, blurColor, depth / rangeOne);
-	}else if(depth > rangeOne && depth < rangeTwo){
+		vec4 blurColorOne = texture(uBlurTextureOne, uv);
+		outputColor = mix(originalColor, blurColorOne, deltaDepth / rangeOne);
+	}else if(deltaDepth > rangeOne && deltaDepth <= rangeTwo){
+		vec4 blurColorOne = texture(uBlurTextureOne, uv);
+		vec4 blurColorTwo = texture(uBlurTextureTwo, uv);
+		outputColor = mix(blurColorOne, blurColorTwo, (deltaDepth - rangeOne) / (rangeTwo - rangeOne));
+	}else{				
 		vec4 blurColorTwo = texture(uBlurTextureTwo, uv);
 		vec4 blurColorThree = texture(uBlurTextureThree, uv);
-		outputColor = mix(blurColorTwo, blurColorThree, depth / rangeThree);
-	}else{
-		outputColor = texture(uBlurTextureThree, uv);
+		outputColor = mix(blurColorTwo, blurColorThree, min((deltaDepth - rangeTwo) / (1 - rangeTwo), 1));
 	}
 }
