@@ -58,5 +58,5 @@ void applyBoxBlur(){
 
 void main()
 {
-	applyBoxBlur();
+	applyGaussianBlur();
 }

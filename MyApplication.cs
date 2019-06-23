@@ -125,7 +125,7 @@ namespace Rasterizer
             skylight.color = new Vector3(1f, 0.5F, 0.1f); skylight.brightness = 70000;
             skylight.CreateDepth(new CubeDepthMap(1024, 1024));
             light2 = new PointLight(meshesAsset[3], texturesAsset[3], new Vector3(0, 155, 0), Vector3.Zero, new Vector3(4));
-            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 80000;
+            light2.color = new Vector3(1f, 0.5F, 0.1F); light2.brightness = 90000;
             light2.CreateDepth(new CubeDepthMap(512, 512));
 
             screenFBO = new RenderTarget(3, screen.width, screen.height);
@@ -255,7 +255,7 @@ namespace Rasterizer
                     //Apply blur to texture with only the bright parts from first render pass
                     blurFilterShader.Bind();
                     blurFilterShader.LoadInt32(blurFilterShader.uniform_kernelWidth, 5);
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         horBlurFilterFBO.Bind();
                         GL.Viewport(0, 0, horBlurFilterFBO.width, horBlurFilterFBO.height);
