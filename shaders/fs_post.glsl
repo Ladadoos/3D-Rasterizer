@@ -63,9 +63,9 @@ vec4 standard(){
 
 vec4 chromaticAbberation(vec4 color, float distToCenter, vec2 centerToFrag){
 	centerToFrag *= -1;
-	const float redOffset = 0.02;
-	const float greenOffset = 0.025;
-	const float blueOffset = 0.03;
+	const float redOffset = 0.03;
+	const float greenOffset = 0.01;
+	const float blueOffset = 0.04;
 	float dr = uv.s + redOffset * distToCenter * centerToFrag.x; 
 	float dg = uv.s + greenOffset * distToCenter * centerToFrag.x; 
 	float db = uv.s + blueOffset * distToCenter * centerToFrag.x; 

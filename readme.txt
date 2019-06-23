@@ -36,6 +36,7 @@ Features I added:
 A few extra notes:
 - In MyApplication.cs there are a couple of toggleable settings. They are all turned on by default. This includes:
 	- Enable postprocessing, enable depth of field, enable first person camera, enable shadows and enable bloom
+	- You can turn off Depth of field to see the chromatic abberation more clearly.
 - In fs_blurFilter.glsl in the main function you can call applyBoxBlur() instead of applyGaussianBlur() to view a box blur. I made the standard blur gaussian because it looks better
 - I made the standard camera the first person camera, because only then you can admire the beauty (or I atleast hope you find it beautiful) But as mentioned before, this can be toggled to top down camera (to meet the requirements)
 - I also tried to add per-object motion blur using velocity buffer. I got it semi-working at some point, but I wasn't fully satisfied with it so I just left it out.
