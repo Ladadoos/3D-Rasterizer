@@ -40,7 +40,7 @@ A few extra notes:
 - In fs_blurFilter.glsl in the main function you can call applyBoxBlur() instead of applyGaussianBlur() to view a box blur. I made the standard blur gaussian because it looks better
 - I made the standard camera the first person camera, because only then you can admire the beauty (or I atleast hope you find it beautiful) But as mentioned before, this can be toggled to top down camera (to meet the requirements)
 - I also tried to add per-object motion blur using velocity buffer. I got it semi-working at some point, but I wasn't fully satisfied with it so I just left it out.
-- Another feature I tried to add was screen space god rays. I added two screenshots of it. They work well enough if the screenshot is taken at a right angle. It's not included in the project because again, I didn't like how it worked enough.
+- Another feature I tried to add was screen space god rays. I added two screenshots of it. They work well enough if the screenshot is taken at a right angle. It's not included in the project because again, I didn't like how it worked enough. The overal visual fidelity of the image is less because I didn't have all the features I have now.
 - In fs_post.glsl there is a boolean to toggle fog and to change fog intensity. In the main function of this file you can also toggle (filter kernel) effects.
 - The reason the depth buffer isn't encoded in the alpha channel is because I was thinking of actually adding transparent objects, but got side tracked by other features.
 - I tested all my features on three different machines and it worked on all three. I hope it works for you too.
