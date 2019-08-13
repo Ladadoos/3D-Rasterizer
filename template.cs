@@ -5,22 +5,6 @@ using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-// The template provides you with a window which displays a 'linear frame buffer', i.e.
-// a 1D array of pixels that represents the graphical contents of the window.
-
-// Under the hood, this array is encapsulated in a 'Surface' object, and copied once per
-// frame to an OpenGL texture, which is then used to texture 2 triangles that exactly
-// cover the window. This is all handled automatically by the template code.
-
-// Before drawing the two triangles, the template calls the Tick method in MyApplication,
-// in which you are expected to modify the contents of the linear frame buffer.
-
-// After (or instead of) rendering the triangles you can add your own OpenGL code.
-
-// We will use both the pure pixel rendering as well as straight OpenGL code in the
-// tutorial. After the tutorial you can throw away this template code, or modify it at
-// will, or maybe it simply suits your needs.
-
 namespace Rasterizer
 {
     public class OpenTKApp : GameWindow
@@ -120,7 +104,7 @@ namespace Rasterizer
         public static void Main(string[] args)
         {
             // entry point
-            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US"); // thanks Mathijs
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             using (OpenTKApp app = new OpenTKApp()) { app.Run(60.0, 0.0); }
         }
     }

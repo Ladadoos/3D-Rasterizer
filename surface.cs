@@ -12,6 +12,7 @@ namespace Rasterizer
 		static bool fontReady = false;
 		static Surface font;
 		static int[] fontRedir;
+
 		// surface constructor
 		public Surface( int w, int h )
 		{
@@ -19,6 +20,7 @@ namespace Rasterizer
 			height = h;
 			pixels = new int[w * h];
 		}
+
 		// surface constructor using a file
 		public Surface( string fileName )
 		{
@@ -31,6 +33,7 @@ namespace Rasterizer
 			System.Runtime.InteropServices.Marshal.Copy( data.Scan0, pixels, 0, width * height );
 			bmp.UnlockBits( data );
 		}
+
 		// create an OpenGL texture
 		public int GenTexture()
 		{
@@ -41,11 +44,13 @@ namespace Rasterizer
 			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, pixels );
 			return id;
 		}
+
 		// clear the surface
 		public void Clear( int c )
 		{
 			for( int s = width * height, p = 0; p < s; p++ ) pixels[p] = c;
 		}
+
 		// copy the surface to another surface
 		public void CopyTo( Surface target, int x = 0, int y = 0 )
 		{
@@ -80,6 +85,7 @@ namespace Rasterizer
 				}
 			}
 		}
+
 		// draw a rectangle
 		public void Box( int x1, int y1, int x2, int y2, int c )
 		{
@@ -97,6 +103,7 @@ namespace Rasterizer
 				pixels[dest2 + x] = c;
 			}
 		}
+
 		// draw a solid bar
 		public void Bar( int x1, int y1, int x2, int y2, int c )
 		{
@@ -106,12 +113,14 @@ namespace Rasterizer
 					pixels[dest + x] = c;
 				}
 		}
+
 		// helper function for line clipping
 		int OUTCODE( int x, int y )
 		{
 			int xmin = 0, ymin = 0, xmax = width - 1, ymax = height - 1;
 			return (((x) < xmin) ? 1 : (((x) > xmax) ? 2 : 0)) + (((y) < ymin) ? 4 : (((y) > ymax) ? 8 : 0));
 		}
+
 		// draw a line, clipped to the window
 		public void Line( int x1, int y1, int x2, int y2, int c )
 		{
@@ -162,6 +171,7 @@ namespace Rasterizer
 				}
 			}
 		}
+
 		// plot a single pixel
 		public void Plot( int x, int y, int c )
 		{
@@ -170,6 +180,7 @@ namespace Rasterizer
 				pixels[x + y * width] = c;
 			}
 		}
+
 		// print a string
 		public void Print( string t, int x, int y, int c )
 		{
@@ -198,17 +209,20 @@ namespace Rasterizer
 			}
 		}
 	}
+
 	public class Sprite
 	{
 		Surface bitmap;
 		static public Surface target;
 		int textureID;
+
 		// sprite constructor
 		public Sprite( string fileName )
 		{
 			bitmap = new Surface( fileName );
 			textureID = bitmap.GenTexture();
 		}
+
 		// draw a sprite with scaling
 		public void Draw( float x, float y, float scale = 1.0f )
 		{
