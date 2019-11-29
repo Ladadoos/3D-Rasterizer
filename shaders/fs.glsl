@@ -24,7 +24,7 @@ uniform int uEnableShadows;
 
 layout (location = 0) out vec4 outputFragColor;
 layout (location = 1) out vec4 outputBrightnessColor;
-layout (location = 2) out vec4 outputDepth;
+layout (location = 2) out vec4 outputPositionDepth;
 
 const float ambientStrenght = 0.9;
 const float specularStrength = 0.8;
@@ -58,20 +58,22 @@ void CalculateBrightness(){
 
 void main()
 {
+    //If the alpha value is too small (aka is too transparent) then ignore this pixel
 	vec4 textureColor = texture(uTextureMap, uv);
 	if(textureColor.a < 0.5){
 		discard;
 	}
 
-	vec3 toCamera = uCameraPosition - fragmentPosition.xyz;
-	float toCameraDist = length(toCamera);
-	outputDepth = vec4(vec3(toCameraDist / 1000), 1);
-
+	//If the object we are rendering is a light, just draw the solid light color
 	if(uIsLightTarget != -1){
 		outputFragColor = vec4(uLightColor[uIsLightTarget] * 2, 1);
 		CalculateBrightness();
 		return;
 	}
+
+	vec3 toCamera = uCameraPosition - fragmentPosition.xyz;
+	float toCameraDist = length(toCamera);
+	outputPositionDepth = vec4(fragmentPosition.xyz, toCameraDist / 1000);
 
 	vec3 norm = normal.xyz;
 	if(useNormalMap == 1){

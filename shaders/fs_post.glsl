@@ -57,7 +57,7 @@ vec3 reinhardToneMapping(vec3 color){
 vec4 standard(){
     vec4 hdrColor = texture(uScreenTexture, uv);  
 	hdrColor.rgb += texture(uBloomBlurTexture, uv).rgb;
-	if(applyFog){hdrColor += vec4(texture(uDepthTexture, uv).rgb * fogIntensity, 0);}
+	if(applyFog){hdrColor += vec4(vec3(texture(uDepthTexture, uv).a * fogIntensity), 0);}
 	return vec4(reinhardToneMapping(hdrColor.rgb), 1);
 }
 

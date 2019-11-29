@@ -16,8 +16,8 @@ const float rangeTwo = 0.2;
 
 void main()
 {
-	float currentDepth = texture(uDepthTexture, uv).r;	
-	float targetDepth = texture(uDepthTexture, vec2(0.5, 0.5)).r;
+	float currentDepth = texture(uDepthTexture, uv).a;	
+	float targetDepth = texture(uDepthTexture, vec2(0.5, 0.5)).a;
 	float deltaDepth = abs(targetDepth - currentDepth);
 
 	if(deltaDepth <= rangeOne){
