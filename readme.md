@@ -1,5 +1,7 @@
 # 3D Rasterizer using OpenGL, C# and GLSL. 
 
+![](Images/image3.png)
+
 Features:
 - Player controlled camera:
 	- Top down camera: WASD to move, QE to rotate and mousewheel to zoom in and out
@@ -37,7 +39,7 @@ A few extra notes:
 - In fs_blurFilter.glsl in the main function you can call applyBoxBlur() instead of applyGaussianBlur() to view a box blur. I made the standard blur gaussian because it looks better
 - In fs_post.glsl there is a boolean to toggle fog and to change fog intensity. In the main function of this file you can also toggle (filter kernel) effects.
 
-![](Images/image3.png)
+![](Images/demo.gif)
 ![](Images/image4.png)
 ![](Images/image1.png)
 ![](Images/image2.png)
